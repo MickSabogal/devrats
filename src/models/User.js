@@ -18,7 +18,7 @@ const UserSchema = new Schema(
             type: String,
             required: [true, "Password is required"],
             minlength: [6, "Password must be at least 6 characters"],
-            select: false, // Avoid returning password by default
+            select: false, // do not return by default
         },
         avatar: {
             type: String,
@@ -35,6 +35,11 @@ const UserSchema = new Schema(
         activeGroup: {
             type: Schema.Types.ObjectId,
             ref: "Group",
+            default: null,
+        },
+        // 🔹 Para compatibilidad con OAuth (GitHub, Google, etc.)
+        image: {
+            type: String,
             default: null,
         },
     },
