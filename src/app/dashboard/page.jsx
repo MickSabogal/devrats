@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { IoMenu } from "react-icons/io5";
+import { IoMenuSharp } from "react-icons/io5";
 
 export default function Dashboard() {
   return (
@@ -10,7 +10,7 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex items-center -m-2">
           <a href="/" className="flex items-center justify-center w-10 h-10 ">
-            <IoMenu className="w-8 h-8 text-white " />
+            <IoMenuSharp className="w-8 h-8 text-white " />
           </a>
         </div>
         <h1 className="text-xl font-bold text-white my-2">DEVRATS</h1>{" "}
