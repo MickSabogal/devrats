@@ -4,21 +4,21 @@ const UserSchema = new Schema(
     {
         name: {
             type: String,
-            required: [true, "O nome é obrigatório"],
+            required: [true, "Name is required"],
             trim: true,
         },
         email: {
             type: String,
-            required: [true, "O email é obrigatório"],
+            required: [true, "Email is required"],
             unique: true,
             lowercase: true,
             trim: true,
         },
         password: {
             type: String,
-            required: [true, "A senha é obrigatória"],
-            minlength: [6, "A senha deve ter pelo menos 6 caracteres"],
-            select: false, // Avoid returning password by default
+            required: [true, "Password is required"],
+            minlength: [6, "Password must be at least 6 characters"],
+            select: false, // do not return by default
         },
         avatar: {
             type: String,
@@ -35,6 +35,11 @@ const UserSchema = new Schema(
         activeGroup: {
             type: Schema.Types.ObjectId,
             ref: "Group",
+            default: null,
+        },
+        // 🔹 Para compatibilidad con OAuth (GitHub, Google, etc.)
+        image: {
+            type: String,
             default: null,
         },
     },
