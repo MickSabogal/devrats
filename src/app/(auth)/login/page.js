@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -53,6 +52,7 @@ export default function Login() {
             Account created! Please log in.
           </div>
         )}
+
         {error && (
           <div className="mb-4 p-3 text-center text-red-400 bg-red-800/30 rounded">
             {error}
@@ -60,6 +60,9 @@ export default function Login() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Espaçamento invisível para igualar com a página de registro */}
+          <div className="h-[72px]"></div>
+
           <div>
             <label className="block text-sm font-semibold text-gray-400 uppercase mb-1">
               Email
