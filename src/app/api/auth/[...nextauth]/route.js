@@ -1,3 +1,4 @@
+// src/app/api/auth/[...nextauth]/route.js
 import NextAuth from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -19,18 +20,40 @@ export const authOptions = {
             name: "Credentials",
             credentials: { email: {}, password: {} },
             async authorize(credentials) {
-                await connectDB();
-                const user = await User.findOne({ email: credentials.email }).select("+password");
-                if (!user) throw new Error("User not found");
-                const isValid = await bcrypt.compare(credentials.password, user.password);
-                if (!isValid) throw new Error("Incorrect password");
-                return { id: user._id, name: user.name, email: user.email };
+                try {
+                    console.log("🔍 Tentando autenticar:", credentials.email);
+                    
+                    await connectDB();
+                    
+                    const user = await User.findOne({ email: credentials.email }).select("+password");
+                    
+                    if (!user) {
+                        console.log("❌ Usuário não encontrado:", credentials.email);
+                        throw new Error("User not found");
+                    }
+                    
+                    console.log("✅ Usuário encontrado:", user.email);
+                    
+                    const isValid = await bcrypt.compare(credentials.password, user.password);
+                    
+                    if (!isValid) {
+                        console.log("❌ Senha incorreta");
+                        throw new Error("Incorrect password");
+                    }
+                    
+                    console.log("✅ Senha correta! Login bem-sucedido");
+                    
+                    return { id: user._id.toString(), name: user.name, email: user.email };
+                } catch (error) {
+                    console.error("❌ Erro na autenticação:", error.message);
+                    throw error;
+                }
             },
         }),
     ],
 
     session: {
-        strategy: "database", 
+        strategy: "jwt",
         maxAge: 7 * 24 * 60 * 60, 
     },
 
@@ -39,6 +62,21 @@ export const authOptions = {
     },
 
     secret: process.env.NEXTAUTH_SECRET,
+    
+    callbacks: {
+        async jwt({ token, user }) {
+            if (user) {
+                token.id = user.id;
+            }
+            return token;
+        },
+        async session({ session, token }) {
+            if (token) {
+                session.user.id = token.id;
+            }
+            return session;
+        }
+    }
 };
 
 const handler = NextAuth(authOptions);
