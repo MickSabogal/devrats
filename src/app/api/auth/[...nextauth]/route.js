@@ -1,6 +1,7 @@
 // src/app/api/auth/[...nextauth]/route.js
 import NextAuth from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
+import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import clientPromise from "@/lib/mongodbClient";
@@ -16,6 +17,12 @@ export const authOptions = {
             clientId: process.env.GITHUB_ID,
             clientSecret: process.env.GITHUB_SECRET,
         }),
+        
+        GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        }),
+        
         CredentialsProvider({
             name: "Credentials",
             credentials: { email: {}, password: {} },
@@ -64,15 +71,19 @@ export const authOptions = {
     secret: process.env.NEXTAUTH_SECRET,
     
     callbacks: {
-        async jwt({ token, user }) {
+        async jwt({ token, user, account }) {
             if (user) {
                 token.id = user.id;
+            }
+            if (account) {
+                token.provider = account.provider;
             }
             return token;
         },
         async session({ session, token }) {
             if (token) {
                 session.user.id = token.id;
+                session.user.provider = token.provider;
             }
             return session;
         }
