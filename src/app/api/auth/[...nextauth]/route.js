@@ -30,8 +30,8 @@ export const authOptions = {
     ],
 
     session: {
-        strategy: "database", // Saving the session in the database
-        maxAge: 7 * 24 * 60 * 60, // Expiration of the session in 7 days
+        strategy: "database", 
+        maxAge: 7 * 24 * 60 * 60, 
     },
 
     pages: {
