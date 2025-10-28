@@ -13,16 +13,20 @@ const UserSchema = new Schema(
             unique: true,
             lowercase: true,
             trim: true,
+            index: true,
         },
         password: {
             type: String,
-            required: [true, "Password is required"],
             minlength: [6, "Password must be at least 6 characters"],
-            select: false, 
+            select: false,
         },
         avatar: {
             type: String,
             default: "/images/default-avatar.png",
+        },
+        image: {
+            type: String, 
+            default: null,
         },
         streak: {
             type: Number,
@@ -36,11 +40,6 @@ const UserSchema = new Schema(
             type: Schema.Types.ObjectId,
             ref: "Group",
             default: null,
-        },
-
-        image: {
-            type: String,
-            default: null, 
         },
     },
     { timestamps: true }
