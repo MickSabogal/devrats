@@ -60,7 +60,6 @@ export default function Login() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Espaçamento invisível para igualar com a página de registro */}
           <div className="h-[72px]"></div>
 
           <div>
