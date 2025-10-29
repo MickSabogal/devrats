@@ -1,4 +1,4 @@
-// src/components/profile/AvatarUpload.jsx
+
 "use client";
 
 import { useState } from "react";
@@ -17,7 +17,7 @@ export default function AvatarUpload({ user, onUpdate }) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validação básica
+
     if (!file.type.startsWith("image/")) {
       alert("Please select an image file");
       return;
