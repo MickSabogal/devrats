@@ -7,15 +7,12 @@ export async function POST(req) {
     try {
         await connectDB();
         const { name, email, password } = await req.json();
-
-        // Basic validations
         if (!name || !email || !password) {
             return NextResponse.json(
                 { message: "All fields are required" },
                 { status: 400 }
             );
         }
-
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return NextResponse.json(
@@ -32,7 +29,6 @@ export async function POST(req) {
             email,
             password: hashedPassword,
         });
-
         return NextResponse.json(
             { message: "User registered successfully", user: newUser },
             { status: 201 }
