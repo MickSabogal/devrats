@@ -69,7 +69,7 @@ export default function Dashboard() {
 
         {/* Sidebar */}
         <div
-          className={`absolute top-0 left-0 z-30 w-64 h-full bg-white dark:bg-[#1e2939] shadow-2xl transform transition-transform duration-300 ease-out ${
+          className={`absolute top-0 left-0 z-30 w-64 h-full bg-white dark:bg-secondary shadow-2xl transform transition-transform duration-300 ease-out ${
             isOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
