@@ -4,6 +4,13 @@
   --background: #ffffff;
   --foreground: #171717;
 }
+<<<<<<< Updated upstream
+=======
+@theme {
+  --color-primary: #0b111c;
+  --color-secondary: #1e2939
+}
+>>>>>>> Stashed changes
 
 @theme inline {
   --color-background: var(--background);
