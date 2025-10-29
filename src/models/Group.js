@@ -1,6 +1,3 @@
-module.exports = mongoose.models.Group || mongoose.model('Group', groupSchema);
-
-
 const mongoose = require('mongoose');
 const { Schema, Types } = mongoose;
 
