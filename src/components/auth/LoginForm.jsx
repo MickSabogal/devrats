@@ -1,6 +1,7 @@
-// src/components/auth/LoginForm.jsx
 "use client";
-import { useState } from "react";
+// src/components/auth/LoginForm.jsx
+
+import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -13,10 +14,31 @@ export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const registered = searchParams.get("registered");
+  const errorParam = searchParams.get("error");
+  
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(null);
+
+  useEffect(() => {
+    if (errorParam) {
+      const errorMessages = {
+        OAuthSignin: "Error connecting to OAuth provider. Please try again.",
+        OAuthCallback: "Error during authentication. Please try again.",
+        Configuration: "Server configuration error. Please contact support.",
+        AccessDenied: "Access denied. Please check your permissions.",
+        Verification: "Email verification failed. Please try again.",
+      };
+      
+      setError(errorMessages[errorParam] || "Authentication error. Please try again.");
+      
+      setTimeout(() => {
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, "", newUrl);
+      }, 100);
+    }
+  }, [errorParam]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,7 +55,7 @@ export default function LoginForm() {
       if (result.error) {
         setError(result.error);
       } else {
-        router.push("/dashboard");
+        router.push("/dashboard/home");
       }
     } catch {
       setError("Something went wrong");
@@ -43,13 +65,16 @@ export default function LoginForm() {
   };
 
   const handleOAuthSignIn = async (provider) => {
+    setError("");
     setOauthLoading(provider);
     try {
-      await signIn(provider, { callbackUrl: "/dashboard" });
+      await signIn(provider, { 
+        callbackUrl: "/dashboard/home",
+        redirect: true 
+      });
     } catch (error) {
       console.error("OAuth login failed:", error);
-      setError("OAuth login failed");
-    } finally {
+      setError("OAuth login failed. Please try again.");
       setOauthLoading(null);
     }
   };
