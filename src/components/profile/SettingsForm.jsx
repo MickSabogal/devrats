@@ -1,9 +1,9 @@
-// src/components/profile/SettingsForm.jsx
 "use client";
 
 import { useState } from "react";
 import { User, Mail, LogOut } from "lucide-react";
 import { signOut } from "next-auth/react";
+import AlertModal from "@/components/ui/AlertModal";
 
 export default function SettingsForm({ user, onUpdate }) {
   const [editing, setEditing] = useState({ name: false, email: false });
@@ -12,6 +12,11 @@ export default function SettingsForm({ user, onUpdate }) {
     email: user?.email || "",
   });
   const [saving, setSaving] = useState(false);
+  const [alert, setAlert] = useState({ isOpen: false, title: "", message: "", type: "info" });
+
+  const showAlert = (title, message, type = "info") => {
+    setAlert({ isOpen: true, title, message, type });
+  };
 
   const handleSave = async (field) => {
     setSaving(true);
@@ -25,18 +30,26 @@ export default function SettingsForm({ user, onUpdate }) {
       if (response.ok) {
         setEditing({ ...editing, [field]: false });
         onUpdate();
+<<<<<<< Updated upstream
       } else {
         alert("Failed to update");
+=======
+        showAlert("Success", `${field === 'name' ? 'Name' : 'Email'} updated successfully!`, "success");
+      } else {
+        const data = await response.json();
+        showAlert("Update Failed", data.message || "Failed to update", "error");
+>>>>>>> Stashed changes
       }
     } catch (error) {
       console.error("Update error:", error);
-      alert("Failed to update");
+      showAlert("Update Failed", "Failed to update", "error");
     } finally {
       setSaving(false);
     }
   };
 
   const handleSignOut = async () => {
+<<<<<<< Updated upstream
     await signOut({ callbackUrl: "/login" });
   };
 
@@ -67,9 +80,122 @@ export default function SettingsForm({ user, onUpdate }) {
               {user?.name}
             </p>
           )}
+=======
+    try {
+      await signOut({ 
+        callbackUrl: "/login",
+        redirect: true 
+      });
+    } catch (error) {
+      console.error("Sign out error:", error);
+      showAlert("Sign Out Failed", "Failed to sign out", "error");
+    }
+  };
+
+  return (
+    <>
+      <div className="space-y-4">
+        <div className="flex items-center gap-3 py-3 border-b border-gray-800">
+          <User className="w-5 h-5 text-gray-400" />
+          <div className="flex-1">
+            <p className="text-gray-400 text-sm">Name</p>
+            {editing.name ? (
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  className="flex-1 bg-transparent text-white outline-none border-b border-red-600"
+                  autoFocus
+                  disabled={saving}
+                />
+                <button
+                  onClick={() => handleSave("name")}
+                  disabled={saving || !formData.name.trim()}
+                  className="text-red-600 text-sm font-semibold hover:text-red-500 disabled:opacity-50"
+                >
+                  {saving ? "Saving..." : "Save"}
+                </button>
+                <button
+                  onClick={() => {
+                    setFormData({ ...formData, name: user?.name || "" });
+                    setEditing({ ...editing, name: false });
+                  }}
+                  disabled={saving}
+                  className="text-gray-400 text-sm hover:text-gray-300"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <p
+                className="text-white cursor-pointer hover:text-gray-300"
+                onClick={() => setEditing({ ...editing, name: true })}
+              >
+                {user?.name}
+              </p>
+            )}
+          </div>
+>>>>>>> Stashed changes
         </div>
+
+        <div className="flex items-center gap-3 py-3 border-b border-gray-800">
+          <Mail className="w-5 h-5 text-gray-400" />
+          <div className="flex-1">
+            <p className="text-gray-400 text-sm">Email</p>
+            {editing.email ? (
+              <div className="flex items-center gap-2">
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                  className="flex-1 bg-transparent text-white outline-none border-b border-red-600"
+                  autoFocus
+                  disabled={saving}
+                />
+                <button
+                  onClick={() => handleSave("email")}
+                  disabled={saving || !formData.email.trim()}
+                  className="text-red-600 text-sm font-semibold hover:text-red-500 disabled:opacity-50"
+                >
+                  {saving ? "Saving..." : "Save"}
+                </button>
+                <button
+                  onClick={() => {
+                    setFormData({ ...formData, email: user?.email || "" });
+                    setEditing({ ...editing, email: false });
+                  }}
+                  disabled={saving}
+                  className="text-gray-400 text-sm hover:text-gray-300"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <p
+                className="text-white cursor-pointer hover:text-gray-300"
+                onClick={() => setEditing({ ...editing, email: true })}
+              >
+                {user?.email}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <button
+          onClick={handleSignOut}
+          className="flex items-center gap-3 text-white hover:text-gray-300 transition py-3 w-full"
+        >
+          <LogOut className="w-5 h-5" />
+          <span className="font-medium">Sign out</span>
+        </button>
       </div>
 
+<<<<<<< Updated upstream
       {/* Email Field */}
       <div className="flex items-center gap-3 py-3 border-b border-gray-800">
         <Mail className="w-5 h-5 text-gray-400" />
@@ -88,5 +214,15 @@ export default function SettingsForm({ user, onUpdate }) {
         <span className="font-medium">Sign out</span>
       </button>
     </div>
+=======
+      <AlertModal
+        isOpen={alert.isOpen}
+        onClose={() => setAlert({ ...alert, isOpen: false })}
+        title={alert.title}
+        message={alert.message}
+        type={alert.type}
+      />
+    </>
+>>>>>>> Stashed changes
   );
 }
