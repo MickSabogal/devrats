@@ -1,119 +1,129 @@
-import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import { getServerSession } from "next-auth";
-import { authOptions } from "../../auth/[...nextauth]/route";
-import Group from "@/models/Group";
+import { NextResponse } from 'next/server';
+import connectDB from '@/lib/mongodb';
+import Group from '@/models/Group';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../../auth/[...nextauth]/route';
 
-export async function GET(request, { params }) {
-    try {
-        await connectDB();
-        const { id } = params;
+// GET — Get details of a single group
+export async function GET(req, { params }) {
+  try {
+    await connectDB();
+    const { id } = params;
 
-        const group = await Group.findById(id)
-            .populate("admin", "name email")
-            .populate("members.user", "name email");
+    const group = await Group.findById(id)
+      .populate('admin', 'name avatar')
+      .populate('members.user', 'name avatar');
 
-        if (!group) {
-            return NextResponse.json(
-                { success: false, message: "Grupo no encontrado" },
-                { status: 404 }
-            );
-        }
-
-        return NextResponse.json({ success: true, data: group }, { status: 200 });
-    } catch (error) {
-        console.error("Error en GET /api/group/[id]:", error);
-        return NextResponse.json(
-            { success: false, message: "Error al obtener el grupo", error: error.message },
-            { status: 500 }
-        );
+    if (!group) {
+      return NextResponse.json({ message: 'Group not found' }, { status: 404 });
     }
+
+    return NextResponse.json(group, { status: 200 });
+  } catch (err) {
+    console.error('GET /group/[id] error:', err);
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+  }
 }
 
-export async function PUT(request, { params }) {
-    try {
-        await connectDB();
-        const { id } = params;
+// PATCH — Update group info partially (or remove member)
+export async function PATCH(req, { params }) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user)
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
 
-        const session = await getServerSession(authOptions);
-        if (!session) {
-            return NextResponse.json(
-                { success: false, message: "No autenticado" },
-                { status: 401 }
-            );
-        }
-        const group = await Group.findById(id);
-        if (!group) {
-            return NextResponse.json(
-                { success: false, message: "Grupo no encontrado" },
-                { status: 404 }
-            );
-        }
-        if (group.admin.toString() !== session.user.id) {
-            return NextResponse.json(
-                { success: false, message: "No tienes permisos para editar este grupo" },
-                { status: 403 }
-            );
-        }
-        const body = await request.json();
-        const { name, description, coverPicture } = body;
-        if (name) group.name = name;
-        if (description) group.description = description;
-        if (coverPicture) group.coverPicture = coverPicture;
+    const userId = session.user.id;
+    const { id } = params;
+    const { name, description, coverPicture, action, memberId } = await req.json();
 
-        await group.save();
+    if (!id) return NextResponse.json({ message: 'Group ID required' }, { status: 400 });
 
-        return NextResponse.json(
-            { success: true, message: "Grupo actualizado correctamente", data: group },
-            { status: 200 }
-        );
-    } catch (error) {
-        console.error("Error en PUT /api/group/[id]:", error);
-        return NextResponse.json(
-            { success: false, message: "Error al actualizar el grupo", error: error.message },
-            { status: 500 }
-        );
+    await connectDB();
+
+    const group = await Group.findById(id);
+    if (!group) return NextResponse.json({ message: 'Group not found' }, { status: 404 });
+
+    if (group.admin.toString() !== userId)
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
+
+    if (!action) {
+      if (name) group.name = name;
+      if (description) group.description = description;
+      if (coverPicture) group.coverPicture = coverPicture;
     }
+
+    if (action === 'remove-member' && memberId) {
+      group.members = group.members.filter(m => m.user.toString() !== memberId);
+    }
+
+    await group.save();
+    await group.populate('admin', 'name avatar');
+    await group.populate('members.user', 'name avatar');
+
+    return NextResponse.json(group, { status: 200 });
+  } catch (err) {
+    console.error('PATCH /group/[id] error:', err);
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+  }
 }
 
-export async function DELETE(request, { params }) {
-    try {
-        await connectDB();
-        const { id } = params;
+// PUT — Add a member to the group
+export async function PUT(req, { params }) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user)
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
 
-        const session = await getServerSession(authOptions);
-        if (!session) {
-            return NextResponse.json(
-                { success: false, message: "No autenticado" },
-                { status: 401 }
-            );
-        }
+    const { id } = params;
+    const { memberId } = await req.json();
 
-        const group = await Group.findById(id);
-        if (!group) {
-            return NextResponse.json(
-                { success: false, message: "Grupo no encontrado" },
-                { status: 404 }
-            );
-        }
-        if (group.admin.toString() !== session.user.id) {
-            return NextResponse.json(
-                { success: false, message: "No tienes permisos para eliminar este grupo" },
-                { status: 403 }
-            );
-        }
+    if (!id || !memberId)
+      return NextResponse.json({ message: 'Group ID and memberId required' }, { status: 400 });
 
-        await group.deleteOne();
+    await connectDB();
 
-        return NextResponse.json(
-            { success: true, message: "Grupo eliminado correctamente" },
-            { status: 200 }
-        );
-    } catch (error) {
-        console.error("Error en DELETE /api/group/[id]:", error);
-        return NextResponse.json(
-            { success: false, message: "Error al eliminar el grupo", error: error.message },
-            { status: 500 }
-        );
-    }
+    const group = await Group.findById(id);
+    if (!group) return NextResponse.json({ message: 'Group not found' }, { status: 404 });
+
+    if (group.admin.toString() !== session.user.id)
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
+
+    if (group.members.some(m => m.user.toString() === memberId))
+      return NextResponse.json({ message: 'User already in group' }, { status: 400 });
+
+    group.members.push({ user: memberId, role: 'member' });
+    await group.save();
+    await group.populate('members.user', 'name avatar');
+
+    return NextResponse.json(group, { status: 200 });
+  } catch (err) {
+    console.error('PUT /group/[id] error:', err);
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+  }
+}
+
+// DELETE — Delete a group
+export async function DELETE(req, { params }) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user)
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+
+    const { id } = params;
+
+    await connectDB();
+
+    const group = await Group.findById(id);
+    if (!group) return NextResponse.json({ message: 'Group not found' }, { status: 404 });
+
+    if (group.admin.toString() !== session.user.id)
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
+
+    await group.deleteOne();
+
+    return NextResponse.json({ message: 'Group deleted successfully' }, { status: 200 });
+  } catch (err) {
+    console.error('DELETE /group/[id] error:', err);
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+  }
 }
