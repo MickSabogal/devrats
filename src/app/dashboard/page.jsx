@@ -7,8 +7,8 @@ import { TiPlus } from "react-icons/ti";
 
 export default function Dashboard() {
   return (
-    <div className="bg-primary min-h-screen pb-24">
-      <div className="max-w-md mx-auto relative px-6 pt-6">
+    <div className="bg-primary">
+      <div className="max-w-md mx-auto relative min-h-screen px-6 pt-6 pb-20">
         {/* Header */}
         <div className="flex items-center -m-2">
           <a href="/" className="flex items-center justify-center w-10 h-10 ">
@@ -73,9 +73,7 @@ export default function Dashboard() {
         </div>
 
         {/* Floating Action Button */}
-        <button
-          className="fixed bottom-6 right-6 bg-white text-primary text-3xl w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform duration-200"
-        >
+        <button className="absolute bottom-6 right-6 bg-white text-primary text-3xl w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform duration-200">
           <TiPlus />
         </button>
       </div>

@@ -53,8 +53,8 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0b111c] p-6">
-      <div className="w-full max-w-md bg-[#0b111c] rounded-2xl p-12">
+    <div className="min-h-screen flex items-center justify-center bg-primary p-6">
+      <div className="w-full max-w-md bg-primary rounded-2xl p-12">
         <div className="flex justify-center mb-6">
           <img
             src="/images/logo_devrats.png"

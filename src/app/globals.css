@@ -5,8 +5,8 @@
   --foreground: #171717;
 }
 @theme {
-  --color-primary: #0B111D;
-  --color-secondary: #1c1c1e
+  --color-primary: #0B111c;
+  --color-secondary: #1e2939
 }
 
 @theme inline {
