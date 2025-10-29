@@ -10,7 +10,7 @@ export default function Dashboard() {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
 
-  // Buscar dados do usuário quando o componente carregar
+  // Fetch user data when component mounts
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -28,7 +28,7 @@ export default function Dashboard() {
   return (
     <div className="bg-primary">
       <div className="max-w-md mx-auto relative min-h-screen px-6 pt-6 pb-20 overflow-hidden">
-        {/* Overlay — fecha ao clicar fora */}
+        {/* Overlay — closes when clicking outside */}
         {isOpen && (
           <div
             onClick={() => setIsOpen(false)}
@@ -49,7 +49,7 @@ export default function Dashboard() {
           <ul className="font-medium">
             <li>
               <Link
-                href="/profile"
+                href="/dashboard/profile"
                 className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 <div className="flex items-center gap-1">
@@ -57,6 +57,7 @@ export default function Dashboard() {
                     src={user?.avatar || "/mock.png"}
                     alt="User profile pic"
                     className="w-8 h-8 rounded-full object-cover object-center"
+                    onError={(e) => { e.currentTarget.src = "/mock.png"; }}
                   />
                   <p className="text-sm">{user?.name || "Guilherme França"}</p>
                 </div>
@@ -69,8 +70,9 @@ export default function Dashboard() {
               >
                 <img
                   src="/banner.png"
-                  alt="ainda será trocada"
+                  alt="to be replaced"
                   className="w-8 h-8 rounded-full"
+                  onError={(e) => { e.currentTarget.src = "/mock.png"; }}
                 />
                 <p className="ml-3">DevRatinhos</p>
               </Link>
@@ -82,8 +84,9 @@ export default function Dashboard() {
               >
                 <img
                   src="/banner.png"
-                  alt="ainda será trocada"
+                  alt="to be replaced"
                   className="w-8 h-8 rounded-full"
+                  onError={(e) => { e.currentTarget.src = "/mock.png"; }}
                 />
                 <p className="ml-3">DevRatinhos 2</p>
               </Link>
@@ -112,6 +115,7 @@ export default function Dashboard() {
               src="/banner.png"
               alt="banner of the group"
               className="rounded-t-xl w-full h-auto"
+              onError={(e) => { e.currentTarget.src = "/mock.png"; }}
             />
             <div className="flex justify-center gap-16 p-2">
               <div className="flex items-center">
@@ -119,6 +123,7 @@ export default function Dashboard() {
                   src="/mock.png"
                   alt="leader profile pic"
                   className="rounded-full w-6 h-6"
+                  onError={(e) => { e.currentTarget.src = "/mock.png"; }}
                 />
                 <div className="ml-2">
                   <p className="text-xs">2</p>
@@ -131,6 +136,7 @@ export default function Dashboard() {
                   src={user?.avatar || "/mock.png"}
                   alt="your profile pic"
                   className="rounded-full w-6 h-6"
+                  onError={(e) => { e.currentTarget.src = "/mock.png"; }}
                 />
                 <div className="ml-2">
                   <p className="text-xs">{user?.streak || 0}</p>
@@ -150,6 +156,7 @@ export default function Dashboard() {
               src="/banner.png"
               alt="event picture"
               className="w-14 h-14 rounded-full"
+              onError={(e) => { e.currentTarget.src = "/avatar.png"; }}
             />
             <div className="ml-2 w-full">
               <p className="text-sm font-sans mb-2">DevRats Brainstorming</p>
@@ -159,6 +166,7 @@ export default function Dashboard() {
                     src={user?.avatar || "/mock.png"}
                     alt="event hero"
                     className="w-6 h-6 rounded-full"
+                    onError={(e) => { e.currentTarget.src = "/avatar.png"; }}
                   />
                   <p className="text-xs ml-1">
                     {user?.name || "Guilherme França"}

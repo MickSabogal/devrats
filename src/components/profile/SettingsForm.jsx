@@ -17,7 +17,7 @@ export default function SettingsForm({ user, onUpdate }) {
     setSaving(true);
     try {
       const response = await fetch("/api/users/me", {
-        method: "PATCH",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ [field]: formData[field] }),
       });
@@ -25,8 +25,10 @@ export default function SettingsForm({ user, onUpdate }) {
       if (response.ok) {
         setEditing({ ...editing, [field]: false });
         onUpdate();
+        alert(`${field === 'name' ? 'Name' : 'Email'} updated successfully!`);
       } else {
-        alert("Failed to update");
+        const data = await response.json();
+        alert(data.message || "Failed to update");
       }
     } catch (error) {
       console.error("Update error:", error);
@@ -37,7 +39,15 @@ export default function SettingsForm({ user, onUpdate }) {
   };
 
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: "/login" });
+    try {
+      await signOut({ 
+        callbackUrl: "/login",
+        redirect: true 
+      });
+    } catch (error) {
+      console.error("Sign out error:", error);
+      alert("Failed to sign out");
+    }
   };
 
   return (
@@ -48,17 +58,35 @@ export default function SettingsForm({ user, onUpdate }) {
         <div className="flex-1">
           <p className="text-gray-400 text-sm">Name</p>
           {editing.name ? (
-            <input
-              type="text"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-              className="w-full bg-transparent text-white outline-none"
-              autoFocus
-              onBlur={() => handleSave("name")}
-              onKeyDown={(e) => e.key === "Enter" && handleSave("name")}
-            />
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+                className="flex-1 bg-transparent text-white outline-none border-b border-red-600"
+                autoFocus
+                disabled={saving}
+              />
+              <button
+                onClick={() => handleSave("name")}
+                disabled={saving || !formData.name.trim()}
+                className="text-red-600 text-sm font-semibold hover:text-red-500 disabled:opacity-50"
+              >
+                {saving ? "Saving..." : "Save"}
+              </button>
+              <button
+                onClick={() => {
+                  setFormData({ ...formData, name: user?.name || "" });
+                  setEditing({ ...editing, name: false });
+                }}
+                disabled={saving}
+                className="text-gray-400 text-sm hover:text-gray-300"
+              >
+                Cancel
+              </button>
+            </div>
           ) : (
             <p
               className="text-white cursor-pointer hover:text-gray-300"
@@ -75,7 +103,44 @@ export default function SettingsForm({ user, onUpdate }) {
         <Mail className="w-5 h-5 text-gray-400" />
         <div className="flex-1">
           <p className="text-gray-400 text-sm">Email</p>
-          <p className="text-white">{user?.email}</p>
+          {editing.email ? (
+            <div className="flex items-center gap-2">
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
+                className="flex-1 bg-transparent text-white outline-none border-b border-red-600"
+                autoFocus
+                disabled={saving}
+              />
+              <button
+                onClick={() => handleSave("email")}
+                disabled={saving || !formData.email.trim()}
+                className="text-red-600 text-sm font-semibold hover:text-red-500 disabled:opacity-50"
+              >
+                {saving ? "Saving..." : "Save"}
+              </button>
+              <button
+                onClick={() => {
+                  setFormData({ ...formData, email: user?.email || "" });
+                  setEditing({ ...editing, email: false });
+                }}
+                disabled={saving}
+                className="text-gray-400 text-sm hover:text-gray-300"
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <p
+              className="text-white cursor-pointer hover:text-gray-300"
+              onClick={() => setEditing({ ...editing, email: true })}
+            >
+              {user?.email}
+            </p>
+          )}
         </div>
       </div>
 
