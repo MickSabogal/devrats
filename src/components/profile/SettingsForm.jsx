@@ -22,7 +22,7 @@ export default function SettingsForm({ user, onUpdate }) {
     setSaving(true);
     try {
       const response = await fetch("/api/users/me", {
-        method: "PATCH",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ [field]: formData[field] }),
       });
@@ -30,27 +30,10 @@ export default function SettingsForm({ user, onUpdate }) {
       if (response.ok) {
         setEditing({ ...editing, [field]: false });
         onUpdate();
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      } else {
-        alert("Failed to update");
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
         showAlert("Success", `${field === 'name' ? 'Name' : 'Email'} updated successfully!`, "success");
       } else {
         const data = await response.json();
         showAlert("Update Failed", data.message || "Failed to update", "error");
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
       }
     } catch (error) {
       console.error("Update error:", error);
@@ -61,40 +44,6 @@ export default function SettingsForm({ user, onUpdate }) {
   };
 
   const handleSignOut = async () => {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-    await signOut({ callbackUrl: "/login" });
-  };
-
-  return (
-    <div className="space-y-4">
-      {/* Name Field */}
-      <div className="flex items-center gap-3 py-3 border-b border-gray-800">
-        <User className="w-5 h-5 text-gray-400" />
-        <div className="flex-1">
-          <p className="text-gray-400 text-sm">Name</p>
-          {editing.name ? (
-            <input
-              type="text"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-              className="w-full bg-transparent text-white outline-none"
-              autoFocus
-              onBlur={() => handleSave("name")}
-              onKeyDown={(e) => e.key === "Enter" && handleSave("name")}
-            />
-          ) : (
-            <p
-              className="text-white cursor-pointer hover:text-gray-300"
-              onClick={() => setEditing({ ...editing, name: true })}
-            >
-              {user?.name}
-            </p>
-          )}
-=======
     try {
       await signOut({ 
         callbackUrl: "/login",
@@ -107,34 +56,6 @@ export default function SettingsForm({ user, onUpdate }) {
   };
 
   return (
-=======
-    try {
-      await signOut({ 
-        callbackUrl: "/login",
-        redirect: true 
-      });
-    } catch (error) {
-      console.error("Sign out error:", error);
-      showAlert("Sign Out Failed", "Failed to sign out", "error");
-    }
-  };
-
-  return (
->>>>>>> Stashed changes
-=======
-    try {
-      await signOut({ 
-        callbackUrl: "/login",
-        redirect: true 
-      });
-    } catch (error) {
-      console.error("Sign out error:", error);
-      showAlert("Sign Out Failed", "Failed to sign out", "error");
-    }
-  };
-
-  return (
->>>>>>> Stashed changes
     <>
       <div className="space-y-4">
         <div className="flex items-center gap-3 py-3 border-b border-gray-800">
@@ -180,13 +101,6 @@ export default function SettingsForm({ user, onUpdate }) {
               </p>
             )}
           </div>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
         </div>
 
         <div className="flex items-center gap-3 py-3 border-b border-gray-800">
@@ -243,32 +157,6 @@ export default function SettingsForm({ user, onUpdate }) {
         </button>
       </div>
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      {/* Email Field */}
-      <div className="flex items-center gap-3 py-3 border-b border-gray-800">
-        <Mail className="w-5 h-5 text-gray-400" />
-        <div className="flex-1">
-          <p className="text-gray-400 text-sm">Email</p>
-          <p className="text-white">{user?.email}</p>
-        </div>
-      </div>
-
-      {/* Sign Out */}
-      <button
-        onClick={handleSignOut}
-        className="flex items-center gap-3 text-white hover:text-gray-300 transition py-3 w-full"
-      >
-        <LogOut className="w-5 h-5" />
-        <span className="font-medium">Sign out</span>
-      </button>
-    </div>
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
       <AlertModal
         isOpen={alert.isOpen}
         onClose={() => setAlert({ ...alert, isOpen: false })}
@@ -277,12 +165,5 @@ export default function SettingsForm({ user, onUpdate }) {
         type={alert.type}
       />
     </>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
   );
 }

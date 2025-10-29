@@ -38,11 +38,11 @@ export default function DeleteAccountModal({ onClose, onConfirm }) {
       <div className="bg-gray-900 rounded-2xl p-6 max-w-sm w-full">
         {/* Icon */}
         <div className="flex justify-center mb-4">
-          <div className="w-12 h-12 rounded-full bg-red-600 bg-opacity-20 flex items-center justify-center">
+          <div className="w-15 h-15 rounded-full bg-red-600 flex items-center justify-center">
             <svg
-              className="w-6 h-6 text-red-500"
+              className="w-10 h-10"
               fill="none"
-              stroke="currentColor"
+              stroke="white"
               viewBox="0 0 24 24"
             >
               <path
@@ -69,7 +69,8 @@ export default function DeleteAccountModal({ onClose, onConfirm }) {
         {/* Confirmation Input */}
         <div className="mb-6">
           <label className="block text-gray-400 text-sm mb-2">
-            Type <span className="text-white font-semibold">DELETE</span> to confirm
+            Type <span className="text-white font-semibold">DELETE</span> to
+            confirm
           </label>
           <input
             type="text"

@@ -37,6 +37,7 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated }) {
       
       setImageFile(file);
       
+      // Criar preview com URL.createObjectURL (mais rápido)
       const previewUrl = URL.createObjectURL(file);
       setImagePreview(previewUrl);
     }
@@ -61,6 +62,7 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated }) {
       repoLink: ""
     });
     
+    // Limpar URL do preview
     if (imagePreview) {
       URL.revokeObjectURL(imagePreview);
     }
@@ -77,6 +79,7 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated }) {
     try {
       let imageBase64 = null;
       
+      // Converter imagem para base64 apenas no envio
       if (imageFile) {
         imageBase64 = await new Promise((resolve, reject) => {
           const reader = new FileReader();

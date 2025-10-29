@@ -1,13 +1,5 @@
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 // src/components/profile/AvatarUpload.jsx
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+
 "use client";
 
 import { useState } from "react";
@@ -32,16 +24,6 @@ export default function AvatarUpload({ user, onUpdate }) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-    // Validação básica
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
     if (!file.type.startsWith("image/")) {
       showAlert("Invalid File", "Please select an image file", "error");
       return;
