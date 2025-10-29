@@ -9,8 +9,8 @@ export default async function Home() {
   console.log("🔍 Session check:", session ? "Authenticated" : "Not authenticated");
 
   if (session) {
-    console.log("✅ Redirecting to dashboard");
-    redirect("/dashboard");
+    console.log("✅ Redirecting to dashboard/home");
+    redirect("/dashboard/home");
   } else {
     console.log("❌ Redirecting to login");
     redirect("/login");
