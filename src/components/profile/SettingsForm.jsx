@@ -32,9 +32,12 @@ export default function SettingsForm({ user, onUpdate }) {
         onUpdate();
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       } else {
         alert("Failed to update");
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
         showAlert("Success", `${field === 'name' ? 'Name' : 'Email'} updated successfully!`, "success");
@@ -42,6 +45,9 @@ export default function SettingsForm({ user, onUpdate }) {
         const data = await response.json();
         showAlert("Update Failed", data.message || "Failed to update", "error");
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -55,6 +61,7 @@ export default function SettingsForm({ user, onUpdate }) {
   };
 
   const handleSignOut = async () => {
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
     await signOut({ callbackUrl: "/login" });
@@ -100,6 +107,20 @@ export default function SettingsForm({ user, onUpdate }) {
   };
 
   return (
+=======
+    try {
+      await signOut({ 
+        callbackUrl: "/login",
+        redirect: true 
+      });
+    } catch (error) {
+      console.error("Sign out error:", error);
+      showAlert("Sign Out Failed", "Failed to sign out", "error");
+    }
+  };
+
+  return (
+>>>>>>> Stashed changes
 =======
     try {
       await signOut({ 
@@ -160,6 +181,9 @@ export default function SettingsForm({ user, onUpdate }) {
             )}
           </div>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -221,6 +245,7 @@ export default function SettingsForm({ user, onUpdate }) {
 
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       {/* Email Field */}
       <div className="flex items-center gap-3 py-3 border-b border-gray-800">
         <Mail className="w-5 h-5 text-gray-400" />
@@ -242,6 +267,8 @@ export default function SettingsForm({ user, onUpdate }) {
 =======
 =======
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
       <AlertModal
         isOpen={alert.isOpen}
         onClose={() => setAlert({ ...alert, isOpen: false })}
@@ -251,6 +278,9 @@ export default function SettingsForm({ user, onUpdate }) {
       />
     </>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes

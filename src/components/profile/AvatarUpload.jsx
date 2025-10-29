@@ -1,6 +1,9 @@
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 // src/components/profile/AvatarUpload.jsx
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======
@@ -31,7 +34,10 @@ export default function AvatarUpload({ user, onUpdate }) {
 
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     // Validação básica
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======
