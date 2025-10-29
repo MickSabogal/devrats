@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { IoClose, IoSettingsOutline, IoAddCircleOutline, IoTrophy } from "react-icons/io5";
 import { HiUserGroup } from "react-icons/hi";
-import Avatar from "./Avatar";
+import Avatar from "./UserAvatar";
 
 export default function Sidebar({ isOpen, onClose, user }) {
   return (

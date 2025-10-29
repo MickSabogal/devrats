@@ -55,7 +55,7 @@ export default function LoginForm() {
       if (result.error) {
         setError(result.error);
       } else {
-        router.push("/dashboard");
+        router.push("/dashboard/home");
       }
     } catch {
       setError("Something went wrong");
@@ -69,7 +69,7 @@ export default function LoginForm() {
     setOauthLoading(provider);
     try {
       await signIn(provider, { 
-        callbackUrl: "/dashboard",
+        callbackUrl: "/dashboard/home",
         redirect: true 
       });
     } catch (error) {

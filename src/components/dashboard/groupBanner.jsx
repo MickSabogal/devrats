@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Avatar from "./Avatar";
+import Avatar from "./UserAvatar";
 
 export default function GroupBanner({ user }) {
   return (
