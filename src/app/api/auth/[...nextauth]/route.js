@@ -12,16 +12,20 @@ export const authOptions = {
     adapter: MongoDBAdapter(clientPromise),
     secret: process.env.NEXTAUTH_SECRET,
     pages: { signIn: "/login" },
+    
+    allowDangerousEmailAccountLinking: true,
 
     providers: [
         GitHubProvider({
             clientId: process.env.GITHUB_ID,
             clientSecret: process.env.GITHUB_SECRET,
+            allowDangerousEmailAccountLinking: true,
         }),
 
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            allowDangerousEmailAccountLinking: true,
         }),
 
         CredentialsProvider({
@@ -49,72 +53,100 @@ export const authOptions = {
         }),
     ],
 
-    session: { strategy: "jwt", maxAge: 7 * 24 * 60 * 60 }, // 7 días
+    session: { strategy: "jwt", maxAge: 7 * 24 * 60 * 60 },
 
     callbacks: {
         async signIn({ user, account, profile }) {
             try {
                 if (account?.provider === "github" || account?.provider === "google") {
                     await connectDB();
+                    
                     let mongoUser = await User.findOne({ email: user.email });
+                    
                     if (!mongoUser) {
-                        mongoUser = await User.create({
-                            name: user.name || profile?.name || "User",
+                        const userData = {
+                            name: user.name || profile?.name || profile?.login || "User",
                             email: user.email,
-                            avatar:
-                                user.image || profile?.avatar_url || "/images/default-avatar.png",
-                            image: user.image || profile?.avatar_url,
+                            avatar: user.image || profile?.avatar_url || profile?.picture || "/images/default-avatar.png",
+                            image: user.image || profile?.avatar_url || profile?.picture,
                             streak: 0,
                             lastPostDate: null,
                             activeGroup: null,
-                        });
-                        console.log("✅ Nuevo usuario OAuth creado:", mongoUser.email);
+                        };
+
+                        mongoUser = await User.create(userData);
+                        console.log("✅ Novo usuário OAuth criado:", mongoUser.email);
                     } else {
                         const newImage = user.image || profile?.avatar_url || profile?.picture;
                         if (newImage && mongoUser.avatar !== newImage) {
                             mongoUser.avatar = newImage;
                             mongoUser.image = newImage;
-                            await mongoUser.save();
-                            console.log("🔁 Avatar actualizado para:", mongoUser.email);
                         }
+                        
+                        if (!mongoUser.name || mongoUser.name === "User") {
+                            mongoUser.name = user.name || profile?.name || profile?.login || mongoUser.name;
+                        }
+                        
+                        await mongoUser.save();
+                        console.log("✅ Usuário OAuth existente logou:", mongoUser.email);
                     }
+                    
                     user.id = mongoUser._id.toString();
+                    user.mongoId = mongoUser._id.toString();
                 }
                 return true;
             } catch (error) {
-                console.error("❌ Error en signIn callback:", error);
-                return false;
+                console.error("❌ Error em signIn callback:", error);
+                return true;
             }
         },
 
         async jwt({ token, user, account, profile }) {
             if (user) {
-                token.id = user.id;
+                token.id = user.mongoId || user.id;
                 token.image = user.image;
+                token.provider = account?.provider;
             }
-            if (account) token.provider = account.provider;
-            if (profile?.avatar_url) token.image = profile.avatar_url;
+            
+            if (profile?.avatar_url) {
+                token.image = profile.avatar_url;
+            }
+            if (profile?.picture) {
+                token.image = profile.picture;
+            }
+            
             return token;
         },
 
         async session({ session, token }) {
             if (token?.id) {
-                await connectDB();
-                const mongoUser = await User.findById(token.id).select("-password");
+                try {
+                    await connectDB();
+                    const mongoUser = await User.findById(token.id).select("-password");
 
-                if (mongoUser) {
-                    session.user.id = mongoUser._id.toString();
-                    session.user.name = mongoUser.name;
-                    session.user.email = mongoUser.email;
-                    session.user.avatar = mongoUser.avatar;
-                    session.user.image = mongoUser.avatar || mongoUser.image;
-                    session.user.streak = mongoUser.streak;
-                    session.user.activeGroup = mongoUser.activeGroup;
+                    if (mongoUser) {
+                        session.user.id = mongoUser._id.toString();
+                        session.user.name = mongoUser.name;
+                        session.user.email = mongoUser.email;
+                        session.user.avatar = mongoUser.avatar;
+                        session.user.image = mongoUser.avatar || mongoUser.image;
+                        session.user.streak = mongoUser.streak;
+                        session.user.activeGroup = mongoUser.activeGroup;
+                    } else {
+                        session.user.id = token.id;
+                        session.user.image = token.image;
+                    }
+                } catch (error) {
+                    console.error("❌ Error na session callback:", error);
+                    session.user.id = token.id;
+                    session.user.image = token.image;
                 }
             }
             return session;
         },
     },
+
+    debug: process.env.NODE_ENV === "development",
 };
 
 const handler = NextAuth(authOptions);
