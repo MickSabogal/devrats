@@ -47,7 +47,9 @@ export default function LoginForm() {
     try {
       await signIn(provider, { callbackUrl: "/dashboard" });
     } catch (error) {
+      console.error("OAuth login failed:", error);
       setError("OAuth login failed");
+    } finally {
       setOauthLoading(null);
     }
   };
