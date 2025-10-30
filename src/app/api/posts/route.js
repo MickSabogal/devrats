@@ -1,25 +1,33 @@
-import { NextResponse } from "next/server"; 
+import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Post from "@/models/Post";
 
-export async function GET(req, { params }) {
+export async function POST(req) {
     try {
         await connectDB();
 
-        const { id } = params;
+        const body = await req.json();
+        const { group, user, imageUrl, caption, technology, description, startTime } = body;
 
-        const post = await Post.findById(id)
-            .populate("user", "name avatar") // shows user info
-            .populate("group", "name");  // if we need it shows group name
-
-        if (!post) {
-            return NextResponse.json({ error: "Post not found" }, {status:404 });
+        if (!group || !user || !imageUrl) {
+            return NextResponse.json(
+                {error: "group, user, and imageUrl are required."},
+                { status: 400 }
+            );
         }
 
-        return NextResponse.json(post, { status: 200});
+        const newPost = await Post.create({
+            group,
+            user,
+            imageUrl,
+            caption: caption || "",
+            technology: technology || null,
+            description: description || "",
+            startTime: startTime || null,
+        });
 
-    } catch (error) {
-
-        return NextResponse.json({ error: error.message }, {status: 500});
+        return NextResponse.json(newPost, {status: 201});
+    } catch (err) {
+        return NextResponse.json({ error: err.message }, {status: 500 });
     }
 }
