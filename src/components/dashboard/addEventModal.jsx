@@ -188,15 +188,7 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated }) {
                       <span className="text-sm text-gray-600 dark:text-gray-400">Camera</span>
                     </button>
                     
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={isLoading}
-                      className="flex-1 flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-primary dark:hover:border-white transition-colors disabled:opacity-50"
-                    >
-                      <IoImage className="w-8 h-8 text-gray-400 dark:text-gray-500" />
-                      <span className="text-sm text-gray-600 dark:text-gray-400">Upload</span>
-                    </button>
+                    
                   </div>
                 )}
                 
@@ -205,14 +197,6 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated }) {
                   type="file"
                   accept="image/*"
                   capture="environment"
-                  onChange={handleImageChange}
-                  disabled={isLoading}
-                  className="hidden"
-                />
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
                   onChange={handleImageChange}
                   disabled={isLoading}
                   className="hidden"
