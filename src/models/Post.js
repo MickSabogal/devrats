@@ -1,3 +1,4 @@
+// src/models/Post.js
 import mongoose, { Schema, models, Types } from "mongoose";
 
 const PostSchema = new Schema(
@@ -34,6 +35,11 @@ const PostSchema = new Schema(
       type: String,
       default: "",
       trim: true,
+    },
+    duration: {
+      type: Number,
+      default: 0,
+      min: 0,
     },
     metrics: {
       commitLines: {

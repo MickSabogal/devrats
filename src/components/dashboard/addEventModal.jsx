@@ -1,3 +1,4 @@
+// src/components/dashboard/addEventModal.jsx
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
@@ -7,6 +8,7 @@ import {
   IoCalendar,
   IoLocation,
   IoGitBranch,
+  IoTime,
 } from "react-icons/io5";
 import AlertModal from "@/components/ui/AlertModal";
 
@@ -20,6 +22,7 @@ export default function AddEventModal({
   const [imageFile, setImageFile] = useState(null);
   const [showMetrics, setShowMetrics] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showDurationPicker, setShowDurationPicker] = useState(false);
   const [alert, setAlert] = useState({
     isOpen: false,
     title: "",
@@ -29,8 +32,9 @@ export default function AddEventModal({
   const [formData, setFormData] = useState({
     title: "",
     content: "",
-    eventDate: new Date().toISOString().slice(0, 16),
+    eventDate: new Date().toISOString().split("T")[0],
     location: "",
+    duration: 0, // em minutos
     commitLines: "",
     activityDescription: "",
     repoLink: "",
@@ -41,6 +45,7 @@ export default function AddEventModal({
       setAlert({ isOpen: false, title: "", message: "", type: "info" });
     }
   }, [isOpen]);
+
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
 
@@ -74,12 +79,30 @@ export default function AddEventModal({
     }));
   };
 
+  const handleDurationChange = (hours, minutes) => {
+    const totalMinutes = hours * 60 + minutes;
+    setFormData((prev) => ({
+      ...prev,
+      duration: totalMinutes,
+    }));
+  };
+
+  const formatDuration = (minutes) => {
+    if (minutes === 0) return "Select duration";
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours === 0) return `${mins}m`;
+    if (mins === 0) return `${hours}h`;
+    return `${hours}h ${mins}m`;
+  };
+
   const resetForm = () => {
     setFormData({
       title: "",
       content: "",
-      eventDate: new Date().toISOString().slice(0, 16),
+      eventDate: new Date().toISOString().split("T")[0],
       location: "",
+      duration: 0,
       commitLines: "",
       activityDescription: "",
       repoLink: "",
@@ -92,6 +115,7 @@ export default function AddEventModal({
     setImagePreview(null);
     setImageFile(null);
     setShowMetrics(false);
+    setShowDurationPicker(false);
   };
 
   const handleSubmit = async (e) => {
@@ -99,6 +123,11 @@ export default function AddEventModal({
 
     if (!groupId) {
       showAlert("Error", "No group selected", "error");
+      return;
+    }
+
+    if (formData.duration === 0) {
+      showAlert("Error", "Please select a study duration", "error");
       return;
     }
 
@@ -120,11 +149,11 @@ export default function AddEventModal({
         title: formData.title,
         content: formData.content,
         image: imageBase64,
-        eventDate: formData.eventDate,
+        eventDate: new Date(formData.eventDate).toISOString(),
         location: formData.location,
+        duration: formData.duration,
       };
 
-      // Only add metrics if at least one field is filled
       if (
         showMetrics &&
         (formData.commitLines ||
@@ -305,18 +334,81 @@ export default function AddEventModal({
                   className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2"
                 >
                   <IoCalendar className="w-4 h-4" />
-                  Date & Time *
+                  Date (Today Only)
                 </label>
                 <input
                   id="eventDate"
                   name="eventDate"
-                  type="datetime-local"
-                  required
+                  type="date"
                   value={formData.eventDate}
-                  onChange={handleInputChange}
-                  disabled={isLoading}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0B111c] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary dark:focus:ring-white focus:border-transparent outline-none transition-all disabled:opacity-50"
+                  disabled
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 cursor-not-allowed opacity-60"
                 />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                  <IoTime className="w-4 h-4" />
+                  Study Duration *
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowDurationPicker(!showDurationPicker)}
+                  disabled={isLoading}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0B111c] text-gray-900 dark:text-white text-left focus:ring-2 focus:ring-primary dark:focus:ring-white focus:border-transparent outline-none transition-all disabled:opacity-50"
+                >
+                  {formatDuration(formData.duration)}
+                </button>
+
+                {showDurationPicker && (
+                  <div className="p-4 bg-gray-50 dark:bg-[#0B111c] rounded-lg border border-gray-300 dark:border-gray-600">
+                    <div className="flex gap-4 items-center justify-center">
+                      <div className="flex flex-col items-center">
+                        <label className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                          Hours
+                        </label>
+                        <select
+                          value={Math.floor(formData.duration / 60)}
+                          onChange={(e) =>
+                            handleDurationChange(
+                              parseInt(e.target.value),
+                              formData.duration % 60
+                            )
+                          }
+                          className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#1e2939] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary dark:focus:ring-white outline-none"
+                        >
+                          {[...Array(13)].map((_, i) => (
+                            <option key={i} value={i}>
+                              {i}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="flex flex-col items-center">
+                        <label className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                          Minutes
+                        </label>
+                        <select
+                          value={formData.duration % 60}
+                          onChange={(e) =>
+                            handleDurationChange(
+                              Math.floor(formData.duration / 60),
+                              parseInt(e.target.value)
+                            )
+                          }
+                          className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#1e2939] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary dark:focus:ring-white outline-none"
+                        >
+                          {[0, 15, 30, 45].map((min) => (
+                            <option key={min} value={min}>
+                              {min}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">

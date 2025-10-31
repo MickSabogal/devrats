@@ -1,3 +1,4 @@
+// src/components/profile/ActivityCalendar.jsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -31,11 +32,16 @@ export default function ActivityCalendar({ userId }) {
             monthName: currentDate.toLocaleDateString('en-US', { month: 'long' })
           });
 
-          // ✅ FIX: Handle both date formats
+          // ✅ Pega todos os dias com atividade EXCETO o dia de hoje
+          const today = new Date();
+          const todayStr = today.toISOString().split('T')[0];
+
           const daysInCurrentMonth = Object.keys(data.activity || {})
             .filter((dateString) => {
-              // Parse date correctly
-              const date = new Date(dateString + 'T00:00:00'); // Add time to avoid timezone issues
+              // Ignora o dia de hoje - ele sempre mostra o ratinho
+              if (dateString === todayStr) return false;
+
+              const date = new Date(dateString + 'T00:00:00');
               
               console.log("🔍 Checking date:", {
                 dateString,
@@ -53,7 +59,7 @@ export default function ActivityCalendar({ userId }) {
             .map((dateString) => {
               const date = new Date(dateString + 'T00:00:00');
               const day = date.getDate();
-              console.log("✅ Marked day:", day, "from", dateString);
+              console.log("⭐ Marked day:", day, "from", dateString);
               return day;
             });
 
@@ -62,7 +68,8 @@ export default function ActivityCalendar({ userId }) {
             activityDates: Object.keys(data.activity || {}),
             daysInCurrentMonth,
             currentMonth,
-            currentYear
+            currentYear,
+            todayExcluded: todayStr
           });
 
           setActivityDays(daysInCurrentMonth);
@@ -250,19 +257,16 @@ export default function ActivityCalendar({ userId }) {
                   className={`w-full aspect-square flex flex-col items-center justify-center rounded-lg shadow-lg shadow-black/30 relative overflow-hidden
                     ${day === null ? "invisible" : ""}
                     ${activityDays.includes(day) ? "golden-border" : ""}
-                    ${
-                      isToday(day) && !activityDays.includes(day)
-                        ? "ring-2 ring-amber-400 bg-primary"
-                        : ""
-                    }
+                    ${isToday(day) ? "ring-2 ring-amber-400 bg-primary" : ""}
                     bg-gray-700`}
                 >
                   {day && (
                     <>
-                      {activityDays.includes(day) && (
+                      {/* ⭐ ESTRELINHA: Só aparece em dias PASSADOS com atividade */}
+                      {activityDays.includes(day) && !isToday(day) && (
                         <div className="w-full h-full p-2">
                           <Image
-                            src="/images/fire.png"
+                            src="/images/star.png"
                             alt="Activity"
                             width={64}
                             height={64}
@@ -270,7 +274,9 @@ export default function ActivityCalendar({ userId }) {
                           />
                         </div>
                       )}
-                      {isToday(day) && !activityDays.includes(day) && (
+                      
+                      {/* 🐭 RATINHO: SEMPRE aparece no dia de HOJE */}
+                      {isToday(day) && (
                         <div className="w-full h-full p-2">
                           <Image
                             src="/images/today.png"
@@ -281,6 +287,8 @@ export default function ActivityCalendar({ userId }) {
                           />
                         </div>
                       )}
+                      
+                      {/* 🔢 NÚMERO: Só mostra se não tem atividade e não é hoje */}
                       {!activityDays.includes(day) && !isToday(day) && (
                         <span className="text-gray-400 text-xs">{day}</span>
                       )}
