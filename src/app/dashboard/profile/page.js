@@ -37,6 +37,18 @@ export default function ProfilePage() {
     }
   };
 
+  // Divide o nome em palavras
+  const getNameLines = (name) => {
+    const words = name?.split(" ") || [];
+    if (words.length === 1) return [words[0], ""];
+    const midPoint = Math.ceil(words.length / 2);
+    const firstLine = words.slice(0, midPoint).join(" ");
+    const secondLine = words.slice(midPoint).join(" ");
+    return [firstLine, secondLine];
+  };
+
+  const [firstName, lastName] = getNameLines(user?.name);
+
   if (loading || !user) {
     return (
       <div className="min-h-screen bg-primary flex items-center justify-center">
@@ -48,11 +60,11 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-primary">
       <div className="max-w-md mx-auto">
-        <div className="relative rounded-b-3xl overflow-hidden pb-30">
+        <div className="relative bg-secondary rounded-b-3xl overflow-hidden pb-30">
           <img
-            src="/images/background.png"
+            src="/images/cheese.png"
             alt="Background pattern"
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute top-0 right-0 w-2/3 object-contain pointer-events-none select-none"
           />
 
           <div className="relative z-10 flex items-center justify-between p-4">
@@ -73,7 +85,16 @@ export default function ProfilePage() {
 
           <div className="relative z-10 px-6 mt-8 text-left">
             <p className="text-white/80 text-sm mb-6">Welcome back!</p>
-            <h1 className="text-white text-3xl font-bold">{user?.name}</h1>
+            <div className="w-24">
+              <h1 className="text-white text-xl font-bold leading-tight">
+                {firstName}
+              </h1>
+              {lastName && (
+                <h1 className="text-white text-xl font-bold leading-tight">
+                  {lastName}
+                </h1>
+              )}
+            </div>
           </div>
         </div>
 
@@ -87,7 +108,10 @@ export default function ProfilePage() {
           </div>
 
           <div className="mt-15">
-            <ActivityCalendar userId={user._id} lastPostDate={user.lastPostDate} />
+            <ActivityCalendar
+              userId={user._id}
+              lastPostDate={user.lastPostDate}
+            />
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 export default function ActivityCalendar({ userId }) {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -89,7 +90,7 @@ export default function ActivityCalendar({ userId }) {
 
   return (
     <div>
-      {/* Headder */}
+      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={goToPreviousMonth}
@@ -138,18 +139,40 @@ export default function ActivityCalendar({ userId }) {
                 <div
                   key={index}
                   className={`
-                    aspect-square flex items-center justify-center rounded-lg text-sm shadow-lg shadow-black/30
+                    aspect-square flex items-center justify-center rounded-lg shadow-lg shadow-black/30
                     ${day === null ? "invisible" : ""}
-                    ${
-                      activityDays.includes(day)
-                        ? "bg-green-600 text-white font-semibold"
-                        : isToday(day)
-                        ? "bg-blue-600 text-white font-semibold"
-                        : "bg-gray-700 text-gray-400"
-                    }
+                    bg-gray-700
                   `}
                 >
-                  {day}
+                  {day && (
+                    <>
+                      {activityDays.includes(day) ? (
+                        <div className="w-full h-full p-2 flex items-center justify-center">
+                          <Image
+                            src="/images/fire.png"
+                            alt="Activity"
+                            width={32}
+                            height={32}
+                            className="object-contain"
+                          />
+                        </div>
+                      ) : isToday(day) ? (
+                        <div className="w-full h-full p-2 flex items-center justify-center">
+                          <Image
+                            src="/images/today.png"
+                            alt="Today"
+                            width={32}
+                            height={32}
+                            className="object-contain"
+                          />
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 text-sm">
+                          {day}
+                        </span>
+                      )}
+                    </>
+                  )}
                 </div>
               ))}
             </div>
@@ -159,11 +182,27 @@ export default function ActivityCalendar({ userId }) {
         {/* Subtitle */}
         <div className="flex items-center justify-center gap-4 mt-4 text-xs">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded bg-green-600"></div>
+            <div className="w-4 h-4 relative">
+              <Image
+                src="/images/fire.png"
+                alt="Activity"
+                width={16}
+                height={16}
+                className="object-contain"
+              />
+            </div>
             <span className="text-gray-400">Activity</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded bg-blue-600"></div>
+            <div className="w-4 h-4 relative">
+              <Image
+                src="/images/today.png"
+                alt="Today"
+                width={16}
+                height={16}
+                className="object-contain"
+              />
+            </div>
             <span className="text-gray-400">Today</span>
           </div>
           <div className="flex items-center gap-2">
