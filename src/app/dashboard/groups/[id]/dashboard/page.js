@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { TiPlus } from "react-icons/ti";
 import { BiMenuAltLeft } from "react-icons/bi";
 import Sidebar from "@/components/dashboard/sideBar";
@@ -9,52 +10,82 @@ import GroupBanner from "@/components/dashboard/GroupBanner";
 import EventCard from "@/components/dashboard/eventCard";
 import AddEventModal from "@/components/dashboard/addEventModal";
 
-export default function Dashboard() {
+export default function GroupDashboard() {
+  const params = useParams();
+  const router = useRouter();
+  const groupId = params.id;
+
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const [groups, setGroups] = useState([]);
-  const [selectedGroup, setSelectedGroup] = useState(null);
+  const [group, setGroup] = useState(null);
   const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  // Fetch user on mount
   useEffect(() => {
-    const fetchUserAndGroups = async () => {
+    const fetchUser = async () => {
       try {
-        // Pega usuário logado
-        const resUser = await fetch("/api/users/me");
-        const dataUser = await resUser.json();
-        setUser(dataUser.user);
-
-        // Pega grupos do usuário
-        const resGroups = await fetch("/api/group");
-        const groupsData = await resGroups.json();
-
-        if (Array.isArray(groupsData) && groupsData.length > 0) {
-          setGroups(groupsData);
-          setSelectedGroup(groupsData[0]); // Seleciona o primeiro grupo
-        }
-      } catch (error) {
-        console.error("Erro ao buscar usuário ou grupos:", error);
-      }
-    };
-
-    const fetchPosts = async () => {
-      try {
-        const res = await fetch("/api/post");
+        const res = await fetch("/api/users/me");
         const data = await res.json();
-        if (data.success) setPosts(data.data);
+        setUser(data.user);
       } catch (error) {
-        console.error("Erro ao buscar posts:", error);
+        console.error("Error fetching user:", error);
       }
     };
 
-    fetchUserAndGroups();
-    fetchPosts();
+    fetchUser();
   }, []);
 
+  // Fetch specific group and its posts
+  useEffect(() => {
+    const fetchGroupAndPosts = async () => {
+      if (!groupId) return;
+
+      try {
+        setLoading(true);
+
+        // Fetch specific group
+        const resGroup = await fetch(`/api/group/${groupId}`);
+        const groupData = await resGroup.json();
+
+        if (resGroup.ok) {
+          setGroup(groupData);
+
+          // Fetch posts for this group
+          const resPosts = await fetch(`/api/group/${groupId}/post`);
+          const postsData = await resPosts.json();
+
+          if (resPosts.ok && postsData.success) {
+            setPosts(postsData.data || []);
+          }
+        } else {
+          console.error("Group not found");
+          router.push("/dashboard/home");
+        }
+      } catch (error) {
+        console.error("Error fetching group:", error);
+        router.push("/dashboard/home");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGroupAndPosts();
+  }, [groupId, router]);
+
+  // Add a new post to the top of the list
   const handlePostCreated = (newPost) => {
     setPosts((prev) => [newPost, ...prev]);
   };
+
+  if (loading) {
+    return (
+      <div className="bg-primary min-h-screen flex items-center justify-center">
+        <p className="text-white">Loading group...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-primary">
@@ -62,6 +93,7 @@ export default function Dashboard() {
         <Sidebar isOpen={isOpen} onClose={() => setIsOpen(false)} user={user} />
 
         <div>
+          {/* Sidebar open button */}
           <div className="flex items-center -m-2">
             <button
               onClick={() => setIsOpen(true)}
@@ -71,19 +103,20 @@ export default function Dashboard() {
             </button>
           </div>
 
-          {/* Exibe o nome do grupo */}
+          {/* Group name */}
           <h1 className="text-xl font-bold text-white my-2">
-            {selectedGroup ? selectedGroup.name : "Carregando grupo..."}
+            {group?.name || "Group"}
           </h1>
 
-          {/* Banner do grupo (imagem de capa) */}
+          {/* Group banner (cover image and info) */}
           <GroupBanner
             user={user}
-            group={selectedGroup}
-            coverPicture={selectedGroup?.coverPicture}
-            description={selectedGroup?.description}
+            group={group}
+            coverPicture={group?.coverPicture}
+            description={group?.description}
           />
 
+          {/* Current date */}
           <div className="w-full text-center mt-2 text-gray-400 text-xs">
             <small>
               {new Date().toLocaleDateString("en-US", {
@@ -94,23 +127,29 @@ export default function Dashboard() {
             </small>
           </div>
 
-          {/* Posts / Eventos */}
-          {posts.map((post) => (
-            <EventCard
-              key={post._id}
-              user={post.user}
-              eventTitle={post.title}
-              eventImage={post.image}
-              eventTime={new Date(post.createdAt).toLocaleTimeString("en-US", {
-                hour: "numeric",
-                minute: "2-digit",
-                hour12: true,
-              })}
-            />
-          ))}
+          {/* Event cards / posts */}
+          {posts.length === 0 ? (
+            <div className="text-center text-gray-400 mt-8">
+              <p>No posts yet. Be the first to share!</p>
+            </div>
+          ) : (
+            posts.map((post) => (
+              <EventCard
+                key={post._id}
+                user={post.user}
+                eventTitle={post.title}
+                eventImage={post.image}
+                eventTime={new Date(post.createdAt).toLocaleTimeString("en-US", {
+                  hour: "numeric",
+                  minute: "2-digit",
+                  hour12: true,
+                })}
+              />
+            ))
+          )}
         </div>
 
-        {/* Botão flutuante para criar evento */}
+        {/* Floating "Add Event" button */}
         <button
           onClick={() => setIsModalOpen(true)}
           className="fixed bottom-24 right-6 bg-white text-primary text-3xl w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform duration-200 z-10"
@@ -120,10 +159,12 @@ export default function Dashboard() {
 
         <BottomNavbar />
 
+        {/* Add Event Modal */}
         <AddEventModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onPostCreated={handlePostCreated}
+          groupId={groupId}
         />
       </div>
     </div>

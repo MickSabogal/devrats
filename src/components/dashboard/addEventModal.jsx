@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { IoClose, IoCamera, IoImage, IoCalendar, IoLocation, IoGitBranch } from "react-icons/io5";
+import { IoClose, IoCamera, IoCalendar, IoLocation, IoGitBranch } from "react-icons/io5";
 import AlertModal from "@/components/ui/AlertModal";
 
-export default function AddEventModal({ isOpen, onClose, onPostCreated }) {
+export default function AddEventModal({ isOpen, onClose, onPostCreated, groupId }) {
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [showMetrics, setShowMetrics] = useState(false);
@@ -12,8 +12,8 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated }) {
   const [alert, setAlert] = useState({ isOpen: false, title: "", message: "", type: "info" });
   const [formData, setFormData] = useState({
     title: "",
-    description: "",
-    date: new Date().toISOString().slice(0, 16),
+    content: "",
+    eventDate: new Date().toISOString().slice(0, 16),
     location: "",
     commitLines: "",
     activityDescription: "",
@@ -36,8 +36,6 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated }) {
       }
       
       setImageFile(file);
-      
-      // Criar preview com URL.createObjectURL (mais rápido)
       const previewUrl = URL.createObjectURL(file);
       setImagePreview(previewUrl);
     }
@@ -54,15 +52,14 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated }) {
   const resetForm = () => {
     setFormData({
       title: "",
-      description: "",
-      date: new Date().toISOString().slice(0, 16),
+      content: "",
+      eventDate: new Date().toISOString().slice(0, 16),
       location: "",
       commitLines: "",
       activityDescription: "",
       repoLink: ""
     });
     
-    // Limpar URL do preview
     if (imagePreview) {
       URL.revokeObjectURL(imagePreview);
     }
@@ -74,12 +71,17 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!groupId) {
+      showAlert("Error", "No group selected", "error");
+      return;
+    }
+    
     setIsLoading(true);
 
     try {
       let imageBase64 = null;
       
-      // Converter imagem para base64 apenas no envio
       if (imageFile) {
         imageBase64 = await new Promise((resolve, reject) => {
           const reader = new FileReader();
@@ -91,18 +93,22 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated }) {
 
       const postData = {
         title: formData.title,
-        content: formData.description,
+        content: formData.content,
         image: imageBase64,
-        eventDate: formData.date,
+        eventDate: formData.eventDate,
         location: formData.location,
-        metrics: showMetrics && (formData.commitLines || formData.activityDescription || formData.repoLink) ? {
+      };
+
+      // Only add metrics if at least one field is filled
+      if (showMetrics && (formData.commitLines || formData.activityDescription || formData.repoLink)) {
+        postData.metrics = {
           commitLines: formData.commitLines ? parseInt(formData.commitLines) : null,
           activityDescription: formData.activityDescription || null,
           repoLink: formData.repoLink || null
-        } : null
-      };
+        };
+      }
 
-      const response = await fetch("/api/post", {
+      const response = await fetch(`/api/group/${groupId}/post`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -113,21 +119,21 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated }) {
       const data = await response.json();
 
       if (data.success) {
-        console.log("Post criado com sucesso:", data.data);
+        console.log("Post created successfully:", data.data);
         
         if (onPostCreated) {
           onPostCreated(data.data);
         }
 
-        onClose();
-        resetForm();
         showAlert("Success", "Activity posted successfully!", "success");
+        resetForm();
+        onClose();
       } else {
-        console.error("Erro ao criar post:", data.message);
+        console.error("Error creating post:", data.message);
         showAlert("Error", data.message || "Error creating post", "error");
       }
     } catch (error) {
-      console.error("Erro ao enviar post:", error);
+      console.error("Error submitting post:", error);
       showAlert("Error", "Error creating post. Please try again.", "error");
     } finally {
       setIsLoading(false);
@@ -187,8 +193,6 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated }) {
                       <IoCamera className="w-8 h-8 text-gray-400 dark:text-gray-500" />
                       <span className="text-sm text-gray-600 dark:text-gray-400">Camera</span>
                     </button>
-                    
-                    
                   </div>
                 )}
                 
@@ -221,14 +225,14 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated }) {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="description" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label htmlFor="content" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Description *
                 </label>
                 <textarea
-                  id="description"
-                  name="description"
+                  id="content"
+                  name="content"
                   required
-                  value={formData.description}
+                  value={formData.content}
                   onChange={handleInputChange}
                   disabled={isLoading}
                   placeholder="Describe your activity"
@@ -238,16 +242,16 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated }) {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="date" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                <label htmlFor="eventDate" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
                   <IoCalendar className="w-4 h-4" />
                   Date & Time *
                 </label>
                 <input
-                  id="date"
-                  name="date"
+                  id="eventDate"
+                  name="eventDate"
                   type="datetime-local"
                   required
-                  value={formData.date}
+                  value={formData.eventDate}
                   onChange={handleInputChange}
                   disabled={isLoading}
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0B111c] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary dark:focus:ring-white focus:border-transparent outline-none transition-all disabled:opacity-50"
