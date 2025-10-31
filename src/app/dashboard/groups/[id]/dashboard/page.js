@@ -9,6 +9,7 @@ import BottomNavbar from "@/components/dashboard/bottomNavBar";
 import GroupBanner from "@/components/dashboard/groupBanner";
 import EventCard from "@/components/dashboard/eventCard";
 import AddEventModal from "@/components/dashboard/addEventModal";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function GroupDashboard() {
   const params = useParams();
@@ -29,7 +30,7 @@ export default function GroupDashboard() {
         const data = await res.json();
         setUser(data.user);
       } catch (error) {
-        return;
+        console.error("Error fetching user:", error);
       }
     };
 
@@ -61,6 +62,7 @@ export default function GroupDashboard() {
           router.push("/dashboard/home");
         }
       } catch (error) {
+        console.error("Error fetching group:", error);
         router.push("/dashboard/home");
       } finally {
         setLoading(false);
@@ -81,7 +83,7 @@ export default function GroupDashboard() {
   if (loading) {
     return (
       <div className="bg-primary min-h-screen flex items-center justify-center">
-        <p className="text-white">Loading group...</p>
+        <LoadingSpinner size="lg" />
       </div>
     );
   }

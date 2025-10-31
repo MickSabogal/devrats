@@ -37,6 +37,11 @@ export default function DashboardHome() {
           const groupsData = await resGroups.json();
           if (Array.isArray(groupsData)) {
             setGroups(groupsData);
+            
+            if (groupsData.length === 0) {
+              router.replace("/dashboard/onboarding");
+              return;
+            }
           }
         }
       } finally {
@@ -45,13 +50,7 @@ export default function DashboardHome() {
     };
 
     fetchUserAndGroups();
-  }, []);
-
-  useEffect(() => {
-    if (!loading && groups.length === 0) {
-      router.push("/dashboard/onboarding");
-    }
-  }, [loading, groups, router]);
+  }, [router]);
 
   const handleGroupCreated = (newGroup) => {
     setGroups((prev) => [newGroup, ...prev]);
@@ -64,6 +63,10 @@ export default function DashboardHome() {
         <LoadingSpinner size="lg" />
       </div>
     );
+  }
+
+  if (groups.length === 0) {
+    return null;
   }
 
   return (
@@ -87,46 +90,42 @@ export default function DashboardHome() {
             Welcome back, {user?.name || "User"}!
           </h2>
           <p className="text-gray-300 text-sm">
-            {groups.length > 0
-              ? `You have ${groups.length} group${groups.length > 1 ? "s" : ""}`
-              : "Get started by creating or joining a group"}
+            You have {groups.length} group{groups.length > 1 ? "s" : ""}
           </p>
         </div>
 
-        {groups.length > 0 && (
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-white mb-4">
-              Your Groups
-            </h3>
-            <div className="space-y-3">
-              {groups.map((group) => (
-                <Link
-                  key={group._id}
-                  href={`/dashboard/groups/${group._id}/dashboard`}
-                  className="block bg-white/10 backdrop-blur-sm rounded-xl p-4 hover:bg-white/20 transition-colors"
-                >
-                  <div className="flex items-center gap-4">
-                    <img
-                      src={group.coverPicture || "/banner.png"}
-                      alt={group.name}
-                      className="w-16 h-16 rounded-lg object-cover"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-white font-medium text-lg truncate">
-                        {group.name}
-                      </h4>
-                      {group.description && (
-                        <p className="text-gray-300 text-sm truncate">
-                          {group.description}
-                        </p>
-                      )}
-                    </div>
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-white mb-4">
+            Your Groups
+          </h3>
+          <div className="space-y-3">
+            {groups.map((group) => (
+              <Link
+                key={group._id}
+                href={`/dashboard/groups/${group._id}/dashboard`}
+                className="block bg-white/10 backdrop-blur-sm rounded-xl p-4 hover:bg-white/20 transition-colors"
+              >
+                <div className="flex items-center gap-4">
+                  <img
+                    src={group.coverPicture || "/banner.png"}
+                    alt={group.name}
+                    className="w-16 h-16 rounded-lg object-cover"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-white font-medium text-lg truncate">
+                      {group.name}
+                    </h4>
+                    {group.description && (
+                      <p className="text-gray-300 text-sm truncate">
+                        {group.description}
+                      </p>
+                    )}
                   </div>
-                </Link>
-              ))}
-            </div>
+                </div>
+              </Link>
+            ))}
           </div>
-        )}
+        </div>
 
         <div className="space-y-3">
           <Button
