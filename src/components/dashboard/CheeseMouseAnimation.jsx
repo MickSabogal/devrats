@@ -4,17 +4,73 @@ import React from "react";
 const CheeseMouseAnimation = () => {
   return (
     <>
-      <div className="absolute right-0 top-0 h-full w-[2px] overflow-visible pointer-events-none z-50">
-        {/* Fixed decorative side line */}
-        <div className="absolute right-0 top-0 w-[2px] h-full bg-gradient-to-b from-gray-300/30 via-gray-400/40 to-gray-300/30" />
+      <div className="absolute right-0 top-0 h-full w-[3px] overflow-visible pointer-events-none z-50">
+        {/* Fixed decorative line on the side */}
+        <div className="absolute right-0 top-0 w-[3px] h-full bg-gradient-to-b from-gray-300/30 via-gray-400/40 to-gray-300/30" />
 
         <div className="relative h-full">
-          {/* 🧀 Hanging cheese with attached string */}
+          {/* 🧀 Cheese being DRAGGED seen from above */}
           <div
-            className="absolute -right-[45px] w-[90px] h-[90px] animate-cheeseSlide"
-            style={{ transformOrigin: "top center" }}
+            className="absolute -right-[50px] w-[100px] h-[100px] animate-cheeseSlide"
+            style={{ transformOrigin: "center center" }}
           >
-            {/* String attached to cheese, extends up */}
+            {/* Triangular cheese with rounded tips */}
+            <svg
+              viewBox="0 0 120 120"
+              className="w-full h-full"
+            >
+              {/* Main cheese body - triangular with rounded corners */}
+              <path
+                d="M 60 30 L 85 80 Q 85 85, 80 87 L 40 87 Q 35 85, 35 80 Z"
+                fill="#FFD84D"
+                stroke="#CC9933"
+                strokeWidth="2.5"
+                strokeLinejoin="round"
+              />
+              
+              {/* Left side gradient for depth */}
+              <path
+                d="M 60 30 L 35 80 Q 35 83, 37 85 L 38 82 Z"
+                fill="#E6B800"
+                opacity="0.4"
+              />
+              
+              {/* Right side gradient (lighter) */}
+              <path
+                d="M 60 30 L 85 80 Q 85 83, 83 85 L 82 82 Z"
+                fill="#FFF9CC"
+                opacity="0.5"
+              />
+              
+              {/* Cheese holes */}
+              <ellipse cx="55" cy="50" rx="5" ry="6" fill="#FFCC00" opacity="0.7" />
+              <ellipse cx="55" cy="50" rx="3" ry="4" fill="#E6AC00" opacity="0.6" />
+              
+              <ellipse cx="70" cy="55" rx="4" ry="5" fill="#FFCC00" opacity="0.7" />
+              <ellipse cx="70" cy="55" rx="2.5" ry="3" fill="#E6AC00" opacity="0.6" />
+              
+              <ellipse cx="48" cy="65" rx="6" ry="7" fill="#FFCC00" opacity="0.7" />
+              <ellipse cx="48" cy="65" rx="4" ry="5" fill="#E6AC00" opacity="0.6" />
+              
+              <ellipse cx="65" cy="70" rx="5" ry="6" fill="#FFCC00" opacity="0.7" />
+              <ellipse cx="65" cy="70" rx="3" ry="4" fill="#E6AC00" opacity="0.6" />
+              
+              <ellipse cx="60" cy="60" rx="4" ry="5" fill="#FFCC00" opacity="0.7" />
+              <ellipse cx="60" cy="60" rx="2.5" ry="3.5" fill="#E6AC00" opacity="0.6" />
+              
+              {/* Rope tied at the BOTTOM tip (being pulled) */}
+              <ellipse cx="60" cy="87" rx="5" ry="3" fill="#8B6B47" />
+              <circle cx="60" cy="87" r="6" fill="none" stroke="#6B5235" strokeWidth="2" />
+              <path
+                d="M 55 87 L 60 90 L 65 87"
+                fill="none"
+                stroke="#6B5235"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
+            
+            {/* Rope pulling the cheese - starts from bottom */}
             <svg
               viewBox="0 0 100 120"
               className="w-full h-full absolute top-0 left-0"
@@ -22,178 +78,224 @@ const CheeseMouseAnimation = () => {
             >
               <line
                 x1="50"
-                y1="105" // começa na base do queijo
+                y1="90"
                 x2="50"
-                y2="5000" // segue para baixo, dando o efeito de “puxar”
-                stroke="#8B7355"
-                strokeWidth="2"
+                y2="5000"
+                stroke="#8B6B47"
+                strokeWidth="2.5"
                 strokeLinecap="round"
-              />
-            </svg>
-
-            <svg
-              viewBox="0 0 100 120"
-              className="w-full h-full drop-shadow-[0_6px_16px_rgba(0,0,0,0.35)]"
-            >
-              {/* Cheese body */}
-              <path
-                d="M 50 105 L 20 35 C 22 32, 26 28, 30 26 L 70 26 C 74 28, 78 32, 80 35 L 50 105 Z"
-                fill="#FFD54F"
-                stroke="#FFA726"
-                strokeWidth="2"
-                strokeLinejoin="round"
-              />
-              <ellipse
-                cx="45"
-                cy="55"
-                rx="4.5"
-                ry="5.5"
-                fill="#F57C00"
-                opacity="0.75"
-              />
-              <ellipse
-                cx="60"
-                cy="50"
-                rx="5.5"
-                ry="6.5"
-                fill="#F57C00"
-                opacity="0.75"
-              />
-              <ellipse
-                cx="40"
-                cy="70"
-                rx="3.5"
-                ry="4.5"
-                fill="#F57C00"
-                opacity="0.75"
-              />
-              <ellipse
-                cx="55"
-                cy="80"
-                rx="4.5"
-                ry="5.5"
-                fill="#F57C00"
-                opacity="0.75"
-              />
-              <ellipse
-                cx="50"
-                cy="40"
-                rx="15"
-                ry="7"
-                fill="#FFF9C4"
-                opacity="0.7"
-              />
-              <ellipse
-                cx="48"
-                cy="38"
-                rx="10"
-                ry="4.5"
-                fill="#FFFDE7"
-                opacity="0.5"
               />
             </svg>
           </div>
 
-          {/* 🐭 Mouse chasing but never catching */}
+          {/* 🐭 Little mouse running seen from above */}
           <div
-            className="absolute -right-[54px] w-[110px] h-[110px] animate-mouseSlide"
+            className="absolute -right-[50px] w-[100px] h-[100px] animate-mouseSlide"
             style={{
               transformOrigin: "center center",
               transform: "rotate(180deg)",
             }}
           >
             <svg
-              viewBox="0 0 140 160"
-              className="w-full h-full drop-shadow-[0_4px_14px_rgba(0,0,0,0.3)]"
+              viewBox="0 0 100 120"
+              className="w-full h-full"
+              style={{ overflow: "visible" }}
             >
-              {/* Tail */}
+              {/* Tail swinging (seen from above) */}
               <path
-                d="M 70 130 Q 68 150, 60 158 Q 52 162, 46 160"
+                d="M 50 85 Q 52 92, 55 98 Q 58 103, 62 106"
                 fill="none"
-                stroke="#9CA3AF"
+                stroke="#E8A080"
                 strokeWidth="4"
                 strokeLinecap="round"
-                className="animate-tailWag"
+                className="animate-tailSwing"
               />
-              {/* Body */}
-              <ellipse cx="70" cy="90" rx="35" ry="45" fill="#CBD5E1" />
+              <path
+                d="M 50 85 Q 52 92, 55 98 Q 58 103, 62 106"
+                fill="none"
+                stroke="#D89070"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                className="animate-tailSwing"
+              />
+              
+              {/* Back left paw */}
               <ellipse
-                cx="70"
-                cy="90"
-                rx="30"
-                ry="40"
-                fill="#E2E8F0"
-                opacity="0.85"
+                cx="38"
+                cy="78"
+                rx="6"
+                ry="9"
+                fill="#E8A080"
+                stroke="#9E6B47"
+                strokeWidth="2"
+                className="animate-pawRunLeft"
               />
-              {/* Head */}
-              <ellipse cx="70" cy="40" rx="25" ry="30" fill="#E2E8F0" />
+              <ellipse cx="38" cy="80" rx="3.5" ry="5" fill="#F5B090" opacity="0.6" />
+              
+              {/* Back right paw */}
               <ellipse
-                cx="70"
-                cy="40"
-                rx="22"
-                ry="27"
-                fill="#F1F5F9"
-                opacity="0.8"
+                cx="62"
+                cy="78"
+                rx="6"
+                ry="9"
+                fill="#E8A080"
+                stroke="#9E6B47"
+                strokeWidth="2"
+                className="animate-pawRunRight"
               />
-              {/* Ears */}
-              <ellipse cx="48" cy="22" rx="14" ry="16" fill="#E2E8F0" />
+              <ellipse cx="62" cy="80" rx="3.5" ry="5" fill="#F5B090" opacity="0.6" />
+              
+              {/* Back/body (seen from above) */}
+              <ellipse
+                cx="50"
+                cy="55"
+                rx="24"
+                ry="32"
+                fill="#E8B896"
+                stroke="#9E6B47"
+                strokeWidth="2.5"
+              />
+              
+              {/* Back shading */}
               <ellipse
                 cx="48"
-                cy="22"
-                rx="10"
-                ry="12"
-                fill="#FCA5A5"
-                opacity="0.5"
+                cy="58"
+                rx="18"
+                ry="26"
+                fill="#D4A077"
+                opacity="0.3"
               />
-              <ellipse cx="92" cy="22" rx="14" ry="16" fill="#E2E8F0" />
+              
+              {/* Head seen from above - BIGGER */}
               <ellipse
-                cx="92"
-                cy="22"
+                cx="50"
+                cy="28"
+                rx="26"
+                ry="28"
+                fill="#E8B896"
+                stroke="#9E6B47"
+                strokeWidth="2.5"
+              />
+              
+              {/* Left ear (big and round, pointing up so we see the pink inside) */}
+              <ellipse
+                cx="30"
+                cy="15"
+                rx="14"
+                ry="15"
+                fill="#E8B896"
+                stroke="#9E6B47"
+                strokeWidth="2.5"
+              />
+              {/* Pink inner ear - LEFT */}
+              <ellipse
+                cx="30"
+                cy="17"
                 rx="10"
-                ry="12"
-                fill="#FCA5A5"
-                opacity="0.5"
+                ry="11"
+                fill="#FFB8B8"
+                opacity="0.9"
+              />
+              <ellipse
+                cx="30"
+                cy="18"
+                rx="7"
+                ry="8"
+                fill="#FF9999"
+                opacity="0.7"
+              />
+              
+              {/* Right ear (big and round, pointing up so we see the pink inside) */}
+              <ellipse
+                cx="70"
+                cy="15"
+                rx="14"
+                ry="15"
+                fill="#E8B896"
+                stroke="#9E6B47"
+                strokeWidth="2.5"
+              />
+              {/* Pink inner ear - RIGHT */}
+              <ellipse
+                cx="70"
+                cy="17"
+                rx="10"
+                ry="11"
+                fill="#FFB8B8"
+                opacity="0.9"
+              />
+              <ellipse
+                cx="70"
+                cy="18"
+                rx="7"
+                ry="8"
+                fill="#FF9999"
+                opacity="0.7"
+              />
+              
+              {/* Little tuft of hair on top of head */}
+              <path
+                d="M 47 15 Q 49 11, 50 15 Q 51 11, 53 15"
+                fill="none"
+                stroke="#9E6B47"
+                strokeWidth="2"
+                strokeLinecap="round"
               />
             </svg>
           </div>
         </div>
       </div>
 
+      {/* 🎬 Animations */}
       <style jsx>{`
-        /* 🧀 Cheese sliding down first */
         @keyframes cheeseSlide {
           0% {
             transform: translateY(-120px);
           }
           100% {
-            transform: translateY(calc(100vh + 80px));
+            transform: translateY(calc(100vh + 100px));
           }
         }
 
-        /* 🐭 Mouse waits longer, then chases but never catches up */
         @keyframes mouseSlide {
           0% {
-            transform: translateY(-160px) rotate(180deg);
+            transform: translateY(-140px) rotate(180deg);
           }
           50% {
-            transform: translateY(-160px) rotate(180deg);
+            transform: translateY(-140px) rotate(180deg);
           }
           100% {
-            transform: translateY(calc(100vh + 60px)) rotate(180deg);
+            transform: translateY(calc(100vh + 80px)) rotate(180deg);
           }
         }
 
-        /* 🐀 Tail wagging */
-        @keyframes tailWag {
-          0%,
-          100% {
+        @keyframes tailSwing {
+          0%, 100% {
             transform: rotate(0deg);
           }
           25% {
-            transform: rotate(-5deg);
+            transform: rotate(-12deg);
           }
           75% {
-            transform: rotate(5deg);
+            transform: rotate(12deg);
+          }
+        }
+
+        @keyframes pawRunLeft {
+          0%, 100% {
+            transform: translateY(0px) translateX(0px);
+          }
+          50% {
+            transform: translateY(-4px) translateX(-2px);
+          }
+        }
+
+        @keyframes pawRunRight {
+          0%, 100% {
+            transform: translateY(0px) translateX(0px);
+          }
+          50% {
+            transform: translateY(-4px) translateX(2px);
           }
         }
 
@@ -205,9 +307,18 @@ const CheeseMouseAnimation = () => {
           animation: mouseSlide 5s linear infinite;
         }
 
-        .animate-tailWag {
-          animation: tailWag 0.6s ease-in-out infinite;
-          transform-origin: 70px 130px;
+        .animate-tailSwing {
+          animation: tailSwing 0.4s ease-in-out infinite;
+          transform-origin: 50px 85px;
+        }
+
+        .animate-pawRunLeft {
+          animation: pawRunLeft 0.3s ease-in-out infinite;
+        }
+
+        .animate-pawRunRight {
+          animation: pawRunRight 0.3s ease-in-out infinite;
+          animation-delay: 0.15s;
         }
       `}</style>
     </>
