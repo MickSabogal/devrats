@@ -69,76 +69,79 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated, groupId 
     setShowMetrics(false);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // Substitua a parte do handleSubmit no AddEventModal.jsx:
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  if (!groupId) {
+    showAlert("Error", "No group selected", "error");
+    return;
+  }
+  
+  setIsLoading(true);
+
+  try {
+    let imageBase64 = null;
     
-    if (!groupId) {
-      showAlert("Error", "No group selected", "error");
-      return;
-    }
-    
-    setIsLoading(true);
-
-    try {
-      let imageBase64 = null;
-      
-      if (imageFile) {
-        imageBase64 = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(imageFile);
-        });
-      }
-
-      const postData = {
-        title: formData.title,
-        content: formData.content,
-        image: imageBase64,
-        eventDate: formData.eventDate,
-        location: formData.location,
-      };
-
-      // Only add metrics if at least one field is filled
-      if (showMetrics && (formData.commitLines || formData.activityDescription || formData.repoLink)) {
-        postData.metrics = {
-          commitLines: formData.commitLines ? parseInt(formData.commitLines) : null,
-          activityDescription: formData.activityDescription || null,
-          repoLink: formData.repoLink || null
-        };
-      }
-
-      const response = await fetch(`/api/group/${groupId}/post`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(postData),
+    if (imageFile) {
+      imageBase64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(imageFile);
       });
-
-      const data = await response.json();
-
-      if (data.success) {
-        console.log("Post created successfully:", data.data);
-        
-        if (onPostCreated) {
-          onPostCreated(data.data);
-        }
-
-        showAlert("Success", "Activity posted successfully!", "success");
-        resetForm();
-        onClose();
-      } else {
-        console.error("Error creating post:", data.message);
-        showAlert("Error", data.message || "Error creating post", "error");
-      }
-    } catch (error) {
-      console.error("Error submitting post:", error);
-      showAlert("Error", "Error creating post. Please try again.", "error");
-    } finally {
-      setIsLoading(false);
     }
-  };
+
+    const postData = {
+      title: formData.title,
+      content: formData.content,
+      image: imageBase64,
+      eventDate: formData.eventDate,
+      location: formData.location,
+    };
+
+    // Only add metrics if at least one field is filled
+    if (showMetrics && (formData.commitLines || formData.activityDescription || formData.repoLink)) {
+      postData.metrics = {
+        commitLines: formData.commitLines ? parseInt(formData.commitLines) : null,
+        activityDescription: formData.activityDescription || null,
+        repoLink: formData.repoLink || null
+      };
+    }
+
+    const response = await fetch(`/api/group/${groupId}/post`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(postData),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // ✅ FIX: Backend retorna "post", não "data"
+      console.log("Post created successfully:", data.post);
+      
+      if (onPostCreated) {
+        onPostCreated(data.post); // ✅ Agora passa data.post
+      }
+
+      showAlert("Success", "Activity posted successfully!", "success");
+      resetForm();
+      onClose();
+    } else {
+      console.error("Error creating post:", data.message);
+      showAlert("Error", data.message || "Error creating post", "error");
+    }
+  } catch (error) {
+    console.error("Error submitting post:", error);
+    showAlert("Error", "Error creating post. Please try again.", "error");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   if (!isOpen) return null;
 
