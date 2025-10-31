@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { BiMenuAltLeft } from "react-icons/bi";
 import { IoAddCircleOutline } from "react-icons/io5";
@@ -10,6 +10,7 @@ import Sidebar from "@/components/dashboard/sideBar";
 import BottomNavbar from "@/components/dashboard/bottomNavBar";
 import CreateGroupModal from "@/components/dashboard/CreateGroupModal";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import Button from "@/components/ui/Button";
 
 export default function DashboardHome() {
   const router = useRouter();
@@ -22,20 +23,22 @@ export default function DashboardHome() {
   useEffect(() => {
     const fetchUserAndGroups = async () => {
       try {
-        // Fetch user
-        const resUser = await fetch("/api/users/me");
-        const dataUser = await resUser.json();
-        setUser(dataUser.user);
+        const [resUser, resGroups] = await Promise.all([
+          fetch("/api/users/me"),
+          fetch("/api/group"),
+        ]);
 
-        // Fetch groups
-        const resGroups = await fetch("/api/group");
-        const groupsData = await resGroups.json();
-
-        if (Array.isArray(groupsData)) {
-          setGroups(groupsData);
+        if (resUser.ok) {
+          const dataUser = await resUser.json();
+          setUser(dataUser.user);
         }
-      } catch (error) {
-        console.error("Error fetching data:", error);
+
+        if (resGroups.ok) {
+          const groupsData = await resGroups.json();
+          if (Array.isArray(groupsData)) {
+            setGroups(groupsData);
+          }
+        }
       } finally {
         setLoading(false);
       }
@@ -44,9 +47,14 @@ export default function DashboardHome() {
     fetchUserAndGroups();
   }, []);
 
+  useEffect(() => {
+    if (!loading && groups.length === 0) {
+      router.push("/dashboard/onboarding");
+    }
+  }, [loading, groups, router]);
+
   const handleGroupCreated = (newGroup) => {
     setGroups((prev) => [newGroup, ...prev]);
-    // Redirect to the new group
     router.push(`/dashboard/groups/${newGroup._id}/dashboard`);
   };
 
@@ -63,7 +71,6 @@ export default function DashboardHome() {
       <div className="max-w-md mx-auto relative min-h-screen px-6 pt-6 pb-28">
         <Sidebar isOpen={isOpen} onClose={() => setIsOpen(false)} user={user} />
 
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => setIsOpen(true)}
@@ -75,7 +82,6 @@ export default function DashboardHome() {
           <div className="w-10"></div>
         </div>
 
-        {/* Welcome message */}
         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-6">
           <h2 className="text-xl font-bold text-white mb-2">
             Welcome back, {user?.name || "User"}!
@@ -87,8 +93,7 @@ export default function DashboardHome() {
           </p>
         </div>
 
-        {/* Groups list */}
-        {groups.length > 0 ? (
+        {groups.length > 0 && (
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-white mb-4">
               Your Groups
@@ -121,42 +126,30 @@ export default function DashboardHome() {
               ))}
             </div>
           </div>
-        ) : (
-          <div className="text-center py-12">
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8">
-              <HiUserGroup className="w-16 h-16 text-white/50 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-2">
-                No groups yet
-              </h3>
-              <p className="text-gray-300 text-sm mb-6">
-                Create your first group or join an existing one to get started
-              </p>
-            </div>
-          </div>
         )}
 
-        {/* Action buttons */}
         <div className="space-y-3">
-          <button
+          <Button
+            fullWidth
+            variant="primary"
+            icon={IoAddCircleOutline}
             onClick={() => setIsCreateGroupModalOpen(true)}
-            className="w-full bg-white text-primary font-medium py-4 rounded-xl flex items-center justify-center gap-3 hover:bg-gray-100 transition-colors"
           >
-            <IoAddCircleOutline className="w-6 h-6" />
-            <span>Create a Group</span>
-          </button>
+            Create a Group
+          </Button>
 
-          <Link
-            href="/dashboard/join-group"
-            className="w-full bg-white/10 backdrop-blur-sm text-white font-medium py-4 rounded-xl flex items-center justify-center gap-3 hover:bg-white/20 transition-colors"
+          <Button
+            fullWidth
+            variant="outline"
+            icon={HiUserGroup}
+            onClick={() => router.push("/dashboard/join-group")}
           >
-            <HiUserGroup className="w-6 h-6" />
-            <span>Join a Group</span>
-          </Link>
+            Join a Group
+          </Button>
         </div>
 
         <BottomNavbar />
 
-        {/* Create Group Modal */}
         <CreateGroupModal
           isOpen={isCreateGroupModalOpen}
           onClose={() => setIsCreateGroupModalOpen(false)}

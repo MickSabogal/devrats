@@ -1,13 +1,11 @@
+// src/components/dashboard/CreateGroupModal.jsx
 "use client";
 
-import React, { useState, useRef } from "react";
-import {
-  IoClose,
-  IoCamera,
-  IoImage,
-  IoPeople,
-  IoInformationCircle,
-} from "react-icons/io5";
+import { useState, useRef } from "react";
+import { IoClose, IoCamera, IoPeople, IoInformationCircle } from "react-icons/io5";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import Textarea from "@/components/ui/Textarea";
 import AlertModal from "@/components/ui/AlertModal";
 
 export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }) {
@@ -24,8 +22,8 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }) {
     name: "",
     description: "",
   });
+  const [errors, setErrors] = useState({});
 
-  const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
 
   const showAlert = (title, message, type = "info") =>
@@ -48,6 +46,9 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }) {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: "" }));
+    }
   };
 
   const resetForm = () => {
@@ -55,16 +56,28 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }) {
     if (coverPreview) URL.revokeObjectURL(coverPreview);
     setCoverPreview(null);
     setCoverFile(null);
+    setErrors({});
+  };
+
+  const validate = () => {
+    const newErrors = {};
+    
+    if (!formData.name.trim()) {
+      newErrors.name = "Group name is required";
+    }
+    
+    if (!formData.description.trim()) {
+      newErrors.description = "Description is required";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.name.trim())
-      return showAlert("Validation Error", "Group name is required", "error");
-
-    if (!formData.description.trim())
-      return showAlert("Validation Error", "Description is required", "error");
+    if (!validate()) return;
 
     setIsLoading(true);
 
@@ -86,7 +99,7 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }) {
         coverPicture: coverBase64 || "",
       };
 
-      const response = await fetch("/api/group", {
+      const response = await fetch("/api/groups", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(groupData),
@@ -119,7 +132,6 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }) {
         <div onClick={onClose} className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
 
         <div className="relative w-full max-w-md bg-white dark:bg-[#1e2939] rounded-t-3xl shadow-2xl max-h-[90vh] overflow-hidden">
-          {/* Header */}
           <div className="sticky top-0 bg-white dark:bg-[#1e2939] border-b border-gray-200 dark:border-gray-700/50 px-6 py-4 flex items-center justify-between z-10">
             <h2 className="text-lg font-bold text-gray-900 dark:text-white">Create Group</h2>
             <button
@@ -131,10 +143,8 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }) {
             </button>
           </div>
 
-          {/* Content */}
-          <div className="overflow-y-auto max-h-[calc(90vh-140px)]">
+          <form onSubmit={handleSubmit} className="overflow-y-auto max-h-[calc(90vh-140px)]">
             <div className="px-6 py-4 space-y-4">
-              {/* Cover */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Cover Picture (Optional)
@@ -157,18 +167,15 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }) {
                     </button>
                   </div>
                 ) : (
-                  <div className="flex gap-3">
-                    <button
-                      type="button"
-                      onClick={() => cameraInputRef.current?.click()}
-                      disabled={isLoading}
-                      className="flex-1 flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-blue-500 dark:hover:border-white transition-colors"
-                    >
-                      <IoCamera className="w-8 h-8 text-gray-400 dark:text-gray-500" />
-                      <span className="text-sm text-gray-600 dark:text-gray-400">Camera</span>
-                    </button>
-                    
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => cameraInputRef.current?.click()}
+                    disabled={isLoading}
+                    className="w-full flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-blue-500 dark:hover:border-white transition-colors"
+                  >
+                    <IoCamera className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Take Photo</span>
+                  </button>
                 )}
 
                 <input
@@ -180,62 +187,48 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }) {
                   disabled={isLoading}
                   className="hidden"
                 />
-                
               </div>
 
-              {/* Name */}
-              <div className="space-y-2">
-                <label htmlFor="name" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                  <IoPeople className="w-4 h-4" /> Group Name *
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  disabled={isLoading}
-                  placeholder="Enter group name"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0B111c] text-gray-900 dark:text-white"
-                />
-              </div>
+              <Input
+                label="Group Name *"
+                name="name"
+                icon={IoPeople}
+                value={formData.name}
+                onChange={handleInputChange}
+                disabled={isLoading}
+                placeholder="Enter group name"
+                error={errors.name}
+              />
 
-              {/* Description */}
-              <div className="space-y-2">
-                <label htmlFor="description" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                  <IoInformationCircle className="w-4 h-4" /> Description *
-                </label>
-                <textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  disabled={isLoading}
-                  placeholder="Describe your group's purpose"
-                  rows={4}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0B111c] text-gray-900 dark:text-white"
-                />
-              </div>
+              <Textarea
+                label="Description *"
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                disabled={isLoading}
+                placeholder="Describe your group's purpose"
+                rows={4}
+                error={errors.description}
+              />
 
-              <div className="p-4 rounded-lg border border-red-200 dark:border-red-800">
-                <p className="text-sm text-red-800 dark:text-blue-200">
+              <div className="p-4 rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/20">
+                <p className="text-sm text-blue-800 dark:text-blue-200">
                   <strong>Note:</strong> You'll be added as the group admin and receive an invite link to share with others.
                 </p>
               </div>
             </div>
-          </div>
 
-          {/* Submit */}
-          <div className="sticky bottom-0 bg-white dark:bg-[#1e2939] border-t border-gray-200 dark:border-gray-700/50 px-6 py-4">
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={isLoading}
-              className="w-full py-3 bg-red-600 dark:bg-white text-white dark:text-primary font-semibold rounded-lg hover:opacity-90 transition-all disabled:opacity-50"
-            >
-              {isLoading ? "Creating Group..." : "Create Group"}
-            </button>
-          </div>
+            <div className="sticky bottom-0 bg-white dark:bg-[#1e2939] border-t border-gray-200 dark:border-gray-700/50 px-6 py-4">
+              <Button
+                type="submit"
+                fullWidth
+                variant="primary"
+                loading={isLoading}
+              >
+                Create Group
+              </Button>
+            </div>
+          </form>
         </div>
       </div>
 
