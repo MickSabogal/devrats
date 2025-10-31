@@ -69,6 +69,26 @@ export async function POST(req, { params }) {
       );
     }
 
+    if (!image || image.trim() === "") {
+      return NextResponse.json(
+        { 
+          success: false,
+          message: "Photo is required. Please upload an image." 
+        },
+        { status: 400 }
+      );
+    }
+
+    if (!duration || duration <= 0) {
+      return NextResponse.json(
+        { 
+          success: false,
+          message: "Study duration is required and must be greater than 0." 
+        },
+        { status: 400 }
+      );
+    }
+
     await connectDB();
 
     const group = await Group.findById(id);
@@ -92,7 +112,7 @@ export async function POST(req, { params }) {
     const newPost = new Post({
       title,
       content: content || "",
-      image: image || null,
+      image: image,
       eventDate: eventDate ? new Date(eventDate) : null,
       metrics: metrics || {},
       duration: postDuration,

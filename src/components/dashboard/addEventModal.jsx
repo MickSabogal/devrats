@@ -122,6 +122,11 @@ export default function AddEventModal({
       return;
     }
 
+    if (!imageFile || !imagePreview) {
+      showAlert("Error", "Photo is required. Please take or select a photo.", "error");
+      return;
+    }
+
     if (formData.duration === 0) {
       showAlert("Error", "Please select a study duration", "error");
       return;
@@ -226,8 +231,10 @@ export default function AddEventModal({
           >
             <div className="px-6 py-4 space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Photo
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                  <IoCamera className="w-4 h-4" />
+                  Photo *
+                  <span className="text-red-600 text-xs">(Required)</span>
                 </label>
 
                 {imagePreview ? (
@@ -258,11 +265,14 @@ export default function AddEventModal({
                       type="button"
                       onClick={() => cameraInputRef.current?.click()}
                       disabled={isLoading}
-                      className="flex-1 flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-primary dark:hover:border-white transition-colors disabled:opacity-50"
+                      className="flex-1 flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed border-red-400 dark:border-red-600 rounded-lg hover:border-red-600 dark:hover:border-red-400 transition-colors disabled:opacity-50 bg-red-50 dark:bg-red-950/20"
                     >
-                      <IoCamera className="w-8 h-8 text-gray-400 dark:text-gray-500" />
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        Camera
+                      <IoCamera className="w-8 h-8 text-red-600 dark:text-red-400" />
+                      <span className="text-sm text-red-600 dark:text-red-400 font-medium">
+                        Take Photo
+                      </span>
+                      <span className="text-xs text-red-500 dark:text-red-500">
+                        Required
                       </span>
                     </button>
                   </div>
@@ -479,7 +489,7 @@ export default function AddEventModal({
             <div className="sticky bottom-0 bg-white dark:bg-[#1e2939] border-t border-gray-200 dark:border-gray-700/50 px-6 py-4">
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || !imageFile}
                 className="w-full py-3 bg-primary dark:bg-white text-white dark:text-primary font-semibold rounded-lg hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? "Posting..." : "Post Activity"}
