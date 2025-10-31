@@ -7,6 +7,7 @@ import { ArrowLeft } from "lucide-react";
 import AvatarUpload from "@/components/profile/AvatarUpload";
 import SettingsForm from "@/components/profile/SettingsForm";
 import DeleteAccountModal from "@/components/profile/DeleteAccountModal";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function SettingsPage() {
   const { data: session, status } = useSession();
@@ -41,7 +42,7 @@ export default function SettingsPage() {
   if (loading || !user) {
     return (
       <div className="min-h-screen bg-primary flex items-center justify-center">
-        <div className="w-8 h-8 border-3 border-gray-600 border-t-red-600 rounded-full animate-spin" />
+        <LoadingSpinner size="lg" />
       </div>
     );
   }

@@ -7,6 +7,8 @@ import { ArrowLeft, Settings } from "lucide-react";
 import ActivityCalendar from "@/components/profile/ActivityCalendar";
 import ProfileStats from "@/components/profile/ProfileStats";
 import ProfileHeader from "@/components/profile/ProfileHeader";
+import TypingText from "@/components/ui/TypingText";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
@@ -51,7 +53,7 @@ export default function ProfilePage() {
   if (loading || !user) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="w-8 h-8 border-3 border-gray-600 border-t-red-600 rounded-full animate-spin" />
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
@@ -60,13 +62,8 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-black">
       <style jsx>{`
         @keyframes pendulum {
-          0%,
-          100% {
-            transform: rotate(-3deg);
-          }
-          50% {
-            transform: rotate(3deg);
-          }
+          0%, 100% { transform: rotate(-3deg); }
+          50% { transform: rotate(3deg); }
         }
 
         .pendulum-swing {
@@ -100,7 +97,17 @@ export default function ProfilePage() {
           </div>
 
           <div className="relative z-10 px-6 mt-8 text-left">
-            <p className="text-white/80 text-sm mb-4">Welcome back!</p>
+            {/* ✅ TypingText com letra maior, mais devagar, cursor continua piscando */}
+            <div className="mb-4">
+              <TypingText
+                text="Welcome back!"
+                speed={120}
+                keepCursorAfterComplete={true}
+                className="text-green-400 text-base font-mono"
+                cursorClassName="inline-block w-2 h-4 bg-green-400 ml-1"
+              />
+            </div>
+            
             <div className="w-48">
               <h1 className="text-white text-3xl font-bold leading-tight">
                 {firstName}
