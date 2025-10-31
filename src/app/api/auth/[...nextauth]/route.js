@@ -26,6 +26,13 @@ export const authOptions = {
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
             allowDangerousEmailAccountLinking: true,
+            authorization: {
+                params: {
+                    prompt: "consent",
+                    access_type: "offline",
+                    response_type: "code"
+                }
+            }
         }),
 
         CredentialsProvider({
@@ -63,12 +70,16 @@ export const authOptions = {
                     
                     let mongoUser = await User.findOne({ email: user.email });
                     
+                    const avatarUrl = account.provider === "github" 
+                        ? (profile?.avatar_url || user.image)
+                        : (profile?.picture || user.image);
+
                     if (!mongoUser) {
                         const userData = {
                             name: user.name || profile?.name || profile?.login || "User",
                             email: user.email,
-                            avatar: user.image || profile?.avatar_url || profile?.picture || "/images/default-avatar.png",
-                            image: user.image || profile?.avatar_url || profile?.picture,
+                            avatar: avatarUrl || "/images/default-avatar.png",
+                            image: avatarUrl,
                             streak: 0,
                             lastPostDate: null,
                             activeGroup: null,
@@ -77,10 +88,9 @@ export const authOptions = {
                         mongoUser = await User.create(userData);
                         console.log("✅ Novo usuário OAuth criado:", mongoUser.email);
                     } else {
-                        const newImage = user.image || profile?.avatar_url || profile?.picture;
-                        if (newImage && mongoUser.avatar !== newImage) {
-                            mongoUser.avatar = newImage;
-                            mongoUser.image = newImage;
+                        if (avatarUrl && mongoUser.avatar !== avatarUrl) {
+                            mongoUser.avatar = avatarUrl;
+                            mongoUser.image = avatarUrl;
                         }
                         
                         if (!mongoUser.name || mongoUser.name === "User") {
@@ -93,6 +103,7 @@ export const authOptions = {
                     
                     user.id = mongoUser._id.toString();
                     user.mongoId = mongoUser._id.toString();
+                    user.image = avatarUrl;
                 }
                 return true;
             } catch (error) {
@@ -108,11 +119,11 @@ export const authOptions = {
                 token.provider = account?.provider;
             }
             
-            if (profile?.avatar_url) {
-                token.image = profile.avatar_url;
-            }
-            if (profile?.picture) {
+            if (account?.provider === "google" && profile?.picture) {
                 token.image = profile.picture;
+            }
+            if (account?.provider === "github" && profile?.avatar_url) {
+                token.image = profile.avatar_url;
             }
             
             return token;

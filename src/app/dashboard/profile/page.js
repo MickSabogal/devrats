@@ -1,13 +1,12 @@
 "use client";
-// src/app/dashboard/profile/page.js
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Settings } from "lucide-react";
-import ProfileHeader from "@/components/profile/ProfileHeader";
-import ProfileStats from "@/components/profile/ProfileStats";
 import ActivityCalendar from "@/components/profile/ActivityCalendar";
+import ProfileStats from "@/components/profile/ProfileStats";
+import ProfileHeader from "@/components/profile/ProfileHeader";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
@@ -40,36 +39,56 @@ export default function ProfilePage() {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-primary flex items-center justify-center">
         <div className="w-8 h-8 border-3 border-gray-600 border-t-red-600 rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-primary">
       <div className="max-w-md mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4">
-          <button
-            onClick={() => router.back()}
-            className="text-white p-2 hover:bg-gray-800 rounded-lg transition"
-          >
-            <ArrowLeft size={24} />
-          </button>
-          <button
-            onClick={() => router.push("/dashboard/settings")}
-            className="text-white p-2 hover:bg-gray-800 rounded-lg transition"
-          >
-            <Settings size={24} />
-          </button>
+        <div className="relative rounded-b-3xl overflow-hidden pb-30">
+          <img
+            src="/images/background.png"
+            alt="Background pattern"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+
+          <div className="relative z-10 flex items-center justify-between p-4">
+            <button
+              onClick={() => router.back()}
+              className="text-white p-2 hover:bg-white/10 rounded-lg transition"
+            >
+              <ArrowLeft size={24} />
+            </button>
+            <h2 className="text-white text-xl font-bold">My Profile</h2>
+            <button
+              onClick={() => router.push("/dashboard/settings")}
+              className="text-white p-2 hover:bg-white/10 rounded-lg transition"
+            >
+              <Settings size={24} />
+            </button>
+          </div>
+
+          <div className="relative z-10 px-6 mt-8 text-left">
+            <p className="text-white/80 text-sm mb-6">Welcome back!</p>
+            <h1 className="text-white text-3xl font-bold">{user?.name}</h1>
+          </div>
         </div>
 
-        {/* Profile Content */}
-        <div className="px-6 pb-6">
-          <ProfileHeader user={user} />
-          <ProfileStats user={user} />
-          <ActivityCalendar userId={user._id} lastPostDate={user.lastPostDate} />
+        <div className="px-6 -mt-16 relative z-20">
+          <div className="flex gap-4 mb-8">
+            <ProfileHeader user={user} />
+
+            <div className="flex-1 flex items-end pb-3">
+              <ProfileStats user={user} />
+            </div>
+          </div>
+
+          <div className="mt-15">
+            <ActivityCalendar userId={user._id} lastPostDate={user.lastPostDate} />
+          </div>
         </div>
       </div>
     </div>
