@@ -18,25 +18,57 @@ export default function ActivityCalendar({ userId }) {
         if (res.ok) {
           const data = await res.json();
 
+          console.log("📊 RAW Activity Data:", data);
+
           setStreak(data.streak || 0);
 
           const currentMonth = currentDate.getMonth();
           const currentYear = currentDate.getFullYear();
 
+          console.log("📅 Current viewing:", {
+            month: currentMonth,
+            year: currentYear,
+            monthName: currentDate.toLocaleDateString('en-US', { month: 'long' })
+          });
+
+          // ✅ FIX: Handle both date formats
           const daysInCurrentMonth = Object.keys(data.activity || {})
             .filter((dateString) => {
-              const date = new Date(dateString);
+              // Parse date correctly
+              const date = new Date(dateString + 'T00:00:00'); // Add time to avoid timezone issues
+              
+              console.log("🔍 Checking date:", {
+                dateString,
+                parsed: date,
+                parsedMonth: date.getMonth(),
+                parsedYear: date.getFullYear(),
+                matches: date.getMonth() === currentMonth && date.getFullYear() === currentYear
+              });
+
               return (
                 date.getMonth() === currentMonth &&
                 date.getFullYear() === currentYear
               );
             })
-            .map((dateString) => new Date(dateString).getDate());
+            .map((dateString) => {
+              const date = new Date(dateString + 'T00:00:00');
+              const day = date.getDate();
+              console.log("✅ Marked day:", day, "from", dateString);
+              return day;
+            });
+
+          console.log("📊 Calendar Debug:", {
+            totalActivityDates: Object.keys(data.activity || {}).length,
+            activityDates: Object.keys(data.activity || {}),
+            daysInCurrentMonth,
+            currentMonth,
+            currentYear
+          });
 
           setActivityDays(daysInCurrentMonth);
         }
       } catch (error) {
-        console.error("Error fetching activity:", error);
+        console.error("❌ Error fetching activity:", error);
       } finally {
         setLoading(false);
       }
