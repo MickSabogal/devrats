@@ -16,10 +16,13 @@ export default async function Home() {
     await connectDB();
     
     const userGroups = await Group.find({
-      'members.user': session.user.id
+      $or: [
+        { 'members.user': session.user.id },
+        { admin: session.user.id }
+      ]
     }).lean();
 
-    if (userGroups.length === 0) {
+    if (!userGroups || userGroups.length === 0) {
       redirect("/dashboard/onboarding");
     }
 

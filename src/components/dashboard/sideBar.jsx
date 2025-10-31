@@ -17,22 +17,26 @@ export default function Sidebar({ isOpen, onClose, user }) {
   const [groups, setGroups] = useState([]);
   const [loadingGroups, setLoadingGroups] = useState(true);
 
-  // Busca grupos do usuário
   useEffect(() => {
     const fetchGroups = async () => {
       try {
         const response = await fetch("/api/group", { method: "GET" });
         const data = await response.json();
-        if (response.ok && Array.isArray(data)) setGroups(data);
-        else console.error("Erro ao buscar grupos:", data.message);
+        
+        if (response.ok && Array.isArray(data)) {
+          setGroups(data);
+        } else {
+        }
       } catch (error) {
-        console.error("Erro ao buscar grupos:", error);
       } finally {
         setLoadingGroups(false);
       }
     };
-    fetchGroups();
-  }, []);
+    
+    if (isOpen) {
+      fetchGroups();
+    }
+  }, [isOpen]);
 
   const handleGroupCreated = (newGroup) => {
     setGroups((prev) => [newGroup, ...prev]);

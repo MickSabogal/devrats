@@ -161,23 +161,35 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated, groupId 
         };
       }
 
-      const response = await fetch(`/api/groups/${groupId}/posts`, {
+      console.log("📤 Sending post data:", { 
+        title: postData.title, 
+        duration: postData.duration,
+        hasImage: !!postData.image 
+      });
+
+      // ✅ CORRIGIDO - rota correta
+      const response = await fetch(`/api/group/${groupId}/post`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(postData),
       });
 
       const data = await response.json();
+      console.log("📥 Response:", data);
 
       if (data.success) {
-        if (onPostCreated) onPostCreated(data.post);
-        if (isOpen) showAlert("Success", "Activity posted successfully!", "success");
-        resetForm();
-        setTimeout(() => onClose(), 1000);
+        showAlert("Success", "Activity posted successfully!", "success");
+        
+        setTimeout(() => {
+          if (onPostCreated) onPostCreated(data.post);
+          resetForm();
+          onClose();
+        }, 1500);
       } else {
         showAlert("Error", data.message || "Error creating post", "error");
       }
     } catch (error) {
+      console.error("❌ Error creating post:", error);
       showAlert("Error", "Error creating post. Please try again.", "error");
     } finally {
       setIsLoading(false);

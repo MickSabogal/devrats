@@ -1,8 +1,7 @@
-// src/components/dashboard/CreateGroupModal.jsx
 "use client";
 
 import { useState, useRef } from "react";
-import { IoClose, IoCamera, IoPeople, IoInformationCircle } from "react-icons/io5";
+import { IoClose, IoCamera, IoPeople } from "react-icons/io5";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
@@ -99,7 +98,7 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }) {
         coverPicture: coverBase64 || "",
       };
 
-      const response = await fetch("/api/groups", {
+      const response = await fetch("/api/group", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(groupData),
@@ -108,11 +107,14 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }) {
       const data = await response.json();
 
       if (response.ok) {
-        onGroupCreated?.(data);
         showAlert("Success", "Group created successfully!", "success");
+        
         setTimeout(() => {
-          onClose();
           resetForm();
+          onClose();
+          if (onGroupCreated) {
+            onGroupCreated(data);
+          }
         }, 1500);
       } else {
         showAlert("Error", data.message || "Error creating group", "error");
