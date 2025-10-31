@@ -1,15 +1,31 @@
 "use client";
 
-import React, { useState, useRef } from "react";
-import { IoClose, IoCamera, IoCalendar, IoLocation, IoGitBranch } from "react-icons/io5";
+import React, { useState, useRef, useEffect } from "react";
+import {
+  IoClose,
+  IoCamera,
+  IoCalendar,
+  IoLocation,
+  IoGitBranch,
+} from "react-icons/io5";
 import AlertModal from "@/components/ui/AlertModal";
 
-export default function AddEventModal({ isOpen, onClose, onPostCreated, groupId }) {
+export default function AddEventModal({
+  isOpen,
+  onClose,
+  onPostCreated,
+  groupId,
+}) {
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [showMetrics, setShowMetrics] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [alert, setAlert] = useState({ isOpen: false, title: "", message: "", type: "info" });
+  const [alert, setAlert] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    type: "info",
+  });
   const [formData, setFormData] = useState({
     title: "",
     content: "",
@@ -17,9 +33,14 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated, groupId 
     location: "",
     commitLines: "",
     activityDescription: "",
-    repoLink: ""
+    repoLink: "",
   });
 
+  useEffect(() => {
+    if (!isOpen) {
+      setAlert({ isOpen: false, title: "", message: "", type: "info" });
+    }
+  }, [isOpen]);
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
 
@@ -31,10 +52,14 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated, groupId 
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        showAlert("File Too Large", "Image size must be less than 5MB", "error");
+        showAlert(
+          "File Too Large",
+          "Image size must be less than 5MB",
+          "error"
+        );
         return;
       }
-      
+
       setImageFile(file);
       const previewUrl = URL.createObjectURL(file);
       setImagePreview(previewUrl);
@@ -43,9 +68,9 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated, groupId 
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -57,104 +82,117 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated, groupId 
       location: "",
       commitLines: "",
       activityDescription: "",
-      repoLink: ""
+      repoLink: "",
     });
-    
+
     if (imagePreview) {
       URL.revokeObjectURL(imagePreview);
     }
-    
+
     setImagePreview(null);
     setImageFile(null);
     setShowMetrics(false);
   };
 
-  // Substitua a parte do handleSubmit no AddEventModal.jsx:
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  
-  if (!groupId) {
-    showAlert("Error", "No group selected", "error");
-    return;
-  }
-  
-  setIsLoading(true);
-
-  try {
-    let imageBase64 = null;
-    
-    if (imageFile) {
-      imageBase64 = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(imageFile);
-      });
+    if (!groupId) {
+      showAlert("Error", "No group selected", "error");
+      return;
     }
 
-    const postData = {
-      title: formData.title,
-      content: formData.content,
-      image: imageBase64,
-      eventDate: formData.eventDate,
-      location: formData.location,
-    };
+    setIsLoading(true);
 
-    // Only add metrics if at least one field is filled
-    if (showMetrics && (formData.commitLines || formData.activityDescription || formData.repoLink)) {
-      postData.metrics = {
-        commitLines: formData.commitLines ? parseInt(formData.commitLines) : null,
-        activityDescription: formData.activityDescription || null,
-        repoLink: formData.repoLink || null
-      };
-    }
+    try {
+      let imageBase64 = null;
 
-    const response = await fetch(`/api/group/${groupId}/post`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(postData),
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      // ✅ FIX: Backend retorna "post", não "data"
-      console.log("Post created successfully:", data.post);
-      
-      if (onPostCreated) {
-        onPostCreated(data.post); // ✅ Agora passa data.post
+      if (imageFile) {
+        imageBase64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(imageFile);
+        });
       }
 
-      showAlert("Success", "Activity posted successfully!", "success");
-      resetForm();
-      onClose();
-    } else {
-      console.error("Error creating post:", data.message);
-      showAlert("Error", data.message || "Error creating post", "error");
+      const postData = {
+        title: formData.title,
+        content: formData.content,
+        image: imageBase64,
+        eventDate: formData.eventDate,
+        location: formData.location,
+      };
+
+      // Only add metrics if at least one field is filled
+      if (
+        showMetrics &&
+        (formData.commitLines ||
+          formData.activityDescription ||
+          formData.repoLink)
+      ) {
+        postData.metrics = {
+          commitLines: formData.commitLines
+            ? parseInt(formData.commitLines)
+            : null,
+          activityDescription: formData.activityDescription || null,
+          repoLink: formData.repoLink || null,
+        };
+      }
+
+      const response = await fetch(`/api/group/${groupId}/post`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(postData),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        console.log("Post created successfully:", data.post);
+
+        if (onPostCreated) {
+          onPostCreated(data.post);
+        }
+
+        if (isOpen) {
+          showAlert("Success", "Activity posted successfully!", "success");
+        }
+
+        resetForm();
+
+        setTimeout(() => onClose(), 1000);
+      } else {
+        console.error("❌ Error creating post:", data.message);
+        showAlert("Error", data.message || "Error creating post", "error");
+      }
+    } catch (error) {
+      console.error("Error submitting post:", error);
+      showAlert("Error", "Error creating post. Please try again.", "error");
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    console.error("Error submitting post:", error);
-    showAlert("Error", "Error creating post. Please try again.", "error");
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   if (!isOpen) return null;
 
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-end justify-center">
-        <div onClick={onClose} className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+        <div
+          onClick={onClose}
+          className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        />
 
         <div className="relative w-full max-w-md bg-white dark:bg-[#1e2939] rounded-t-3xl shadow-2xl max-h-[90vh] overflow-hidden">
           <div className="sticky top-0 bg-white dark:bg-[#1e2939] border-b border-gray-200 dark:border-gray-700/50 px-6 py-4 flex items-center justify-between z-10">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">Add Activity</h2>
-            <button 
-              onClick={onClose} 
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+              Add Activity
+            </h2>
+            <button
+              onClick={onClose}
               disabled={isLoading}
               className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors disabled:opacity-50"
             >
@@ -162,14 +200,23 @@ const handleSubmit = async (e) => {
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="overflow-y-auto max-h-[calc(90vh-140px)]">
+          <form
+            onSubmit={handleSubmit}
+            className="overflow-y-auto max-h-[calc(90vh-140px)]"
+          >
             <div className="px-6 py-4 space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Photo</label>
-                
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Photo
+                </label>
+
                 {imagePreview ? (
                   <div className="relative w-full h-48 rounded-lg overflow-hidden">
-                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
                     <button
                       type="button"
                       onClick={() => {
@@ -194,11 +241,13 @@ const handleSubmit = async (e) => {
                       className="flex-1 flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-primary dark:hover:border-white transition-colors disabled:opacity-50"
                     >
                       <IoCamera className="w-8 h-8 text-gray-400 dark:text-gray-500" />
-                      <span className="text-sm text-gray-600 dark:text-gray-400">Camera</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        Camera
+                      </span>
                     </button>
                   </div>
                 )}
-                
+
                 <input
                   ref={cameraInputRef}
                   type="file"
@@ -211,7 +260,10 @@ const handleSubmit = async (e) => {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="title" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label
+                  htmlFor="title"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Activity Title *
                 </label>
                 <input
@@ -228,7 +280,10 @@ const handleSubmit = async (e) => {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="content" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label
+                  htmlFor="content"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Description *
                 </label>
                 <textarea
@@ -245,7 +300,10 @@ const handleSubmit = async (e) => {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="eventDate" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                <label
+                  htmlFor="eventDate"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2"
+                >
                   <IoCalendar className="w-4 h-4" />
                   Date & Time *
                 </label>
@@ -262,7 +320,10 @@ const handleSubmit = async (e) => {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="location" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                <label
+                  htmlFor="location"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2"
+                >
                   <IoLocation className="w-4 h-4" />
                   Location
                 </label>
@@ -293,7 +354,10 @@ const handleSubmit = async (e) => {
               {showMetrics && (
                 <div className="space-y-4 p-4 bg-gray-50 dark:bg-[#0B111c] rounded-lg">
                   <div className="space-y-2">
-                    <label htmlFor="commitLines" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label
+                      htmlFor="commitLines"
+                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
                       Commit Lines
                     </label>
                     <input
@@ -309,7 +373,10 @@ const handleSubmit = async (e) => {
                   </div>
 
                   <div className="space-y-2">
-                    <label htmlFor="activityDescription" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label
+                      htmlFor="activityDescription"
+                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
                       Activity Description
                     </label>
                     <textarea
@@ -325,7 +392,10 @@ const handleSubmit = async (e) => {
                   </div>
 
                   <div className="space-y-2">
-                    <label htmlFor="repoLink" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label
+                      htmlFor="repoLink"
+                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
                       Repository Link
                     </label>
                     <input
