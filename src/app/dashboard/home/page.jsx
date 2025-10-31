@@ -9,6 +9,7 @@ import Link from "next/link";
 import Sidebar from "@/components/dashboard/sideBar";
 import BottomNavbar from "@/components/dashboard/bottomNavBar";
 import CreateGroupModal from "@/components/dashboard/CreateGroupModal";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function DashboardHome() {
   const router = useRouter();
@@ -52,7 +53,7 @@ export default function DashboardHome() {
   if (loading) {
     return (
       <div className="bg-primary min-h-screen flex items-center justify-center">
-        <p className="text-white">Loading...</p>
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
@@ -89,7 +90,9 @@ export default function DashboardHome() {
         {/* Groups list */}
         {groups.length > 0 ? (
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-white mb-4">Your Groups</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">
+              Your Groups
+            </h3>
             <div className="space-y-3">
               {groups.map((group) => (
                 <Link
@@ -162,4 +165,4 @@ export default function DashboardHome() {
       </div>
     </div>
   );
-}  
+}
