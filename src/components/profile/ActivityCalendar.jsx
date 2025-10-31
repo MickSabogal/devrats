@@ -262,7 +262,6 @@ export default function ActivityCalendar({ userId }) {
                 >
                   {day && (
                     <>
-                      {/* ⭐ ESTRELINHA: Só aparece em dias PASSADOS com atividade */}
                       {activityDays.includes(day) && !isToday(day) && (
                         <div className="w-full h-full p-2">
                           <Image
@@ -275,7 +274,6 @@ export default function ActivityCalendar({ userId }) {
                         </div>
                       )}
                       
-                      {/* 🐭 RATINHO: SEMPRE aparece no dia de HOJE */}
                       {isToday(day) && (
                         <div className="w-full h-full p-2">
                           <Image
@@ -288,7 +286,6 @@ export default function ActivityCalendar({ userId }) {
                         </div>
                       )}
                       
-                      {/* 🔢 NÚMERO: Só mostra se não tem atividade e não é hoje */}
                       {!activityDays.includes(day) && !isToday(day) && (
                         <span className="text-gray-400 text-xs">{day}</span>
                       )}

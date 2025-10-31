@@ -50,14 +50,14 @@ export default function ProfilePage() {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen bg-primary flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="w-8 h-8 border-3 border-gray-600 border-t-red-600 rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-primary">
+    <div className="min-h-screen bg-black">
       <style jsx>{`
         @keyframes pendulum {
           0%,
@@ -76,7 +76,7 @@ export default function ProfilePage() {
       `}</style>
 
       <div className="max-w-md mx-auto">
-        <div className="relative bg-secondary rounded-b-3xl overflow-hidden pb-18">
+        <div className="relative bg-primary rounded-b-3xl overflow-hidden pb-18">
           <img
             src="/images/cheese.png"
             alt="Background pattern"
