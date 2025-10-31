@@ -2,51 +2,24 @@ import mongoose, { Schema, models } from "mongoose";
 
 const UserSchema = new Schema(
   {
-    name: {
-      type: String,
-      required: [true, "Name is required"],
-      trim: true,
+    name: { type: String, required: true, trim: true },
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true, index: true },
+    password: { type: String, minlength: 6, select: false },
+
+    avatar: { type: String, default: "/images/default-avatar.png" },
+    image: { type: String, default: null },
+
+    streak: { type: Number, default: 0 },
+    lastPostDate: { type: Date, default: null },
+
+    activity: {
+      type: Map,
+      of: Boolean,
+      default: {},
     },
-    email: {
-      type: String,
-      required: [true, "Email is required"],
-      unique: true,
-      lowercase: true,
-      trim: true,
-      index: true,
-    },
-    password: {
-      type: String,
-      minlength: [6, "Password must be at least 6 characters"],
-      select: false,
-    },
-    avatar: {
-      type: String,
-      default: "/images/default-avatar.png",
-    },
-    image: {
-      type: String,
-      default: null,
-    },
-    streak: {
-      type: Number,
-      default: 0,
-    },
-    lastPostDate: { 
-        type: Date, 
-        default: null, 
-    },
-    activeGroup: {
-      type: Schema.Types.ObjectId,
-      ref: "Group",
-      default: null,
-    },
-    userGroups: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Group",
-      },
-    ],
+
+    activeGroup: { type: Schema.Types.ObjectId, ref: "Group", default: null },
+    userGroups: [{ type: Schema.Types.ObjectId, ref: "Group" }],
   },
   { timestamps: true }
 );

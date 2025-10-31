@@ -4,15 +4,16 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import Post from "@/models/Post";
 import Group from "@/models/Group";
+import User from "@/models/User";
 
-// GET — List all posts in a specific group (supports pagination)
+// ✅ GET — List posts from this group with pagination
 export async function GET(req, { params }) {
   try {
     const { id } = await params;
 
     await connectDB();
-
     const group = await Group.findById(id);
+
     if (!group) {
       return NextResponse.json({ message: "Group not found" }, { status: 404 });
     }
@@ -32,31 +33,23 @@ export async function GET(req, { params }) {
 
     return NextResponse.json({
       success: true,
-      message: "Group posts fetched successfully",
       page,
       totalPages: Math.ceil(totalPosts / limit),
       totalPosts,
       data: posts,
-    }, { status: 200 });
-
+    });
   } catch (err) {
     console.error("GET /group/[id]/post error:", err);
-    return NextResponse.json({ 
-      success: false,
-      message: "Internal server error" 
-    }, { status: 500 });
+    return NextResponse.json({ success: false, message: "Internal server error" }, { status: 500 });
   }
 }
 
-// POST — Create a new post in a specific group
+// ✅ POST — Create post & update streak + activity
 export async function POST(req, { params }) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
-      return NextResponse.json({ 
-        success: false,
-        message: "Unauthorized" 
-      }, { status: 401 });
+    if (!session?.user) {
+      return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
     }
 
     const { id } = await params;
@@ -64,34 +57,23 @@ export async function POST(req, { params }) {
     const { title, content, image, eventDate, location, metrics } = body;
     const userId = session.user.id;
 
-    console.log("Creating post for group:", id);
-    console.log("Post data:", { title, content, hasImage: !!image, eventDate, location, metrics });
-
     if (!title) {
-      return NextResponse.json({ 
-        success: false,
-        message: "Title is required" 
-      }, { status: 400 });
+      return NextResponse.json({ success: false, message: "Title is required" }, { status: 400 });
     }
 
     await connectDB();
 
     const group = await Group.findById(id);
     if (!group) {
-      return NextResponse.json({ 
-        success: false,
-        message: "Group not found" 
-      }, { status: 404 });
+      return NextResponse.json({ success: false, message: "Group not found" }, { status: 404 });
     }
 
-    const isMember = group.members.some(m => m.user.toString() === userId) || 
-                     group.admin.toString() === userId;
-    
+    const isMember =
+      group.members.some((m) => m.user.toString() === userId) ||
+      group.admin.toString() === userId;
+
     if (!isMember) {
-      return NextResponse.json({ 
-        success: false,
-        message: "You are not a member of this group" 
-      }, { status: 403 });
+      return NextResponse.json({ success: false, message: "You are not a member of this group" }, { status: 403 });
     }
 
     const postData = {
@@ -102,35 +84,53 @@ export async function POST(req, { params }) {
       location: location || "",
       user: userId,
       group: id,
+      metrics: metrics ?? {},
     };
 
-    // Only add metrics if they exist
-    if (metrics && (metrics.commitLines || metrics.activityDescription || metrics.repoLink)) {
-      postData.metrics = {
-        commitLines: metrics.commitLines || null,
-        activityDescription: metrics.activityDescription || null,
-        repoLink: metrics.repoLink || null,
-      };
-    }
-
-    const newPost = new Post(postData);
-    await newPost.save();
+    const newPost = await Post.create(postData);
     await newPost.populate("user", "name avatar");
 
-    console.log("Post created successfully:", newPost._id);
+    // ✅ UPDATE USER STREAK & ACTIVITY
+    const user = await User.findById(userId);
 
-    return NextResponse.json({ 
+    // Ensure activity is a Map
+    if (!(user.activity instanceof Map)) {
+      user.activity = new Map(Object.entries(user.activity || {}));
+    }
+
+    const today = new Date().toISOString().split("T")[0];
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+
+    const lastPost = user.lastPostDate ? user.lastPostDate.toISOString().split("T")[0] : null;
+
+    // Mark today active
+    user.activity.set(today, true);
+
+    // Update streak logic
+    if (lastPost === today) {
+      // Already posted today — no change
+    } else if (lastPost === yesterday) {
+      user.streak += 1;
+    } else {
+      user.streak = 1;
+    }
+
+    user.lastPostDate = new Date();
+    await user.save();
+
+    return NextResponse.json({
       success: true,
-      message: "Post created successfully", 
-      data: newPost 
+      message: "Post created & streak updated",
+      data: newPost,
+      streak: user.streak,
     }, { status: 201 });
 
   } catch (err) {
     console.error("POST /group/[id]/post error:", err);
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: false,
       message: "Internal server error",
-      error: err.message 
+      error: err.message,
     }, { status: 500 });
   }
 }
