@@ -6,7 +6,7 @@ import { TiPlus } from "react-icons/ti";
 import { BiMenuAltLeft } from "react-icons/bi";
 import Sidebar from "@/components/dashboard/sideBar";
 import BottomNavbar from "@/components/dashboard/bottomNavBar";
-import GroupBanner from "@/components/dashboard/GroupBanner";
+import GroupBanner from "@/components/dashboard/groupBanner";
 import EventCard from "@/components/dashboard/eventCard";
 import AddEventModal from "@/components/dashboard/addEventModal";
 
