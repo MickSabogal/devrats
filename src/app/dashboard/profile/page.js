@@ -59,12 +59,29 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-primary">
+      <style jsx>{`
+        @keyframes pendulum {
+          0%,
+          100% {
+            transform: rotate(-3deg);
+          }
+          50% {
+            transform: rotate(3deg);
+          }
+        }
+
+        .pendulum-swing {
+          transform-origin: top center;
+          animation: pendulum 3s ease-in-out infinite;
+        }
+      `}</style>
+
       <div className="max-w-md mx-auto">
-        <div className="relative bg-secondary rounded-b-3xl overflow-hidden pb-30">
+        <div className="relative bg-secondary rounded-b-3xl overflow-hidden pb-20">
           <img
             src="/images/cheese.png"
             alt="Background pattern"
-            className="absolute top-0 right-0 w-2/3 object-contain pointer-events-none select-none"
+            className="absolute top-0 right-0 w-60 h-60 object-contain pointer-events-none select-none pendulum-swing translate-x-2"
           />
 
           <div className="relative z-10 flex items-center justify-between p-4">
@@ -83,7 +100,7 @@ export default function ProfilePage() {
             </button>
           </div>
 
-          <div className="relative z-10 px-6 mt-8 text-left">
+          <div className="relative z-10 px-6 mt-2 text-left">
             <p className="text-white/80 text-sm mb-6">Welcome back!</p>
             <div className="w-24">
               <h1 className="text-white text-xl font-bold leading-tight">
@@ -98,7 +115,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="px-6 -mt-16 relative z-20">
+        <div className="px-6 -mt-12 relative z-20">
           <div className="flex gap-4 mb-8">
             <ProfileHeader user={user} />
 
@@ -107,7 +124,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="mt-15">
+          <div className="-mt-4">
             <ActivityCalendar
               userId={user._id}
               lastPostDate={user.lastPostDate}
