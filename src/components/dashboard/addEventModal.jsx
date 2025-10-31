@@ -121,6 +121,11 @@ export default function AddEventModal({
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    console.log("🚀 === SUBMIT STARTED ===");
+    console.log("📋 Form data:", formData);
+    console.log("⏱️  Duration:", formData.duration);
+    console.log("⏱️  Duration type:", typeof formData.duration);
+
     if (!groupId) {
       showAlert("Error", "No group selected", "error");
       return;
@@ -151,8 +156,12 @@ export default function AddEventModal({
         image: imageBase64,
         eventDate: new Date(formData.eventDate).toISOString(),
         location: formData.location,
-        duration: formData.duration,
+        duration: formData.duration, // ✅ Já é número
       };
+
+      console.log("📦 Post data to send:", postData);
+      console.log("⏱️  Duration in postData:", postData.duration);
+      console.log("⏱️  Duration type in postData:", typeof postData.duration);
 
       if (
         showMetrics &&
@@ -169,6 +178,8 @@ export default function AddEventModal({
         };
       }
 
+      console.log("🌐 Sending POST to:", `/api/group/${groupId}/post`);
+
       const response = await fetch(`/api/group/${groupId}/post`, {
         method: "POST",
         headers: {
@@ -179,8 +190,11 @@ export default function AddEventModal({
 
       const data = await response.json();
 
+      console.log("📡 Response:", data);
+
       if (data.success) {
-        console.log("Post created successfully:", data.post);
+        console.log("✅ Post created successfully:", data.post);
+        console.log("💾 Saved post duration:", data.post.duration);
 
         if (onPostCreated) {
           onPostCreated(data.post);
@@ -198,10 +212,11 @@ export default function AddEventModal({
         showAlert("Error", data.message || "Error creating post", "error");
       }
     } catch (error) {
-      console.error("Error submitting post:", error);
+      console.error("❌ Error submitting post:", error);
       showAlert("Error", "Error creating post. Please try again.", "error");
     } finally {
       setIsLoading(false);
+      console.log("🚀 === SUBMIT COMPLETED ===");
     }
   };
 
