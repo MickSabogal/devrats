@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 export default function ActivityCalendar({ userId }) {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -133,7 +134,35 @@ export default function ActivityCalendar({ userId }) {
                         : "bg-gray-700 text-gray-400"}
                   `}
                 >
-                  {day}
+                  {day && (
+                    <>
+                      {activityDays.includes(day) ? (
+                        <div className="w-full h-full p-2 flex items-center justify-center">
+                          <Image
+                            src="/images/fire.png"
+                            alt="Activity"
+                            width={32}
+                            height={32}
+                            className="object-contain"
+                          />
+                        </div>
+                      ) : isToday(day) ? (
+                        <div className="w-full h-full p-2 flex items-center justify-center">
+                          <Image
+                            src="/images/today.png"
+                            alt="Today"
+                            width={32}
+                            height={32}
+                            className="object-contain"
+                          />
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 text-sm">
+                          {day}
+                        </span>
+                      )}
+                    </>
+                  )}
                 </div>
               ))}
             </div>
