@@ -31,13 +31,12 @@ export default function ProfilePage() {
       const data = await response.json();
       setUser(data.user);
     } catch (error) {
-      console.error("Error fetching user:", error);
+      return;
     } finally {
       setLoading(false);
     }
   };
 
-  // Divide o nome em palavras
   const getNameLines = (name) => {
     const words = name?.split(" ") || [];
     if (words.length === 1) return [words[0], ""];
@@ -77,11 +76,11 @@ export default function ProfilePage() {
       `}</style>
 
       <div className="max-w-md mx-auto">
-        <div className="relative bg-secondary rounded-b-3xl overflow-hidden pb-20">
+        <div className="relative bg-secondary rounded-b-3xl overflow-hidden pb-18">
           <img
             src="/images/cheese.png"
             alt="Background pattern"
-            className="absolute top-0 right-0 w-60 h-60 object-contain pointer-events-none select-none pendulum-swing translate-x-2"
+            className="absolute top-0 right-0 w-68 h-68 object-contain pointer-events-none select-none pendulum-swing translate-x-2"
           />
 
           <div className="relative z-10 flex items-center justify-between p-4">
@@ -100,14 +99,14 @@ export default function ProfilePage() {
             </button>
           </div>
 
-          <div className="relative z-10 px-6 mt-2 text-left">
-            <p className="text-white/80 text-sm mb-6">Welcome back!</p>
-            <div className="w-24">
-              <h1 className="text-white text-xl font-bold leading-tight">
+          <div className="relative z-10 px-6 mt-8 text-left">
+            <p className="text-white/80 text-sm mb-4">Welcome back!</p>
+            <div className="w-48">
+              <h1 className="text-white text-3xl font-bold leading-tight">
                 {firstName}
               </h1>
               {lastName && (
-                <h1 className="text-white text-xl font-bold leading-tight">
+                <h1 className="text-white text-3xl font-bold leading-tight">
                   {lastName}
                 </h1>
               )}

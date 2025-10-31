@@ -217,8 +217,8 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }) {
                 />
               </div>
 
-              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                <p className="text-sm text-blue-800 dark:text-blue-200">
+              <div className="p-4 rounded-lg border border-red-200 dark:border-red-800">
+                <p className="text-sm text-red-800 dark:text-blue-200">
                   <strong>Note:</strong> You'll be added as the group admin and receive an invite link to share with others.
                 </p>
               </div>
@@ -231,7 +231,7 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }) {
               type="button"
               onClick={handleSubmit}
               disabled={isLoading}
-              className="w-full py-3 bg-blue-600 dark:bg-white text-white dark:text-blue-600 font-semibold rounded-lg hover:opacity-90 transition-all disabled:opacity-50"
+              className="w-full py-3 bg-red-600 dark:bg-white text-white dark:text-primary font-semibold rounded-lg hover:opacity-90 transition-all disabled:opacity-50"
             >
               {isLoading ? "Creating Group..." : "Create Group"}
             </button>

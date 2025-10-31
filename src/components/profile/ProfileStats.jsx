@@ -1,7 +1,7 @@
-// src/components/profile/ProfileStats.jsx
 "use client";
 
 import { useState, useEffect } from "react";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function ProfileStats({ user }) {
   const [totalMinutes, setTotalMinutes] = useState(0);
@@ -15,10 +15,9 @@ export default function ProfileStats({ user }) {
         if (response.ok) {
           const data = await response.json();
           setTotalMinutes(data.totalMinutes || 0);
-        } else {
-          await response.json();
         }
       } catch (error) {
+        return;
       } finally {
         setLoading(false);
       }
@@ -39,7 +38,6 @@ export default function ProfileStats({ user }) {
 
   return (
     <div className="flex gap-3 flex-1">
-      {/* Check-ins (Streak) */}
       <div className="bg-gray-700 rounded-2xl px-4 py-3 text-center shadow-lg border border-gray-800 flex-1">
         <p className="text-white text-xl font-bold">
           {user?.streak || 0}
@@ -47,10 +45,11 @@ export default function ProfileStats({ user }) {
         <p className="text-gray-400 text-xs">Check-ins</p>
       </div>
 
-      {/* Time Active */}
       <div className="bg-gray-700 rounded-2xl px-4 py-3 text-center shadow-lg border border-gray-800 flex-1">
         {loading ? (
-          <p className="text-white text-xl font-bold">...</p>
+          <div className="flex justify-center items-center h-7">
+            <LoadingSpinner size="sm" />
+          </div>
         ) : (
           <p className="text-white text-xl font-bold">
             {formatTime(totalMinutes)}

@@ -1,4 +1,3 @@
-// src/models/Post.js
 import mongoose, { Schema, models, Types } from "mongoose";
 
 const PostSchema = new Schema(
@@ -30,11 +29,6 @@ const PostSchema = new Schema(
     eventDate: {
       type: Date,
       default: null,
-    },
-    location: {
-      type: String,
-      default: "",
-      trim: true,
     },
     duration: {
       type: Number,

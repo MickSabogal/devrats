@@ -1,4 +1,3 @@
-// src/components/dashboard/addEventModal.jsx
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
@@ -6,7 +5,6 @@ import {
   IoClose,
   IoCamera,
   IoCalendar,
-  IoLocation,
   IoGitBranch,
   IoTime,
 } from "react-icons/io5";
@@ -33,8 +31,7 @@ export default function AddEventModal({
     title: "",
     content: "",
     eventDate: new Date().toISOString().split("T")[0],
-    location: "",
-    duration: 0, // em minutos
+    duration: 0,
     commitLines: "",
     activityDescription: "",
     repoLink: "",
@@ -101,7 +98,6 @@ export default function AddEventModal({
       title: "",
       content: "",
       eventDate: new Date().toISOString().split("T")[0],
-      location: "",
       duration: 0,
       commitLines: "",
       activityDescription: "",
@@ -120,11 +116,6 @@ export default function AddEventModal({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    console.log("🚀 === SUBMIT STARTED ===");
-    console.log("📋 Form data:", formData);
-    console.log("⏱️  Duration:", formData.duration);
-    console.log("⏱️  Duration type:", typeof formData.duration);
 
     if (!groupId) {
       showAlert("Error", "No group selected", "error");
@@ -155,13 +146,8 @@ export default function AddEventModal({
         content: formData.content,
         image: imageBase64,
         eventDate: new Date(formData.eventDate).toISOString(),
-        location: formData.location,
-        duration: formData.duration, // ✅ Já é número
+        duration: formData.duration,
       };
-
-      console.log("📦 Post data to send:", postData);
-      console.log("⏱️  Duration in postData:", postData.duration);
-      console.log("⏱️  Duration type in postData:", typeof postData.duration);
 
       if (
         showMetrics &&
@@ -178,8 +164,6 @@ export default function AddEventModal({
         };
       }
 
-      console.log("🌐 Sending POST to:", `/api/group/${groupId}/post`);
-
       const response = await fetch(`/api/group/${groupId}/post`, {
         method: "POST",
         headers: {
@@ -190,12 +174,7 @@ export default function AddEventModal({
 
       const data = await response.json();
 
-      console.log("📡 Response:", data);
-
       if (data.success) {
-        console.log("✅ Post created successfully:", data.post);
-        console.log("💾 Saved post duration:", data.post.duration);
-
         if (onPostCreated) {
           onPostCreated(data.post);
         }
@@ -208,15 +187,12 @@ export default function AddEventModal({
 
         setTimeout(() => onClose(), 1000);
       } else {
-        console.error("❌ Error creating post:", data.message);
         showAlert("Error", data.message || "Error creating post", "error");
       }
     } catch (error) {
-      console.error("❌ Error submitting post:", error);
       showAlert("Error", "Error creating post. Please try again.", "error");
     } finally {
       setIsLoading(false);
-      console.log("🚀 === SUBMIT COMPLETED ===");
     }
   };
 
@@ -424,26 +400,6 @@ export default function AddEventModal({
                     </div>
                   </div>
                 )}
-              </div>
-
-              <div className="space-y-2">
-                <label
-                  htmlFor="location"
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2"
-                >
-                  <IoLocation className="w-4 h-4" />
-                  Location
-                </label>
-                <input
-                  id="location"
-                  name="location"
-                  type="text"
-                  value={formData.location}
-                  onChange={handleInputChange}
-                  disabled={isLoading}
-                  placeholder="Enter location"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0B111c] text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary dark:focus:ring-white focus:border-transparent outline-none transition-all disabled:opacity-50"
-                />
               </div>
 
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4">

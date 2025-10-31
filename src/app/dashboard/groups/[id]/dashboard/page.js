@@ -22,7 +22,6 @@ export default function GroupDashboard() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch current user on component mount
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -30,14 +29,13 @@ export default function GroupDashboard() {
         const data = await res.json();
         setUser(data.user);
       } catch (error) {
-        console.error("Error fetching user:", error);
+        return;
       }
     };
 
     fetchUser();
   }, []);
 
-  // Fetch group info and its posts when groupId changes
   useEffect(() => {
     const fetchGroupAndPosts = async () => {
       if (!groupId) return;
@@ -45,29 +43,24 @@ export default function GroupDashboard() {
       try {
         setLoading(true);
 
-        // Fetch specific group
         const resGroup = await fetch(`/api/group/${groupId}`);
         const groupData = await resGroup.json();
 
         if (resGroup.ok) {
           setGroup(groupData);
 
-          // Fetch posts for this group
           const resPosts = await fetch(`/api/group/${groupId}/post`);
           const postsData = await resPosts.json();
 
-          // ✅ Updated: use `posts` instead of `data` (backend returns { posts: [...] })
           if (resPosts.ok && postsData.success) {
             setPosts(postsData.posts || []);
           } else {
             setPosts([]);
           }
         } else {
-          console.error("Group not found");
           router.push("/dashboard/home");
         }
       } catch (error) {
-        console.error("Error fetching group or posts:", error);
         router.push("/dashboard/home");
       } finally {
         setLoading(false);
@@ -77,9 +70,12 @@ export default function GroupDashboard() {
     fetchGroupAndPosts();
   }, [groupId, router]);
 
-  // Handle new post added (add to top of list)
   const handlePostCreated = (newPost) => {
     setPosts((prev) => [newPost, ...prev]);
+  };
+
+  const handlePostDeleted = (postId) => {
+    setPosts((prev) => prev.filter((post) => post._id !== postId));
   };
 
   if (loading) {
@@ -93,11 +89,9 @@ export default function GroupDashboard() {
   return (
     <div className="bg-primary">
       <div className="max-w-md mx-auto relative min-h-screen px-6 pt-6 pb-28 overflow-hidden">
-        {/* Sidebar */}
         <Sidebar isOpen={isOpen} onClose={() => setIsOpen(false)} user={user} />
 
         <div>
-          {/* Sidebar open button */}
           <div className="flex items-center -m-2">
             <button
               onClick={() => setIsOpen(true)}
@@ -107,15 +101,11 @@ export default function GroupDashboard() {
             </button>
           </div>
 
-          {/* Group title */}
           <h1 className="text-xl font-bold text-white my-2">
             {group?.name || "Group"}
           </h1>
-
-          {/* Group banner */}
           <GroupBanner user={user} group={group} />
 
-          {/* Current date display */}
           <div className="w-full text-center mt-2 text-gray-400 text-xs">
             <small>
               {new Date().toLocaleDateString("en-US", {
@@ -126,7 +116,6 @@ export default function GroupDashboard() {
             </small>
           </div>
 
-          {/* Group posts or message if empty */}
           {posts.length === 0 ? (
             <div className="text-center text-gray-400 mt-8">
               <p>No posts yet. Be the first to share!</p>
@@ -135,11 +124,9 @@ export default function GroupDashboard() {
             posts.map((post) => (
               <EventCard
                 key={post._id}
-                // ✅ Defensive check: ensure user always exists
                 user={post.user || { name: "Unknown User", avatar: null }}
                 eventTitle={post.title}
                 eventImage={post.image}
-                // ✅ Defensive check: avoid errors if createdAt is missing
                 eventTime={
                   post.createdAt
                     ? new Date(post.createdAt).toLocaleTimeString("en-US", {
@@ -149,12 +136,13 @@ export default function GroupDashboard() {
                       })
                     : "Unknown time"
                 }
+                postId={post._id}
+                onDelete={handlePostDeleted}
               />
             ))
           )}
         </div>
 
-        {/* Floating Add Event button */}
         <button
           onClick={() => setIsModalOpen(true)}
           className="fixed bottom-24 right-6 bg-white text-primary text-3xl w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform duration-200 z-10"
@@ -162,10 +150,8 @@ export default function GroupDashboard() {
           <TiPlus />
         </button>
 
-        {/* Bottom navigation */}
         <BottomNavbar />
 
-        {/* Add Event modal */}
         <AddEventModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
