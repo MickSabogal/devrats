@@ -8,7 +8,7 @@ import { authOptions } from '../../auth/[...nextauth]/route';
 export async function GET(req, { params }) {
   try {
     await connectDB();
-    const { id } = params;
+    const { id } = await params;
 
     const group = await Group.findById(id)
       .populate('admin', 'name avatar')
@@ -46,12 +46,14 @@ export async function PATCH(req, { params }) {
     if (group.admin.toString() !== userId)
       return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
 
+    // Update basic fields
     if (!action) {
       if (name) group.name = name;
       if (description) group.description = description;
       if (coverPicture) group.coverPicture = coverPicture;
     }
 
+    // Remove member action
     if (action === 'remove-member' && memberId) {
       group.members = group.members.filter(m => m.user.toString() !== memberId);
     }
@@ -125,52 +127,5 @@ export async function DELETE(req, { params }) {
   } catch (err) {
     console.error('DELETE /group/[id] error:', err);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
-  }
-}
-
-// PATCH — Transfer admin role to another member
-export async function PATCH(req, { params }) {
-  try {
-    await connectDB();
-
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
-    const { groupId } = params;
-    const { newAdminId } = await req.json();
-
-    if (!newAdminId) {
-      return NextResponse.json({ message: "newAdminId is required" }, { status: 400 });
-    }
-
-    const group = await Group.findById(groupId).populate("members.user", "name avatar");
-    if (!group) {
-      return NextResponse.json({ message: "Group not found" }, { status: 404 });
-    }
-
-    // Only current admin can transfer
-    if (group.admin.toString() !== session.user.id) {
-      return NextResponse.json({ message: "Only admin can transfer role" }, { status: 403 });
-    }
-
-    // Verify the new admin is a member of the group
-    const isMember = group.members.some(m => m.user._id.toString() === newAdminId);
-    if (!isMember) {
-      return NextResponse.json({ message: "User is not a member of the group" }, { status: 400 });
-    }
-
-    group.admin = newAdminId;
-    await group.save();
-
-    return NextResponse.json({
-      message: "Admin role transferred successfully",
-      newAdminId
-    }, { status: 200 });
-
-  } catch (err) {
-    console.error("PATCH /group/[groupId]/transfer-admin error:", err);
-    return NextResponse.json({ message: "Server error", error: err.message }, { status: 500 });
   }
 }
