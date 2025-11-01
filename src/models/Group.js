@@ -18,7 +18,7 @@ const groupSchema = new Schema(
     inviteToken: {
       type: String,
       unique: true,
-      default: () => crypto.randomBytes(12).toString("hex"),
+      default: () => crypto.randomBytes(3).toString("hex"), // 6 caracteres
     },
   },
   { timestamps: true } // createdAt and updatedAt

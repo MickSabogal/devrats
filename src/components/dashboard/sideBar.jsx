@@ -11,10 +11,12 @@ import { HiUserGroup } from "react-icons/hi";
 import Avatar from "./UserAvatar";
 import CheeseMouseAnimation from "./CheeseMouseAnimation";
 import CreateGroupModal from "@/components/dashboard/CreateGroupModal";
+import JoinGroupModal from "@/components/dashboard/JoinGroupModal";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function Sidebar({ isOpen, onClose, user }) {
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
+  const [isJoinGroupModalOpen, setIsJoinGroupModalOpen] = useState(false);
   const [groups, setGroups] = useState([]);
   const [loadingGroups, setLoadingGroups] = useState(true);
 
@@ -39,8 +41,24 @@ export default function Sidebar({ isOpen, onClose, user }) {
     }
   }, [isOpen]);
 
+  // Handle when a new group is created
   const handleGroupCreated = (newGroup) => {
     setGroups((prev) => [newGroup, ...prev]);
+  };
+
+  // Handle when user joins a group
+  const handleGroupJoined = async () => {
+    // Refetch groups to update the list with the newly joined group
+    try {
+      const response = await fetch("/api/group", { method: "GET" });
+      const data = await response.json();
+      
+      if (response.ok && Array.isArray(data)) {
+        setGroups(data);
+      }
+    } catch (error) {
+      console.error("Error fetching groups after join:", error);
+    }
   };
 
   return (
@@ -139,14 +157,16 @@ export default function Sidebar({ isOpen, onClose, user }) {
               </button>
             </li>
             <li>
-              <Link
-                href="/dashboard/join-group"
-                className="flex items-center gap-3 px-3 py-2.5 text-white rounded-lg hover:bg-gray-100/10 dark:hover:bg-gray-700/40 transition-colors"
-                onClick={onClose}
+              <button
+                onClick={() => {
+                  setIsJoinGroupModalOpen(true);
+                  onClose();
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 text-white rounded-lg hover:bg-gray-100/10 dark:hover:bg-gray-700/40 transition-colors"
               >
                 <HiUserGroup className="w-5 h-5" />
                 <span className="text-base font-medium">Join a Group</span>
-              </Link>
+              </button>
             </li>
             <li>
               <Link
@@ -173,10 +193,18 @@ export default function Sidebar({ isOpen, onClose, user }) {
         </div>
       </div>
 
+      {/* Create Group Modal */}
       <CreateGroupModal
         isOpen={isCreateGroupModalOpen}
         onClose={() => setIsCreateGroupModalOpen(false)}
         onGroupCreated={handleGroupCreated}
+      />
+
+      {/* Join Group Modal */}
+      <JoinGroupModal
+        isOpen={isJoinGroupModalOpen}
+        onClose={() => setIsJoinGroupModalOpen(false)}
+        onGroupJoined={handleGroupJoined}
       />
     </>
   );

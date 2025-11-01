@@ -7,6 +7,7 @@ import { HiUserGroup } from "react-icons/hi";
 import Button from "@/components/ui/Button";
 import TypingText from "@/components/ui/TypingText";
 import CreateGroupModal from "@/components/dashboard/CreateGroupModal";
+import JoinGroupModal from "@/components/dashboard/JoinGroupModal";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function OnboardingPage() {
@@ -14,6 +15,7 @@ export default function OnboardingPage() {
   const [displayedLines, setDisplayedLines] = useState([]);
   const [showButtons, setShowButtons] = useState(false);
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
+  const [isJoinGroupModalOpen, setIsJoinGroupModalOpen] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const hasStarted = useRef(false);
 
@@ -54,6 +56,11 @@ export default function OnboardingPage() {
   const handleGroupCreated = (newGroup) => {
     setIsRedirecting(true);
     router.push(`/dashboard/groups/${newGroup._id}/dashboard`);
+  };
+
+  const handleGroupJoined = (data) => {
+    // Modal will handle redirect to the group
+    setIsRedirecting(true);
   };
 
   if (isRedirecting) {
@@ -118,7 +125,7 @@ export default function OnboardingPage() {
                 size="lg"
                 variant="outline"
                 icon={HiUserGroup}
-                onClick={() => router.push("/dashboard/join-group")}
+                onClick={() => setIsJoinGroupModalOpen(true)}
               >
                 Join a Group
               </Button>
@@ -127,10 +134,18 @@ export default function OnboardingPage() {
         </div>
       </div>
 
+      {/* Create Group Modal */}
       <CreateGroupModal
         isOpen={isCreateGroupModalOpen}
         onClose={() => setIsCreateGroupModalOpen(false)}
         onGroupCreated={handleGroupCreated}
+      />
+
+      {/* Join Group Modal */}
+      <JoinGroupModal
+        isOpen={isJoinGroupModalOpen}
+        onClose={() => setIsJoinGroupModalOpen(false)}
+        onGroupJoined={handleGroupJoined}
       />
 
       <style jsx>{`
