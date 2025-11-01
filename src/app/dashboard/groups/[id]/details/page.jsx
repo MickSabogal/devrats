@@ -125,7 +125,9 @@ export default function GroupDetailsPage() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
           <div className="absolute bottom-4 left-4">
-            <h2 className="text-white font-bold text-2xl mb-1">{group?.name}</h2>
+            <h2 className="text-white font-bold text-2xl mb-1">
+              {group?.name}
+            </h2>
             <div className="flex items-center gap-2 text-white/80 text-sm">
               <FiUsers className="w-4 h-4" />
               <span>{group?.members?.length || 0} members</span>
@@ -269,11 +271,14 @@ export default function GroupDetailsPage() {
                       <h4 className="text-white font-medium">
                         {member.user.name}
                         {isCurrentUser && (
-                          <span className="text-gray-400 text-xs ml-2">(You)</span>
+                          <span className="text-gray-400 text-xs ml-2">
+                            (You)
+                          </span>
                         )}
                       </h4>
                       <p className="text-gray-400 text-xs">
-                        Joined {new Date(member.joinedAt).toLocaleDateString("en-US", {
+                        Joined{" "}
+                        {new Date(member.joinedAt).toLocaleDateString("en-US", {
                           month: "short",
                           year: "numeric",
                         })}
@@ -302,7 +307,7 @@ export default function GroupDetailsPage() {
           </div>
         )}
 
-        <BottomNavbar groupId={id} />
+        <BottomNavbar groupId={id} currentPage="details" />
       </div>
     </div>
   );

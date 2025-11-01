@@ -5,15 +5,16 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { BiMenuAltLeft } from "react-icons/bi";
 import { IoTrophy } from "react-icons/io5";
-import Sidebar from "@/components/dashboard/sideBar";
 import BottomNavbar from "@/components/dashboard/bottomNavBar";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { ArrowLeft, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function GroupRankingPage() {
+  const router = useRouter();
   const params = useParams();
   const { id } = params;
 
-  const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [group, setGroup] = useState(null);
   const [ranking, setRanking] = useState([]);
@@ -58,14 +59,13 @@ export default function GroupRankingPage() {
   return (
     <div className="bg-primary min-h-screen">
       <div className="max-w-md mx-auto relative min-h-screen px-6 pt-6 pb-28">
-        <Sidebar isOpen={isOpen} onClose={() => setIsOpen(false)} user={user} />
-
-        <div className="flex items-center justify-between mb-6">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-800 flex-shrink-0">
           <button
-            onClick={() => setIsOpen(true)}
-            className="flex items-center justify-center w-10 h-10 rounded-lg"
+            onClick={() => router.back()}
+            className="flex items-center justify-center w-10 h-10 rounded-lg transition-colors"
           >
-            <BiMenuAltLeft className="w-8 h-8 text-white" />
+            <ArrowLeft className="w-6 h-6 text-white" />
           </button>
           <h1 className="text-xl font-bold text-white">Ranking</h1>
           <div className="w-10" />
@@ -102,14 +102,12 @@ export default function GroupRankingPage() {
                 </p>
               </div>
 
-              {index === 0 && (
-                <IoTrophy className="text-yellow-400 w-6 h-6" />
-              )}
+              {index === 0 && <IoTrophy className="text-yellow-400 w-6 h-6" />}
             </div>
           ))}
         </div>
 
-        <BottomNavbar groupId={id} />
+        <BottomNavbar groupId={id} currentPage="ranking" />
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+C:\Github\DevRats\src\app\api\users\study-time\route.js
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Post from "@/models/Post";
