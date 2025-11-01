@@ -1,10 +1,20 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function AboutPage() {
   const router = useRouter();
+  const [showTeamModal, setShowTeamModal] = useState(false);
+
+  const teamMembers = [
+    { name: "Guilherme França", role: "" },
+    { name: "Isadora Barradas", role: "" },
+    { name: "Jhonathan Tinoco", role: "" },
+    { name: "Miguel Sabogal", role: "" },
+    { name: "Mishal Saheer", role: "" }
+  ];
 
   return (
     <div className="min-h-screen bg-primary">
@@ -62,14 +72,16 @@ export default function AboutPage() {
 
             <div>
               <h3 className="text-white text-lg font-bold mb-2">Development Team</h3>
-              <p className="text-gray-300 text-sm leading-relaxed">
+              <p className="text-gray-300 text-sm leading-relaxed mb-4">
                 DevRats was created by a team of passionate developers dedicated to building tools that help others grow.
               </p>
-              <div className="mt-4 space-y-2">
-                <p className="text-gray-400 text-sm">• Team Member 1</p>
-                <p className="text-gray-400 text-sm">• Team Member 2</p>
-                <p className="text-gray-400 text-sm">• Team Member 3</p>
-              </div>
+              
+              <button
+                onClick={() => setShowTeamModal(true)}
+                className="w-full px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-all transform hover:scale-105 active:scale-95 shadow-lg"
+              >
+                Meet the Team
+              </button>
             </div>
 
             <div className="pt-4 border-t border-gray-800">
@@ -80,6 +92,91 @@ export default function AboutPage() {
           </div>
         </div>
       </div>
+
+      {/* Team Modal */}
+      {showTeamModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div 
+            onClick={() => setShowTeamModal(false)}
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+          />
+          
+          <div className="relative w-full max-w-md bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl overflow-hidden border border-gray-700 animate-fade-in">
+            <button
+              onClick={() => setShowTeamModal(false)}
+              className="absolute top-4 right-4 p-2 rounded-full bg-black/30 hover:bg-black/50 transition-colors z-10"
+            >
+              <X className="w-5 h-5 text-white" />
+            </button>
+
+            <div className="p-6">
+              <h3 className="text-white text-2xl font-bold mb-2 text-center">
+                Development Team
+              </h3>
+              <p className="text-gray-400 text-sm text-center mb-6">
+                Meet the minds behind DevRats
+              </p>
+
+              <div className="mb-6 flex justify-center">
+                <img
+                  src="/images/team.jpeg"
+                  alt="Team"
+                  className="w-full max-w-sm h-auto rounded-lg border-4 border-amber-400 shadow-xl"
+                />
+              </div>
+
+              <div className="space-y-3">
+                {teamMembers.map((member, index) => (
+                  <div 
+                    key={index}
+                    className="bg-black/30 rounded-lg p-4 hover:bg-black/40 transition-colors border border-gray-700"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
+                        <span className="text-white font-bold text-sm">
+                          {member.name.split(' ').map(n => n[0]).join('')}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-white font-semibold text-base">
+                          {member.name}
+                        </h4>
+                        <p className="text-gray-400 text-sm">
+                          {member.role}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                onClick={() => setShowTeamModal(false)}
+                className="w-full mt-6 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-all"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style jsx>{`
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+            transform: scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        .animate-fade-in {
+          animation: fade-in 0.2s ease-out;
+        }
+      `}</style>
     </div>
   );
 }
