@@ -12,9 +12,12 @@ import AddEventModal from "@/components/dashboard/addEventModal";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function GroupDashboard() {
+  
   const params = useParams();
   const router = useRouter();
   const groupId = params.id;
+  const { id } = params;
+
 
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -152,7 +155,7 @@ export default function GroupDashboard() {
           <TiPlus />
         </button>
 
-        <BottomNavbar />
+      <BottomNavbar groupId={id} />
 
         <AddEventModal
           isOpen={isModalOpen}
