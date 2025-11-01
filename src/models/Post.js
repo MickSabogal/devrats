@@ -12,29 +12,47 @@ const PostSchema = new Schema(
       ref: "User",
       required: true,
     },
-    imageUrl: {
+    title: {
       type: String,
       required: true,
+      trim: true,
     },
-    caption: {
+    content: {
       type: String,
       default: "",
       trim: true,
     },
-    technology: {
+    image: {
       type: String,
       default: null,
     },
-    description: {
-      type: String,
-      default: "",
-    },
-    startTime: {
+    eventDate: {
       type: Date,
       default: null,
     },
+    duration: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    metrics: {
+      commitLines: {
+        type: Number,
+        default: null,
+      },
+      activityDescription: {
+        type: String,
+        default: null,
+        trim: true,
+      },
+      repoLink: {
+        type: String,
+        default: null,
+        trim: true,
+      },
+    },
   },
-  { timestamps: true } 
+  { timestamps: true }
 );
 
 const Post = models.Post || mongoose.model("Post", PostSchema);

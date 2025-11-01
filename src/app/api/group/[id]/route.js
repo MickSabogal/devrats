@@ -11,8 +11,8 @@ export async function GET(req, { params }) {
     const { id } = await params;
 
     const group = await Group.findById(id)
-      .populate('admin', 'name avatar')
-      .populate('members.user', 'name avatar');
+      .populate('admin', 'name avatar streak')
+      .populate('members.user', 'name avatar streak');
 
     if (!group) {
       return NextResponse.json({ message: 'Group not found' }, { status: 404 });
@@ -59,8 +59,8 @@ export async function PATCH(req, { params }) {
     }
 
     await group.save();
-    await group.populate('admin', 'name avatar');
-    await group.populate('members.user', 'name avatar');
+    await group.populate('admin', 'name avatar streak');
+    await group.populate('members.user', 'name avatar streak');
 
     return NextResponse.json(group, { status: 200 });
   } catch (err) {
@@ -95,7 +95,7 @@ export async function PUT(req, { params }) {
 
     group.members.push({ user: memberId, role: 'member' });
     await group.save();
-    await group.populate('members.user', 'name avatar');
+    await group.populate('members.user', 'name avatar streak');
 
     return NextResponse.json(group, { status: 200 });
   } catch (err) {

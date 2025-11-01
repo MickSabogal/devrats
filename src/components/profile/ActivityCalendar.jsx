@@ -1,10 +1,13 @@
+// src/components/profile/ActivityCalendar.jsx
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 export default function ActivityCalendar({ userId }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [activityDays, setActivityDays] = useState([]);
+  const [streak, setStreak] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -12,25 +15,67 @@ export default function ActivityCalendar({ userId }) {
       try {
         setLoading(true);
         const res = await fetch("/api/users/me/activity");
-        
+
         if (res.ok) {
           const data = await res.json();
 
+          console.log("📊 RAW Activity Data:", data);
+
+          setStreak(data.streak || 0);
+
           const currentMonth = currentDate.getMonth();
           const currentYear = currentDate.getFullYear();
-          
+
+          console.log("📅 Current viewing:", {
+            month: currentMonth,
+            year: currentYear,
+            monthName: currentDate.toLocaleDateString('en-US', { month: 'long' })
+          });
+
+          // ✅ Pega todos os dias com atividade EXCETO o dia de hoje
+          const today = new Date();
+          const todayStr = today.toISOString().split('T')[0];
+
           const daysInCurrentMonth = Object.keys(data.activity || {})
-            .filter(dateString => {
-              const date = new Date(dateString);
-              return date.getMonth() === currentMonth && 
-                     date.getFullYear() === currentYear;
+            .filter((dateString) => {
+              // Ignora o dia de hoje - ele sempre mostra o ratinho
+              if (dateString === todayStr) return false;
+
+              const date = new Date(dateString + 'T00:00:00');
+              
+              console.log("🔍 Checking date:", {
+                dateString,
+                parsed: date,
+                parsedMonth: date.getMonth(),
+                parsedYear: date.getFullYear(),
+                matches: date.getMonth() === currentMonth && date.getFullYear() === currentYear
+              });
+
+              return (
+                date.getMonth() === currentMonth &&
+                date.getFullYear() === currentYear
+              );
             })
-            .map(dateString => new Date(dateString).getDate());
-          
+            .map((dateString) => {
+              const date = new Date(dateString + 'T00:00:00');
+              const day = date.getDate();
+              console.log("⭐ Marked day:", day, "from", dateString);
+              return day;
+            });
+
+          console.log("📊 Calendar Debug:", {
+            totalActivityDates: Object.keys(data.activity || {}).length,
+            activityDates: Object.keys(data.activity || {}),
+            daysInCurrentMonth,
+            currentMonth,
+            currentYear,
+            todayExcluded: todayStr
+          });
+
           setActivityDays(daysInCurrentMonth);
         }
       } catch (error) {
-        console.error("Error fetching activity:", error);
+        console.error("❌ Error fetching activity:", error);
       } finally {
         setLoading(false);
       }
@@ -54,15 +99,27 @@ export default function ActivityCalendar({ userId }) {
   };
 
   const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   const daysInMonth = getDaysInMonth(currentDate);
   const firstDay = getFirstDayOfMonth(currentDate);
-  const monthYear = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+  const monthYear = `${
+    monthNames[currentDate.getMonth()]
+  } ${currentDate.getFullYear()}`;
 
   const calendarDays = [];
   for (let i = 0; i < firstDay; i++) {
@@ -73,43 +130,103 @@ export default function ActivityCalendar({ userId }) {
   }
 
   const goToPreviousMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+    setCurrentDate(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
+    );
   };
 
   const goToNextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+    setCurrentDate(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
+    );
   };
 
   const isToday = (day) => {
     const today = new Date();
-    return day === today.getDate() && 
-           currentDate.getMonth() === today.getMonth() && 
-           currentDate.getFullYear() === today.getFullYear();
+    return (
+      day === today.getDate() &&
+      currentDate.getMonth() === today.getMonth() &&
+      currentDate.getFullYear() === today.getFullYear()
+    );
   };
 
   return (
     <div>
-      {/* Headder */}
+      <style jsx>{`
+        @keyframes borderSpin {
+          0% {
+            background-position: 0% 0%;
+          }
+          100% {
+            background-position: 200% 0%;
+          }
+        }
+
+        .golden-border {
+          position: relative;
+          background: linear-gradient(
+            90deg,
+            transparent 0%,
+            transparent 40%,
+            #ffd700 45%,
+            #ffed4e 50%,
+            #ffd700 55%,
+            transparent 60%,
+            transparent 100%
+          );
+          background-size: 200% 100%;
+          animation: borderSpin 2s ease-in-out;
+          animation-fill-mode: forwards;
+        }
+      `}</style>
+
+      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={goToPreviousMonth}
           className="p-2 rounded-lg hover:bg-gray-700 transition-colors"
           aria-label="Previous month"
         >
-          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          <svg
+            className="w-5 h-5 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
         </button>
 
-        <h2 className="text-white text-lg font-semibold">{monthYear}</h2>
+        <div className="text-center">
+          <h2 className="text-white text-lg font-semibold">{monthYear}</h2>
+          <p className="text-green-500 text-sm font-bold mt-1 flex items-center justify-center gap-1">
+            <img src="/images/star.png" alt="Cheese Star" className="w-4 h-4" />
+            {streak} day streak
+          </p>
+        </div>
 
         <button
           onClick={goToNextMonth}
           className="p-2 rounded-lg hover:bg-gray-700 transition-colors"
           aria-label="Next month"
         >
-          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          <svg
+            className="w-5 h-5 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 5l7 7-7 7"
+            />
           </svg>
         </button>
       </div>
@@ -137,38 +254,76 @@ export default function ActivityCalendar({ userId }) {
               {calendarDays.map((day, index) => (
                 <div
                   key={index}
-                  className={`
-                    aspect-square flex items-center justify-center rounded-lg text-sm shadow-lg shadow-black/30
+                  className={`w-full aspect-square flex flex-col items-center justify-center rounded-lg shadow-lg shadow-black/30 relative overflow-hidden
                     ${day === null ? "invisible" : ""}
-                    ${
-                      activityDays.includes(day)
-                        ? "bg-green-600 text-white font-semibold"
-                        : isToday(day)
-                        ? "bg-blue-600 text-white font-semibold"
-                        : "bg-gray-700 text-gray-400"
-                    }
-                  `}
+                    ${activityDays.includes(day) ? "golden-border" : ""}
+                    ${isToday(day) ? "ring-2 ring-amber-400 bg-primary" : ""}
+                    bg-gray-700`}
                 >
-                  {day}
+                  {day && (
+                    <>
+                      {activityDays.includes(day) && !isToday(day) && (
+                        <div className="w-full h-full p-2">
+                          <Image
+                            src="/images/star.png"
+                            alt="Activity"
+                            width={64}
+                            height={64}
+                            className="object-contain w-full h-full"
+                          />
+                        </div>
+                      )}
+                      
+                      {isToday(day) && (
+                        <div className="w-full h-full p-2">
+                          <Image
+                            src="/images/today.png"
+                            alt="Today"
+                            width={64}
+                            height={64}
+                            className="object-contain w-full h-full"
+                          />
+                        </div>
+                      )}
+                      
+                      {!activityDays.includes(day) && !isToday(day) && (
+                        <span className="text-gray-400 text-xs">{day}</span>
+                      )}
+                    </>
+                  )}
                 </div>
               ))}
             </div>
           </>
         )}
 
-        {/* Subtitle */}
-        <div className="flex items-center justify-center gap-4 mt-4 text-xs">
+        {/* 🔹 Legend */}
+        <div className="flex items-center justify-center gap-6 mt-6 text-base">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded bg-green-600"></div>
-            <span className="text-gray-400">Activity</span>
+            <Image
+              src="/images/star.png"
+              alt="Activity"
+              width={24}
+              height={24}
+              className="object-contain"
+            />
+            <span className="text-gray-400 align-middle">Activity</span>
           </div>
+
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded bg-blue-600"></div>
-            <span className="text-gray-400">Today</span>
+            <Image
+              src="/images/today.png"
+              alt="Today"
+              width={24}
+              height={24}
+              className="object-contain"
+            />
+            <span className="text-gray-400 align-middle">Today</span>
           </div>
+
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded bg-gray-700"></div>
-            <span className="text-gray-400">No activity</span>
+            <div className="w-4 h-4 rounded bg-gray-700"></div>
+            <span className="text-gray-400 align-middle">No activity</span>
           </div>
         </div>
       </div>

@@ -11,28 +11,33 @@ import { HiUserGroup } from "react-icons/hi";
 import Avatar from "./UserAvatar";
 import CheeseMouseAnimation from "./CheeseMouseAnimation";
 import CreateGroupModal from "@/components/dashboard/CreateGroupModal";
+import LoadingSpinner from "@/components/ui/LoadingSpinner"; // ✅ Import
 
 export default function Sidebar({ isOpen, onClose, user }) {
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
   const [groups, setGroups] = useState([]);
   const [loadingGroups, setLoadingGroups] = useState(true);
 
-  // Busca grupos do usuário
   useEffect(() => {
     const fetchGroups = async () => {
       try {
         const response = await fetch("/api/group", { method: "GET" });
         const data = await response.json();
-        if (response.ok && Array.isArray(data)) setGroups(data);
-        else console.error("Erro ao buscar grupos:", data.message);
+        
+        if (response.ok && Array.isArray(data)) {
+          setGroups(data);
+        }
       } catch (error) {
-        console.error("Erro ao buscar grupos:", error);
+        console.error("Error fetching groups:", error);
       } finally {
         setLoadingGroups(false);
       }
     };
-    fetchGroups();
-  }, []);
+    
+    if (isOpen) {
+      fetchGroups();
+    }
+  }, [isOpen]);
 
   const handleGroupCreated = (newGroup) => {
     setGroups((prev) => [newGroup, ...prev]);
@@ -40,7 +45,6 @@ export default function Sidebar({ isOpen, onClose, user }) {
 
   return (
     <>
-      {/* Fundo escuro clicável para fechar */}
       {isOpen && (
         <div
           onClick={onClose}
@@ -48,16 +52,13 @@ export default function Sidebar({ isOpen, onClose, user }) {
         />
       )}
 
-      {/* Sidebar */}
       <div
         className={`absolute top-0 left-0 z-50 w-80 h-full bg-white dark:bg-primary shadow-2xl transform transition-transform duration-300 ease-out ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        {/* Animação do Queijo e Ratinho */}
         {isOpen && <CheeseMouseAnimation />}
 
-        {/* Header */}
         <div className="p-5">
           <div className="flex items-center justify-between mb-6">
             <button
@@ -83,15 +84,17 @@ export default function Sidebar({ isOpen, onClose, user }) {
           </Link>
         </div>
 
-        {/* Lista de grupos */}
         <div className="flex flex-col h-[calc(100%-260px)] overflow-y-auto px-3">
           <div className="mb-4">
             <p className="text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2 px-2">
               Groups
             </p>
             <ul className="space-y-0.5">
+              {/* ✅ Usa LoadingSpinner */}
               {loadingGroups ? (
-                <p className="text-sm text-gray-400 px-3 py-2">Loading...</p>
+                <div className="flex justify-center py-4">
+                  <LoadingSpinner size="sm" />
+                </div>
               ) : groups.length > 0 ? (
                 groups.map((group) => (
                   <li key={group._id}>
@@ -123,7 +126,6 @@ export default function Sidebar({ isOpen, onClose, user }) {
 
           <div className="h-px bg-gray-200 dark:bg-gray-700/50 my-3"></div>
 
-          {/* Botões inferiores */}
           <ul className="space-y-0.5 flex-1">
             <li>
               <button
@@ -160,7 +162,6 @@ export default function Sidebar({ isOpen, onClose, user }) {
           </ul>
         </div>
 
-        {/* Rodapé */}
         <div className="p-3 border-t border-gray-200 dark:border-gray-700/50">
           <Link
             href="/dashboard/settings"
@@ -173,7 +174,6 @@ export default function Sidebar({ isOpen, onClose, user }) {
         </div>
       </div>
 
-      {/* Modal de criação de grupo */}
       <CreateGroupModal
         isOpen={isCreateGroupModalOpen}
         onClose={() => setIsCreateGroupModalOpen(false)}

@@ -1,18 +1,18 @@
+// src/app/api/group/[id]/post/route.js
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import Post from "@/models/Post";
 import Group from "@/models/Group";
+import User from "@/models/User";
 
-// GET — List all posts in a specific group (supports pagination)
 export async function GET(req, { params }) {
   try {
-    const { groupId } = params;
-
+    const { id } = await params;
     await connectDB();
 
-    const group = await Group.findById(groupId);
+    const group = await Group.findById(id);
     if (!group) {
       return NextResponse.json({ message: "Group not found" }, { status: 404 });
     }
@@ -22,29 +22,33 @@ export async function GET(req, { params }) {
     const limit = parseInt(searchParams.get("limit")) || 10;
     const skip = (page - 1) * limit;
 
-    const posts = await Post.find({ group: groupId })
+    const posts = await Post.find({ group: id })
       .populate("user", "name avatar")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
-    const totalPosts = await Post.countDocuments({ group: groupId });
+    const totalPosts = await Post.countDocuments({ group: id });
 
-    return NextResponse.json({
-      message: "Group posts fetched successfully",
-      page,
-      totalPages: Math.ceil(totalPosts / limit),
-      totalPosts,
-      posts,
-    }, { status: 200 });
-
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Group posts fetched successfully",
+        page,
+        totalPages: Math.ceil(totalPosts / limit),
+        totalPosts,
+        posts,
+      },
+      { status: 200 }
+    );
   } catch (err) {
-    console.error("GET /group/[groupId]/post error:", err);
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Internal server error", success: false },
+      { status: 500 }
+    );
   }
 }
 
-// POST — Create a new post in a specific group (requires title and image)
 export async function POST(req, { params }) {
   try {
     const session = await getServerSession(authOptions);
@@ -52,40 +56,113 @@ export async function POST(req, { params }) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { groupId } = params;
-    const { title, image } = await req.json(); // Title and image are required
+    const { id } = await params;
+    const body = await req.json();
+
+    const { title, content, image, eventDate, metrics, duration } = body;
     const userId = session.user.id;
 
-    if (!title || !image) {
-      return NextResponse.json({ message: "Both title and image are required" }, { status: 400 });
+    if (!title) {
+      return NextResponse.json(
+        { message: "Title is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!image || image.trim() === "") {
+      return NextResponse.json(
+        { 
+          success: false,
+          message: "Photo is required. Please upload an image." 
+        },
+        { status: 400 }
+      );
+    }
+
+    if (!duration || duration <= 0) {
+      return NextResponse.json(
+        { 
+          success: false,
+          message: "Study duration is required and must be greater than 0." 
+        },
+        { status: 400 }
+      );
     }
 
     await connectDB();
 
-    const group = await Group.findById(groupId);
+    const group = await Group.findById(id);
     if (!group) {
       return NextResponse.json({ message: "Group not found" }, { status: 404 });
     }
 
-    const isMember = group.members.some(m => m.user.toString() === userId);
+    const isMember =
+      group.members.some((m) => m.user.toString() === userId) ||
+      group.admin.toString() === userId;
+
     if (!isMember) {
-      return NextResponse.json({ message: "You are not a member of this group" }, { status: 403 });
+      return NextResponse.json(
+        { message: "You are not a member of this group" },
+        { status: 403 }
+      );
     }
+
+    const postDuration = parseInt(duration) || 0;
 
     const newPost = new Post({
       title,
-      image,
+      content: content || "",
+      image: image,
+      eventDate: eventDate ? new Date(eventDate) : null,
+      metrics: metrics || {},
+      duration: postDuration,
       user: userId,
-      group: groupId,
+      group: id,
     });
 
-    await newPost.save();
-    await newPost.populate("user", "name avatar");
+    const savedPost = await newPost.save();
 
-    return NextResponse.json({ message: "Post created successfully", post: newPost }, { status: 201 });
+    const populatedPost = await savedPost.populate({
+      path: "user",
+      select: "name avatar",
+    });
 
+    const user = await User.findById(userId);
+
+    if (!(user.activity instanceof Map)) {
+      user.activity = new Map(Object.entries(user.activity || {}));
+    }
+
+    const today = new Date().toISOString().split("T")[0];
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+    const lastPost = user.lastPostDate
+      ? user.lastPostDate.toISOString().split("T")[0]
+      : null;
+
+    user.activity.set(today, true);
+
+    if (lastPost === yesterday) {
+      user.streak += 1;
+    } else if (lastPost !== today) {
+      user.streak = 1;
+    }
+
+    user.lastPostDate = new Date();
+    await user.save();
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Post created & streak updated",
+        post: populatedPost.toObject(),
+        streak: user.streak,
+      },
+      { status: 201 }
+    );
   } catch (err) {
-    console.error("POST /group/[groupId]/post error:", err);
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Internal server error", success: false, error: err.message },
+      { status: 500 }
+    );
   }
 }
