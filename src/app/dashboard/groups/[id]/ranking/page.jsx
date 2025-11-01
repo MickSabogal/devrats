@@ -90,7 +90,7 @@ export default function GroupRankingPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <button
-            onClick={() => router.back()}
+            onClick={() => router.push(`/dashboard/groups/${id}/dashboard`)}
             className="flex items-center justify-center w-10 h-10 rounded-lg transition-colors hover:bg-white/10"
           >
             <ArrowLeft className="w-6 h-6 text-white" />
