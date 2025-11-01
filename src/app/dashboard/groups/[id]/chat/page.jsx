@@ -198,7 +198,7 @@ export default function GroupChatPage() {
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-gray-800 flex-shrink-0">
             <button
-              onClick={() => router.back()}
+              onClick={() => router.push(`/dashboard/groups/${id}/dashboard`)}
               className="flex items-center justify-center w-10 h-10 rounded-lg transition-colors"
             >
               <ArrowLeft className="w-6 h-6 text-white" />

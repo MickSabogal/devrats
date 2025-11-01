@@ -15,7 +15,12 @@ export default function GroupBanner({ user, group, onUpdate }) {
   const [showCoverUpload, setShowCoverUpload] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [alert, setAlert] = useState({ isOpen: false, title: "", message: "", type: "info" });
+  const [alert, setAlert] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    type: "info",
+  });
 
   const showAlert = (title, message, type = "info") => {
     setAlert({ isOpen: true, title, message, type });
@@ -31,10 +36,24 @@ export default function GroupBanner({ user, group, onUpdate }) {
       });
 
       if (response.ok) {
-        showAlert("Success", "Group deleted successfully", "success");
-        setTimeout(() => {
-          router.push("/dashboard/home");
-        }, 1500);
+        const groupsRes = await fetch("/api/group");
+        const groupsData = await groupsRes.json();
+
+        if (groupsData.length === 0) {
+          showAlert(
+            "No Active Groups",
+            "Oops! Seems like you don't have any active groups. You will be redirected to our onboarding page.",
+            "warning"
+          );
+          setTimeout(() => {
+            router.push("/dashboard/onboarding");
+          }, 3000);
+        } else {
+          showAlert("Success", "Group deleted successfully", "success");
+          setTimeout(() => {
+            router.push("/dashboard/home");
+          }, 1500);
+        }
       } else {
         showAlert("Error", "Failed to delete group", "error");
       }
@@ -89,7 +108,7 @@ export default function GroupBanner({ user, group, onUpdate }) {
       return null;
     }
 
-    const allMembers = group.members.map(m => m.user).filter(Boolean);
+    const allMembers = group.members.map((m) => m.user).filter(Boolean);
     const leader = allMembers.reduce((prev, current) => {
       return (current.streak || 0) > (prev.streak || 0) ? current : prev;
     }, allMembers[0]);
@@ -111,7 +130,7 @@ export default function GroupBanner({ user, group, onUpdate }) {
             alt="Group banner"
             className="rounded-t-xl w-full h-auto object-cover max-h-40"
           />
-          
+
           <button
             onClick={() => setShowCoverUpload(true)}
             disabled={isUploading}
@@ -148,10 +167,10 @@ export default function GroupBanner({ user, group, onUpdate }) {
 
           {user && (
             <div className="flex items-center">
-              <Avatar 
-                src={user.avatar || "/mock.png"} 
-                name={user.name} 
-                size={24} 
+              <Avatar
+                src={user.avatar || "/mock.png"}
+                name={user.name}
+                size={24}
               />
               <div className="ml-2">
                 <p className="text-xs font-semibold">{user.streak || 0}</p>
@@ -175,7 +194,9 @@ export default function GroupBanner({ user, group, onUpdate }) {
       {showCoverUpload && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-gray-900 rounded-2xl p-6 max-w-sm w-full">
-            <h3 className="text-white text-lg font-bold mb-4">Change Cover Photo</h3>
+            <h3 className="text-white text-lg font-bold mb-4">
+              Change Cover Photo
+            </h3>
             <input
               type="file"
               accept="image/*"
