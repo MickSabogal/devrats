@@ -1,8 +1,10 @@
+// src/app/api/group/[id]/route.js
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Group from '@/models/Group';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../auth/[...nextauth]/route';
+import { uploadToCloudinary, deleteFromCloudinary, extractPublicId } from '@/lib/cloudinary';
 
 // GET — Get details of a single group
 export async function GET(req, { params }) {
@@ -50,7 +52,25 @@ export async function PATCH(req, { params }) {
     if (!action) {
       if (name) group.name = name;
       if (description) group.description = description;
-      if (coverPicture) group.coverPicture = coverPicture;
+      
+      // Se houver nova cover picture
+      if (coverPicture && coverPicture.startsWith('data:')) {
+        // Deletar cover antiga do Cloudinary
+        if (group.coverPicture) {
+          const oldPublicId = extractPublicId(group.coverPicture);
+          if (oldPublicId) {
+            await deleteFromCloudinary(oldPublicId);
+          }
+        }
+
+        // Upload nova cover
+        const { url } = await uploadToCloudinary(
+          coverPicture,
+          'groups',
+          `group_${id}`
+        );
+        group.coverPicture = url;
+      }
     }
 
     // Remove member action
@@ -65,7 +85,10 @@ export async function PATCH(req, { params }) {
     return NextResponse.json(group, { status: 200 });
   } catch (err) {
     console.error('PATCH /group/[id] error:', err);
-    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ 
+      message: 'Internal server error',
+      error: err.message 
+    }, { status: 500 });
   }
 }
 
@@ -120,6 +143,14 @@ export async function DELETE(req, { params }) {
 
     if (group.admin.toString() !== session.user.id)
       return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
+
+    // Deletar cover picture do Cloudinary
+    if (group.coverPicture) {
+      const publicId = extractPublicId(group.coverPicture);
+      if (publicId) {
+        await deleteFromCloudinary(publicId);
+      }
+    }
 
     await group.deleteOne();
 
