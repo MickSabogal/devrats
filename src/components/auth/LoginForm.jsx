@@ -15,7 +15,7 @@ export default function LoginForm() {
   const searchParams = useSearchParams();
   const registered = searchParams.get("registered");
   const errorParam = searchParams.get("error");
-  
+
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -30,9 +30,11 @@ export default function LoginForm() {
         AccessDenied: "Access denied. Please check your permissions.",
         Verification: "Email verification failed. Please try again.",
       };
-      
-      setError(errorMessages[errorParam] || "Authentication error. Please try again.");
-      
+
+      setError(
+        errorMessages[errorParam] || "Authentication error. Please try again."
+      );
+
       setTimeout(() => {
         const newUrl = window.location.pathname;
         window.history.replaceState({}, "", newUrl);
@@ -68,9 +70,9 @@ export default function LoginForm() {
     setError("");
     setOauthLoading(provider);
     try {
-      await signIn(provider, { 
+      await signIn(provider, {
         callbackUrl: "/dashboard/home",
-        redirect: true 
+        redirect: true,
       });
     } catch (error) {
       setError("OAuth login failed. Please try again.");
@@ -85,16 +87,13 @@ export default function LoginForm() {
           <img
             src="/images/logo_devrats.png"
             alt="DevRats Icon"
-            className="w-55 h-55 rounded-full object-cover"
+            className="w-55 h-55 rounded-full object-cover animate-float"
           />
         </div>
-
         {registered && (
           <Alert type="success">Account created! Please log in.</Alert>
         )}
-
         {error && <Alert type="error">{error}</Alert>}
-
         <form onSubmit={handleSubmit} className="space-y-5">
           <Input
             label="Email"
@@ -122,13 +121,11 @@ export default function LoginForm() {
             Sign In
           </Button>
         </form>
-
         <div className="flex items-center gap-4 my-6">
           <div className="flex-1 h-px bg-gray-700"></div>
           <span className="text-gray-400 text-sm">OR LOGIN WITH</span>
           <div className="flex-1 h-px bg-gray-700"></div>
         </div>
-
         <div className="grid grid-cols-2 gap-3">
           <button
             onClick={() => handleOAuthSignIn("github")}
@@ -155,17 +152,28 @@ export default function LoginForm() {
             ) : (
               <>
                 <svg width="20" height="20" viewBox="0 0 20 20">
-                  <path fill="#4285F4" d="M19.6 10.23c0-.82-.1-1.42-.25-2.05H10v3.72h5.5c-.15.96-.74 2.31-2.04 3.22v2.45h3.16c1.89-1.73 2.98-4.3 2.98-7.34z"/>
-                  <path fill="#34A853" d="M13.46 15.13c-.83.59-1.96 1-3.46 1-2.64 0-4.88-1.74-5.68-4.15H1.07v2.52C2.72 17.75 6.09 20 10 20c2.7 0 4.96-.89 6.62-2.42l-3.16-2.45z"/>
-                  <path fill="#FBBC05" d="M3.99 10c0-.69.12-1.35.32-1.97V5.51H1.07A9.973 9.973 0 000 10c0 1.61.39 3.14 1.07 4.49l3.24-2.52c-.2-.62-.32-1.28-.32-1.97z"/>
-                  <path fill="#EA4335" d="M10 3.88c1.88 0 3.13.81 3.85 1.48l2.84-2.76C14.96.99 12.7 0 10 0 6.09 0 2.72 2.25 1.07 5.51l3.24 2.52C5.12 5.62 7.36 3.88 10 3.88z"/>
+                  <path
+                    fill="#4285F4"
+                    d="M19.6 10.23c0-.82-.1-1.42-.25-2.05H10v3.72h5.5c-.15.96-.74 2.31-2.04 3.22v2.45h3.16c1.89-1.73 2.98-4.3 2.98-7.34z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M13.46 15.13c-.83.59-1.96 1-3.46 1-2.64 0-4.88-1.74-5.68-4.15H1.07v2.52C2.72 17.75 6.09 20 10 20c2.7 0 4.96-.89 6.62-2.42l-3.16-2.45z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M3.99 10c0-.69.12-1.35.32-1.97V5.51H1.07A9.973 9.973 0 000 10c0 1.61.39 3.14 1.07 4.49l3.24-2.52c-.2-.62-.32-1.28-.32-1.97z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M10 3.88c1.88 0 3.13.81 3.85 1.48l2.84-2.76C14.96.99 12.7 0 10 0 6.09 0 2.72 2.25 1.07 5.51l3.24 2.52C5.12 5.62 7.36 3.88 10 3.88z"
+                  />
                 </svg>
                 Google
               </>
             )}
           </button>
         </div>
-
         <div className="text-center text-gray-400 mt-6 text-sm">
           Don't have an account?{" "}
           <Link
@@ -175,6 +183,21 @@ export default function LoginForm() {
             Sign up
           </Link>
         </div>
+        <style jsx>{`
+          @keyframes float {
+            0%,
+            100% {
+              transform: translateY(0px);
+            }
+            50% {
+              transform: translateY(-10px);
+            }
+          }
+
+          .animate-float {
+            animation: float 3s ease-in-out infinite;
+          }
+        `}</style>
       </div>
     </div>
   );

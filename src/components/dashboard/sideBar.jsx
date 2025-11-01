@@ -5,13 +5,13 @@ import {
   IoClose,
   IoSettingsOutline,
   IoAddCircleOutline,
-  IoTrophy,
+  IoInformationCircleOutline,
 } from "react-icons/io5";
 import { HiUserGroup } from "react-icons/hi";
 import Avatar from "./UserAvatar";
 import CheeseMouseAnimation from "./CheeseMouseAnimation";
 import CreateGroupModal from "@/components/dashboard/CreateGroupModal";
-import LoadingSpinner from "@/components/ui/LoadingSpinner"; // ✅ Import
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function Sidebar({ isOpen, onClose, user }) {
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
@@ -90,7 +90,6 @@ export default function Sidebar({ isOpen, onClose, user }) {
               Groups
             </p>
             <ul className="space-y-0.5">
-              {/* ✅ Usa LoadingSpinner */}
               {loadingGroups ? (
                 <div className="flex justify-center py-4">
                   <LoadingSpinner size="sm" />
@@ -151,12 +150,12 @@ export default function Sidebar({ isOpen, onClose, user }) {
             </li>
             <li>
               <Link
-                href="/dashboard/challenges"
+                href="/dashboard/about"
                 className="flex items-center gap-3 px-3 py-2.5 text-white rounded-lg hover:bg-gray-100/10 dark:hover:bg-gray-700/40 transition-colors"
                 onClick={onClose}
               >
-                <IoTrophy className="w-5 h-5" />
-                <span className="text-base font-medium">Challenges</span>
+                <IoInformationCircleOutline className="w-5 h-5" />
+                <span className="text-base font-medium">About</span>
               </Link>
             </li>
           </ul>

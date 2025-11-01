@@ -1,19 +1,95 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { IoTrashOutline, IoPencil } from "react-icons/io5";
 import Avatar from "./UserAvatar";
+import ConfirmModal from "@/components/ui/ConfirmModal";
+import AlertModal from "@/components/ui/AlertModal";
 
-export default function GroupBanner({ user, group }) {
-  // Find the member with the highest streak (leader)
+export default function GroupBanner({ user, group, onUpdate }) {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showCoverUpload, setShowCoverUpload] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [alert, setAlert] = useState({ isOpen: false, title: "", message: "", type: "info" });
+
+  const showAlert = (title, message, type = "info") => {
+    setAlert({ isOpen: true, title, message, type });
+  };
+
+  const isAdmin = session?.user?.id === group?.admin?._id?.toString();
+
+  const handleDeleteGroup = async () => {
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/group/${group._id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        showAlert("Success", "Group deleted successfully", "success");
+        setTimeout(() => {
+          router.push("/dashboard/home");
+        }, 1500);
+      } else {
+        showAlert("Error", "Failed to delete group", "error");
+      }
+    } catch (error) {
+      showAlert("Error", "Failed to delete group", "error");
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
+    }
+  };
+
+  const handleCoverChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      showAlert("File Too Large", "Image size must be less than 5MB", "error");
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Image = reader.result;
+
+        const response = await fetch(`/api/group/${group._id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ coverPicture: base64Image }),
+        });
+
+        if (response.ok) {
+          showAlert("Success", "Cover photo updated successfully!", "success");
+          if (onUpdate) onUpdate();
+        } else {
+          showAlert("Error", "Failed to update cover photo", "error");
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      showAlert("Error", "Failed to update cover photo", "error");
+    } finally {
+      setIsUploading(false);
+      setShowCoverUpload(false);
+    }
+  };
+
   const getLeader = () => {
     if (!group?.members || group.members.length === 0) {
       return null;
     }
 
-    // Create array with all members including admin
     const allMembers = group.members.map(m => m.user).filter(Boolean);
-    
-    // Find member with highest streak
     const leader = allMembers.reduce((prev, current) => {
       return (current.streak || 0) > (prev.streak || 0) ? current : prev;
     }, allMembers[0]);
@@ -27,57 +103,121 @@ export default function GroupBanner({ user, group }) {
   const description = group?.description;
 
   return (
-    <div className="bg-secondary rounded-xl overflow-hidden">
-      {/* Cover image */}
-      <img
-        src={coverPicture}
-        alt="Group banner"
-        className="rounded-t-xl w-full h-auto object-cover max-h-40"
-      />
+    <>
+      <div className="bg-secondary rounded-xl overflow-hidden relative">
+        <div className="relative">
+          <img
+            src={coverPicture}
+            alt="Group banner"
+            className="rounded-t-xl w-full h-auto object-cover max-h-40"
+          />
+          
+          <button
+            onClick={() => setShowCoverUpload(true)}
+            disabled={isUploading}
+            className="absolute bottom-2 right-2 p-2 bg-black/50 rounded-full hover:bg-black/70 transition-colors disabled:opacity-50"
+          >
+            <IoPencil className="w-4 h-4 text-white" />
+          </button>
 
-      <div className="flex justify-center gap-16 p-2">
-        {/* Group leader (highest streak) */}
-        {leader && (
-          <div className="flex items-center">
-            <Avatar
-              src={leader.avatar || "/mock.png"}
-              name={leader.name || "Leader"}
-              size={24}
-            />
-            <div className="ml-2">
-              <p className="text-xs font-semibold">{leader.streak || 0}</p>
-              <p className="text-xs text-gray-400">Leader</p>
+          {isAdmin && (
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              disabled={isDeleting}
+              className="absolute top-2 right-2 p-2 bg-black/50 rounded-full hover:bg-red-600/70 transition-colors disabled:opacity-50"
+            >
+              <IoTrashOutline className="w-4 h-4 text-white" />
+            </button>
+          )}
+        </div>
+
+        <div className="flex justify-center gap-16 p-2">
+          {leader && (
+            <div className="flex items-center">
+              <Avatar
+                src={leader.avatar || "/mock.png"}
+                name={leader.name || "Leader"}
+                size={24}
+              />
+              <div className="ml-2">
+                <p className="text-xs font-semibold">{leader.streak || 0}</p>
+                <p className="text-xs text-gray-400">Leader</p>
+              </div>
             </div>
-          </div>
+          )}
+
+          {user && (
+            <div className="flex items-center">
+              <Avatar 
+                src={user.avatar || "/mock.png"} 
+                name={user.name} 
+                size={24} 
+              />
+              <div className="ml-2">
+                <p className="text-xs font-semibold">{user.streak || 0}</p>
+                <p className="text-xs text-gray-400">You</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {description && (
+          <p className="text-center text-xs text-gray-300 px-4 pb-2">
+            {description}
+          </p>
         )}
 
-        {/* Current user */}
-        {user && (
-          <div className="flex items-center">
-            <Avatar 
-              src={user.avatar || "/mock.png"} 
-              name={user.name} 
-              size={24} 
-            />
-            <div className="ml-2">
-              <p className="text-xs font-semibold">{user.streak || 0}</p>
-              <p className="text-xs text-gray-400">You</p>
-            </div>
-          </div>
-        )}
+        <p className="text-center text-xs text-gray-400 pb-2">
+          {membersCount} {membersCount === 1 ? "member" : "members"}
+        </p>
       </div>
 
-      {/* Group description (optional) */}
-      {description && (
-        <p className="text-center text-xs text-gray-300 px-4 pb-2">
-          {description}
-        </p>
+      {showCoverUpload && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 rounded-2xl p-6 max-w-sm w-full">
+            <h3 className="text-white text-lg font-bold mb-4">Change Cover Photo</h3>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleCoverChange}
+              disabled={isUploading}
+              className="hidden"
+              id="cover-upload"
+            />
+            <label
+              htmlFor="cover-upload"
+              className="block w-full py-3 rounded-lg bg-red-600 text-white font-semibold text-center hover:bg-red-700 transition cursor-pointer"
+            >
+              {isUploading ? "Uploading..." : "Choose Photo"}
+            </label>
+            <button
+              onClick={() => setShowCoverUpload(false)}
+              disabled={isUploading}
+              className="w-full mt-3 py-3 rounded-lg bg-gray-800 text-white font-semibold hover:bg-gray-700 transition"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
       )}
 
-      {/* Members count */}
-      <p className="text-center text-xs text-gray-400 pb-2">
-        {membersCount} {membersCount === 1 ? "member" : "members"}
-      </p>
-    </div>
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDeleteGroup}
+        title="Delete Group"
+        message="Are you sure you want to delete this group? This action cannot be undone and will remove all posts and data."
+        confirmText="Delete"
+        isLoading={isDeleting}
+      />
+
+      <AlertModal
+        isOpen={alert.isOpen}
+        onClose={() => setAlert({ ...alert, isOpen: false })}
+        title={alert.title}
+        message={alert.message}
+        type={alert.type}
+      />
+    </>
   );
 }

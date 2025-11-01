@@ -147,7 +147,7 @@ export default function GroupDashboard() {
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="fixed bottom-24 right-6 bg-white text-primary text-3xl w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform duration-200 z-10"
+          className="fixed bottom-24 right-6 bg-green-500 text-primary text-3xl w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 z-10 hover:rotate-90"
         >
           <TiPlus />
         </button>

@@ -7,12 +7,14 @@ import { HiUserGroup } from "react-icons/hi";
 import Button from "@/components/ui/Button";
 import TypingText from "@/components/ui/TypingText";
 import CreateGroupModal from "@/components/dashboard/CreateGroupModal";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function OnboardingPage() {
   const router = useRouter();
   const [displayedLines, setDisplayedLines] = useState([]);
   const [showButtons, setShowButtons] = useState(false);
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const hasStarted = useRef(false);
 
   const terminalLines = [
@@ -50,14 +52,22 @@ export default function OnboardingPage() {
   };
 
   const handleGroupCreated = (newGroup) => {
+    setIsRedirecting(true);
     router.push(`/dashboard/groups/${newGroup._id}/dashboard`);
   };
+
+  if (isRedirecting) {
+    return (
+      <div className="min-h-screen bg-primary flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
 
   return (
     <>
       <div className="min-h-screen bg-primary flex flex-col items-center p-6 pt-20">
         <div className="max-w-2xl w-full space-y-6">
-          {/* Terminal Box */}
           <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-800 h-[200px] flex flex-col justify-start">
             {displayedLines.map((line, index) => (
               <div key={index} className="flex items-start gap-2 mb-2">
@@ -83,7 +93,6 @@ export default function OnboardingPage() {
             ))}
           </div>
 
-          {/* Floating Image */}
           <div className="flex justify-center items-center overflow-hidden h-110 w-full">
             <img
               src="/images/onboarding.png"
@@ -92,7 +101,6 @@ export default function OnboardingPage() {
             />
           </div>
 
-          {/* Buttons */}
           {showButtons && (
             <div className="space-y-4 animate-fade-in">
               <Button
