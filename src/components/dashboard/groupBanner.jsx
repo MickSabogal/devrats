@@ -124,9 +124,9 @@ export default function GroupBanner({ user, group, onUpdate }) {
             <button
               onClick={() => setShowDeleteConfirm(true)}
               disabled={isDeleting}
-              className="absolute top-2 right-2 p-2 bg-black/50 rounded-full hover:bg-red-600/70 transition-colors disabled:opacity-50"
+              className="absolute top-2 right-2 p-2 bg-black/50 rounded-full hover:bg-red-600 transition-colors disabled:opacity-50"
             >
-              <IoTrashOutline className="w-4 h-4 text-white" />
+              <IoTrashOutline className="w-4 h-4 text-red-600" />
             </button>
           )}
         </div>
@@ -206,7 +206,7 @@ export default function GroupBanner({ user, group, onUpdate }) {
         onClose={() => setShowDeleteConfirm(false)}
         onConfirm={handleDeleteGroup}
         title="Delete Group"
-        message="Are you sure you want to delete this group? This action cannot be undone and will remove all posts and data."
+        message={`Are you sure you want to delete "${group?.name}"? This action cannot be undone and will remove all posts and data.`}
         confirmText="Delete"
         isLoading={isDeleting}
       />

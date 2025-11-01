@@ -12,12 +12,10 @@ import AddEventModal from "@/components/dashboard/addEventModal";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function GroupDashboard() {
-  
   const params = useParams();
   const router = useRouter();
   const groupId = params.id;
   const { id } = params;
-
 
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,17 +24,17 @@ export default function GroupDashboard() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch("/api/users/me");
-        const data = await res.json();
-        setUser(data.user);
-      } catch (error) {
-        console.error("Error fetching user:", error);
-      }
-    };
+  const fetchUser = async () => {
+    try {
+      const res = await fetch("/api/users/me");
+      const data = await res.json();
+      setUser(data.user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+    }
+  };
 
+  useEffect(() => {
     fetchUser();
   }, []);
 
@@ -75,12 +73,16 @@ export default function GroupDashboard() {
     fetchGroupAndPosts();
   }, [groupId, router]);
 
-  const handlePostCreated = (newPost) => {
+  const handlePostCreated = async (newPost) => {
     setPosts((prev) => [newPost, ...prev]);
+    // ✅ Atualiza o user para pegar o streak novo
+    await fetchUser();
   };
 
-  const handlePostDeleted = (postId) => {
+  const handlePostDeleted = async (postId) => {
     setPosts((prev) => prev.filter((post) => post._id !== postId));
+    // ✅ Atualiza o user para pegar o streak atualizado
+    await fetchUser();
   };
 
   if (loading) {
@@ -155,7 +157,7 @@ export default function GroupDashboard() {
           <TiPlus />
         </button>
 
-      <BottomNavbar groupId={id} />
+        <BottomNavbar groupId={id} />
 
         <AddEventModal
           isOpen={isModalOpen}
