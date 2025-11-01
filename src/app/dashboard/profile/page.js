@@ -7,6 +7,8 @@ import { ArrowLeft, Settings } from "lucide-react";
 import ActivityCalendar from "@/components/profile/ActivityCalendar";
 import ProfileStats from "@/components/profile/ProfileStats";
 import ProfileHeader from "@/components/profile/ProfileHeader";
+import TypingText from "@/components/ui/TypingText";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
@@ -31,13 +33,12 @@ export default function ProfilePage() {
       const data = await response.json();
       setUser(data.user);
     } catch (error) {
-      console.error("Error fetching user:", error);
+      return;
     } finally {
       setLoading(false);
     }
   };
 
-  // Divide o nome em palavras
   const getNameLines = (name) => {
     const words = name?.split(" ") || [];
     if (words.length === 1) return [words[0], ""];
@@ -51,20 +52,32 @@ export default function ProfilePage() {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen bg-primary flex items-center justify-center">
-        <div className="w-8 h-8 border-3 border-gray-600 border-t-red-600 rounded-full animate-spin" />
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-primary">
+    <div className="min-h-screen bg-black">
+      <style jsx>{`
+        @keyframes pendulum {
+          0%, 100% { transform: rotate(-3deg); }
+          50% { transform: rotate(3deg); }
+        }
+
+        .pendulum-swing {
+          transform-origin: top center;
+          animation: pendulum 3s ease-in-out infinite;
+        }
+      `}</style>
+
       <div className="max-w-md mx-auto">
-        <div className="relative bg-secondary rounded-b-3xl overflow-hidden pb-30">
+        <div className="relative bg-primary rounded-b-3xl overflow-hidden pb-18">
           <img
             src="/images/cheese.png"
             alt="Background pattern"
-            className="absolute top-0 right-0 w-2/3 object-contain pointer-events-none select-none"
+            className="absolute top-0 right-0 w-68 h-68 object-contain pointer-events-none select-none pendulum-swing translate-x-2"
           />
 
           <div className="relative z-10 flex items-center justify-between p-4">
@@ -84,13 +97,23 @@ export default function ProfilePage() {
           </div>
 
           <div className="relative z-10 px-6 mt-8 text-left">
-            <p className="text-white/80 text-sm mb-6">Welcome back!</p>
-            <div className="w-24">
-              <h1 className="text-white text-xl font-bold leading-tight">
+            {/* ✅ TypingText com letra maior, mais devagar, cursor continua piscando */}
+            <div className="mb-4">
+              <TypingText
+                text="Welcome back!"
+                speed={120}
+                keepCursorAfterComplete={true}
+                className="text-green-400 text-base font-mono"
+                cursorClassName="inline-block w-2 h-4 bg-green-400 ml-1"
+              />
+            </div>
+            
+            <div className="w-48">
+              <h1 className="text-white text-3xl font-bold leading-tight">
                 {firstName}
               </h1>
               {lastName && (
-                <h1 className="text-white text-xl font-bold leading-tight">
+                <h1 className="text-white text-3xl font-bold leading-tight">
                   {lastName}
                 </h1>
               )}
@@ -98,7 +121,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="px-6 -mt-16 relative z-20">
+        <div className="px-6 -mt-12 relative z-20">
           <div className="flex gap-4 mb-8">
             <ProfileHeader user={user} />
 
@@ -107,7 +130,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="mt-15">
+          <div className="-mt-4">
             <ActivityCalendar
               userId={user._id}
               lastPostDate={user.lastPostDate}

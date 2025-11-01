@@ -30,10 +30,10 @@ const PostSchema = new Schema(
       type: Date,
       default: null,
     },
-    location: {
-      type: String,
-      default: "",
-      trim: true,
+    duration: {
+      type: Number,
+      default: 0,
+      min: 0,
     },
     metrics: {
       commitLines: {
