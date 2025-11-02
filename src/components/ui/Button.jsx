@@ -12,7 +12,7 @@ export default function Button({
   ...props 
 }) {
   const variants = {
-  primary: "bg-third hover:bg-green-600 text-[#0B111c]",
+  primary: "bg-third hover:bg-green-600 text-white  ",
   secondary: "bg-gray-800 hover:bg-gray-700 text-white border border-gray-700",
   outline: "bg-transparent hover:bg-white/10 text-white border-2 border-white",
   ghost: "bg-transparent hover:bg-white/10 text-white",

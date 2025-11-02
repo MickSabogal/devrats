@@ -235,7 +235,7 @@ export default function ActivityCalendar({ userId }) {
         {/* Loading state */}
         {loading ? (
           <div className="flex items-center justify-center h-64">
-            <div className="w-8 h-8 border-3 border-gray-600 border-t-red-600 rounded-full animate-spin" />
+            <div className="w-8 h-8 border-3 border-gray-600 border-t-third rounded-full animate-spin" />
           </div>
         ) : (
           <>
