@@ -11,7 +11,7 @@ export async function GET(req, { params }) {
     const { id } = await params;
 
     const group = await Group.findById(id)
-      .populate('admin', 'name avatar streak')
+      .populate('creator', 'name avatar streak')
       .populate('members.user', 'name avatar streak');
 
     if (!group) {
@@ -34,7 +34,7 @@ export async function PATCH(req, { params }) {
 
     const userId = session.user.id;
     const { id } = params;
-    const { name, description, coverPicture, action, memberId } = await req.json();
+    const { name, description, picture, action, memberId } = await req.json();
 
     if (!id) return NextResponse.json({ message: 'Group ID required' }, { status: 400 });
 
@@ -43,14 +43,14 @@ export async function PATCH(req, { params }) {
     const group = await Group.findById(id);
     if (!group) return NextResponse.json({ message: 'Group not found' }, { status: 404 });
 
-    if (group.admin.toString() !== userId)
+    if (group.creator.toString() !== userId)
       return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
 
     // Update basic fields
     if (!action) {
       if (name) group.name = name;
       if (description) group.description = description;
-      if (coverPicture) group.coverPicture = coverPicture;
+      if (picture) group.picture = picture;
     }
 
     // Remove member action
@@ -59,7 +59,7 @@ export async function PATCH(req, { params }) {
     }
 
     await group.save();
-    await group.populate('admin', 'name avatar streak');
+    await group.populate('creator', 'name avatar streak');
     await group.populate('members.user', 'name avatar streak');
 
     return NextResponse.json(group, { status: 200 });
@@ -87,7 +87,7 @@ export async function PUT(req, { params }) {
     const group = await Group.findById(id);
     if (!group) return NextResponse.json({ message: 'Group not found' }, { status: 404 });
 
-    if (group.admin.toString() !== session.user.id)
+    if (group.creator.toString() !== session.user.id)
       return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
 
     if (group.members.some(m => m.user.toString() === memberId))
@@ -118,7 +118,7 @@ export async function DELETE(req, { params }) {
     const group = await Group.findById(id);
     if (!group) return NextResponse.json({ message: 'Group not found' }, { status: 404 });
 
-    if (group.admin.toString() !== session.user.id)
+    if (group.creator.toString() !== session.user.id)
       return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
 
     await group.deleteOne();

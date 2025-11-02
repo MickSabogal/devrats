@@ -10,11 +10,11 @@ export async function POST(req, { params }) {
         const { id } = params;
 
         const body = await req.json();
-        const { user, text } = body;
+        const { user, content } = body;
 
-        if (!user || !text) {
+        if (!user || !content) {
             return NextResponse.json(
-                {error: "User and text are required."},
+                {error: "User and content are required."},
                 {status: 400 }
             );
         }
@@ -27,7 +27,7 @@ export async function POST(req, { params }) {
         const comment = await Comment.create({
             post: id,
             user,
-            text,
+            content,
         });
 
         return NextResponse(comment, {status: 201 });

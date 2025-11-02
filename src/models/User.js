@@ -7,10 +7,8 @@ const UserSchema = new Schema(
     password: { type: String, minlength: 6, select: false },
 
     avatar: { type: String, default: "/images/default-avatar.png" },
-    image: { type: String, default: null },
-
     streak: { type: Number, default: 0 },
-    lastPostDate: { type: Date, default: null },
+    lastPostDate: { type: String, default: null },
 
     activity: {
       type: Map,
@@ -19,7 +17,6 @@ const UserSchema = new Schema(
     },
 
     activeGroup: { type: Schema.Types.ObjectId, ref: "Group", default: null },
-    userGroups: [{ type: Schema.Types.ObjectId, ref: "Group" }],
   },
   { timestamps: true }
 );

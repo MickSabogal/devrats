@@ -15,7 +15,7 @@
       await connectDB();
 
       const groups = await Group.find({ 'members.user': userId })
-        .populate('admin', 'name avatar') // Include admin info
+        .populate('creator', 'name avatar') // Include creator info
         .populate('members.user', 'name avatar'); // Include members info
 
       return NextResponse.json(groups, { status: 200 });
@@ -33,7 +33,7 @@
         return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
 
       const userId = session.user.id;
-      const { name, description, coverPicture } = await req.json();
+      const { name, description, picture } = await req.json();
       if (!name) return NextResponse.json({ message: 'Name is required' }, { status: 400 });
 
       await connectDB();
@@ -46,16 +46,16 @@
       const newGroup = new Group({
         name,
         description,
-        coverPicture,
-        admin: userId,
-        members: [{ user: userId, role: 'admin' }],
+        picture,
+        creator: userId,
+        members: [{ user: userId, role: 'creator' }],
       });
 
       await newGroup.save();
-      await newGroup.populate('admin', 'name avatar');
+      await newGroup.populate('creator', 'name avatar');
 
       // Generate full invite link for frontend
-      const inviteLink = `${process.env.NEXT_PUBLIC_BASE_URL}/group/join/${newGroup.inviteToken}`;
+      const inviteLink = `${process.env.NEXT_PUBLIC_BASE_URL}/group/join/${newGroup.inviteCode}`;
 
       return NextResponse.json({ ...newGroup.toObject(), inviteLink }, { status: 201 });
     } catch (err) {

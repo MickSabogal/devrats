@@ -1,3 +1,5 @@
+import mongoose, { Schema, Types } from "mongoose";
+
 const messageSchema = new Schema ({
     group: { type: Types.ObjectId, ref: "Group", required: true }, // group chat
     user: {type: Types.ObjectId, ref: "User", required: true }, 
@@ -5,4 +7,6 @@ const messageSchema = new Schema ({
     attachments: [{ type: String }],
 }, { timestamps: true });
 
-module.exports = mongoose.models.Message || mongoose.model('Message', messageSchema);
+const Message = models.Message || mongoose.model("Message", MessageSchema);
+
+export default Message;

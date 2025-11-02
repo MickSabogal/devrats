@@ -1,13 +1,13 @@
-import { NextResponse } from "next/server"; 
+import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Reaction from "@/models/Reaction";
 import Post from "@/models/Post";
 
 export async function POST(req, { params }) {
     try {
-        await connectDB();    
+        await connectDB();
 
-        const { id } = params; 
+        const { id } = params;
 
         const body = await req.json();
         const { user, type } = body;
@@ -35,7 +35,7 @@ export async function POST(req, { params }) {
 
         const reaction = await Reaction.create({
             post: id,
-            user, 
+            user,
             type,
         });
 

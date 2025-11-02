@@ -4,7 +4,7 @@ import Group from '@/models/Group';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
-// POST — Join a group using an invite link (token)
+// POST — Join a group using an invite link (code)
 export async function POST(req, { params }) {
   try {
     // Get the current session (user must be logged in)
@@ -14,13 +14,13 @@ export async function POST(req, { params }) {
     }
 
     const userId = session.user.id;
-    const { token } = params;
+    const { code } = params;
 
     // Connect to the database
     await connectDB();
 
-    // Find the group using the invite token
-    const group = await Group.findOne({ inviteToken: token });
+    // Find the group using the invite code
+    const group = await Group.findOne({ inviteCode: code });
     if (!group) {
       return NextResponse.json({ message: 'Invalid invite link' }, { status: 404 });
     }
@@ -37,7 +37,7 @@ export async function POST(req, { params }) {
     // Return success response with the group ID
     return NextResponse.json({ message: 'Joined group successfully', groupId: group._id }, { status: 200 });
   } catch (err) {
-    console.error('POST /group/join/[token] error:', err);
+    console.error('POST /group/join/[code] error:', err);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
 }

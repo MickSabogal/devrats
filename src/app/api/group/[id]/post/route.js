@@ -59,7 +59,7 @@ export async function POST(req, { params }) {
     const { id } = await params;
     const body = await req.json();
 
-    const { title, content, image, eventDate, metrics, duration } = body;
+    const { title, content, image, startTime, metrics, duration } = body;
     const userId = session.user.id;
 
     if (!title) {
@@ -113,7 +113,7 @@ export async function POST(req, { params }) {
       title,
       content: content || "",
       image: image,
-      eventDate: eventDate ? new Date(eventDate) : null,
+      startTime: startTime ? new Date(startTime) : null,
       metrics: metrics || {},
       duration: postDuration,
       user: userId,

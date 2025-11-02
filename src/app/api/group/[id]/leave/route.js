@@ -28,10 +28,10 @@ export async function PATCH(req, { params }) {
       return NextResponse.json({ message: "You are not a member of this group" }, { status: 400 });
     }
 
-    // Prevent admin from leaving without transferring role
-    if (group.admin.toString() === userId) {
+    // Prevent creator from leaving without transferring role
+    if (group.creator.toString() === userId) {
       return NextResponse.json({
-        message: "Admin cannot leave the group without transferring admin role first"
+        message: "Creator cannot leave the group without transferring creator role first"
       }, { status: 403 });
     }
 
