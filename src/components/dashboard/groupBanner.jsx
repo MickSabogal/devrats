@@ -94,8 +94,6 @@ export default function GroupBanner({ user, group, onUpdate }) {
         });
 
         if (response.ok) {
-          const updatedGroup = await response.json();
-
           showAlert(
             "Success",
             "Cover photo updated successfully!",
@@ -104,7 +102,10 @@ export default function GroupBanner({ user, group, onUpdate }) {
             false
           );
 
-          window.location.reload();
+          // ✅ CHAMA onUpdate SE EXISTIR
+          if (onUpdate) {
+            onUpdate();
+          }
         } else {
           showAlert("Error", "Failed to update cover photo", "error");
         }
@@ -146,21 +147,13 @@ export default function GroupBanner({ user, group, onUpdate }) {
             className="rounded-t-xl w-full h-auto object-cover max-h-40"
           />
 
-          <button
-            onClick={() => setShowCoverUpload(true)}
-            disabled={isUploading}
-            className="absolute bottom-2 right-2 p-2 bg-black/50 rounded-full hover:bg-black/70 transition-colors disabled:opacity-50"
-          >
-            <IoPencil className="w-4 h-4 text-white" />
-          </button>
-
           {isAdmin && (
             <button
-              onClick={() => setShowDeleteConfirm(true)}
-              disabled={isDeleting}
-              className="absolute top-2 right-2 p-2 bg-black/50 rounded-full hover:bg-third transition-colors disabled:opacity-50"
+              onClick={() => setShowCoverUpload(true)}
+              disabled={isUploading}
+              className="absolute bottom-2 right-2 p-2 bg-black/50 rounded-full hover:bg-black/70 transition-colors disabled:opacity-50"
             >
-              <IoTrashOutline className="w-4 h-4 text-white " />
+              <IoPencil className="w-4 h-4 text-white" />
             </button>
           )}
         </div>
@@ -249,7 +242,12 @@ export default function GroupBanner({ user, group, onUpdate }) {
 
       <AlertModal
         isOpen={alert.isOpen}
-        onClose={() => setAlert({ ...alert, isOpen: false })}
+        onClose={() => {
+          setAlert({ ...alert, isOpen: false });
+          if (alert.type === 'warning' && alert.title === 'No Active Groups') {
+            router.push("/dashboard/onboarding");
+          }
+        }}
         title={alert.title}
         message={alert.message}
         type={alert.type}

@@ -85,7 +85,7 @@ export default function AvatarUpload({ user, onUpdate }) {
     <>
       <div className="flex items-center gap-4 py-3 border-b border-gray-800">
         <div className="relative">
-          <div className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center overflow-hidden">
+          <div className="w-12 h-12 rounded-full bg-third flex items-center justify-center overflow-hidden">
             {user?.avatar && user.avatar !== "/images/default-avatar.png" ? (
               <img
                 src={user.avatar}

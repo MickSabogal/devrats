@@ -3,11 +3,11 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { 
-  IoArrowBack, 
+import {
+  IoArrowBack,
   IoSettingsOutline,
   IoLinkOutline,
-  IoPersonOutline
+  IoPersonOutline,
 } from "react-icons/io5";
 import { FiUsers, FiCalendar } from "react-icons/fi";
 import BottomNavbar from "@/components/dashboard/bottomNavBar";
@@ -50,6 +50,26 @@ export default function GroupDetailsPage() {
 
     fetchData();
   }, [id, router]);
+  
+  const handleLeaveGroup = async () => {
+    if (!confirm("Are you sure you want to leave this group?")) return;
+
+    try {
+      const res = await fetch(`/api/group/${id}/leave`, {
+        method: "PATCH",
+      });
+
+      if (res.ok) {
+        router.push("/dashboard/home");
+      } else {
+        const data = await res.json();
+        alert(data.message || "Failed to leave group");
+      }
+    } catch (error) {
+      console.error("Error leaving group:", error);
+      alert("Error leaving group");
+    }
+  };
 
   const getRoleBadge = (memberId) => {
     if (group?.admin._id === memberId) return "Admin";
@@ -190,7 +210,9 @@ export default function GroupDetailsPage() {
                   )}
                 </div>
                 <div>
-                  <p className="text-primary font-medium">{group?.admin?.name}</p>
+                  <p className="text-primary font-medium">
+                    {group?.admin?.name}
+                  </p>
                   <p className="text-muted text-sm">Group creator</p>
                 </div>
               </div>
@@ -269,9 +291,7 @@ export default function GroupDetailsPage() {
                       <h4 className="text-primary font-medium">
                         {member.user.name}
                         {isCurrentUser && (
-                          <span className="text-muted text-xs ml-2">
-                            (You)
-                          </span>
+                          <span className="text-muted text-xs ml-2">(You)</span>
                         )}
                       </h4>
                       <p className="text-muted text-xs">
@@ -302,6 +322,16 @@ export default function GroupDetailsPage() {
                 </div>
               );
             })}
+          </div>
+        )}
+        {!isAdmin && (
+          <div className="mt-6">
+            <button
+              onClick={handleLeaveGroup}
+              className="w-full px-4 py-3 bg-transparent border border-red-600 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition font-medium"
+            >
+              Leave Group
+            </button>
           </div>
         )}
 
