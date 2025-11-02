@@ -123,7 +123,7 @@ export default function GroupRankingPage() {
                   Rankings are based on <strong className="text-third">group activity days</strong> 
                 </p>
                 <p className="text-secondary text-xs">
-                  If two members have the same activity days, <strong className="text-primary">study time</strong> is used as a tiebreaker 
+                  If two members have the same activity days, <strong className="text-primary">coding time</strong> is used as a tiebreaker 
                 </p>
               </div>
             </div>
@@ -204,7 +204,7 @@ export default function GroupRankingPage() {
                         <span className="text-third font-bold text-xl">{topThree[1].streak}</span>
                       </div>
                       <p className="text-secondary text-xs">
-                        {formatTime(topThree[1].studyMinutes)} studied
+                        {formatTime(topThree[1].studyMinutes)} coded
                       </p>
                       <div className={`w-full ${getPodiumHeight(1)} bg-gradient-to-br from-gray-300/20 to-gray-500/20 rounded-t-lg mt-2 flex items-center justify-center`}>
                         <FiAward className="w-8 h-8 text-gray-400" />
@@ -244,7 +244,7 @@ export default function GroupRankingPage() {
                         <span className="text-third font-bold text-2xl">{topThree[0].streak}</span>
                       </div>
                       <p className="text-secondary text-xs">
-                        {formatTime(topThree[0].studyMinutes)} studied
+                        {formatTime(topThree[0].studyMinutes)} coded
                       </p>
                       <div className={`w-full ${getPodiumHeight(0)} bg-gradient-to-br from-yellow-400/20 to-yellow-600/20 rounded-t-lg mt-2 flex items-center justify-center`}>
                         <FiAward className="w-10 h-10 text-yellow-400" />
@@ -281,7 +281,7 @@ export default function GroupRankingPage() {
                         <span className="text-third font-bold text-xl">{topThree[2].streak}</span>
                       </div>
                       <p className="text-secondary text-xs">
-                        {formatTime(topThree[2].studyMinutes)} studied
+                        {formatTime(topThree[2].studyMinutes)} coded
                       </p>
                       <div className={`w-full ${getPodiumHeight(2)} bg-gradient-to-br from-orange-400/20 to-orange-600/20 rounded-t-lg mt-2 flex items-center justify-center`}>
                         <FiAward className="w-8 h-8 text-orange-400" />
@@ -333,7 +333,7 @@ export default function GroupRankingPage() {
                         </h4>
                         <div className="flex items-center gap-3 text-sm">
                           <span className="text-secondary">
-                            {formatTime(member.studyMinutes)} studied
+                            {formatTime(member.studyMinutes)} coded
                           </span>
                           <span className="text-muted">
                             • {member.postCount} {member.postCount === 1 ? "post" : "posts"}
