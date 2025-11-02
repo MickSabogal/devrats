@@ -86,14 +86,14 @@ export default function SettingsForm({ user, onUpdate }) {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="flex-1 bg-transparent text-white outline-none border-b border-red-600"
+                  className="flex-1 bg-transparent text-white outline-none border-b border-third"
                   autoFocus
                   disabled={saving}
                 />
                 <button
                   onClick={() => handleSave("name")}
                   disabled={saving || !formData.name.trim()}
-                  className="text-red-600 text-sm font-semibold hover:text-red-500 disabled:opacity-50"
+                  className="text-third text-sm font-semibold hover:text-third disabled:opacity-50"
                 >
                   {saving ? "Saving..." : "Save"}
                 </button>
@@ -131,14 +131,14 @@ export default function SettingsForm({ user, onUpdate }) {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  className="flex-1 bg-transparent text-white outline-none border-b border-red-600"
+                  className="flex-1 bg-transparent text-white outline-none border-b border-third"
                   autoFocus
                   disabled={saving}
                 />
                 <button
                   onClick={() => handleSave("email")}
                   disabled={saving || !formData.email.trim()}
-                  className="text-red-600 text-sm font-semibold hover:text-red-500 disabled:opacity-50"
+                  className="text-third text-sm font-semibold hover:text-third disabled:opacity-50"
                 >
                   {saving ? "Saving..." : "Save"}
                 </button>
