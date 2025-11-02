@@ -16,7 +16,7 @@ export default function AlertModal({
   useEffect(() => {
     if (isOpen && autoClose) {
       let startTime = Date.now();
-      const duration = 2000;
+      const duration = 2500;
 
       const timer = setTimeout(() => {
         onClose();
@@ -106,7 +106,7 @@ export default function AlertModal({
               className={`h-full ${typeStyles[type]} transition-all ease-linear`}
               style={{ 
                 width: `${progress}%`,
-                transitionDuration: '16ms' // Sincronizado com o interval de 16ms
+                transitionDuration: '50ms'
               }}
             />
           </div>

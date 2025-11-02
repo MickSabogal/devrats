@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation"; // ✅ ADICIONAR
 import {
   IoClose,
   IoSettingsOutline,
@@ -15,6 +16,7 @@ import JoinGroupModal from "@/components/dashboard/JoinGroupModal";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function Sidebar({ isOpen, onClose, user }) {
+  const router = useRouter(); // ✅ ADICIONAR
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
   const [isJoinGroupModalOpen, setIsJoinGroupModalOpen] = useState(false);
   const [groups, setGroups] = useState([]);
@@ -25,7 +27,7 @@ export default function Sidebar({ isOpen, onClose, user }) {
       try {
         const response = await fetch("/api/group", { method: "GET" });
         const data = await response.json();
-        
+
         if (response.ok && Array.isArray(data)) {
           setGroups(data);
         }
@@ -35,24 +37,24 @@ export default function Sidebar({ isOpen, onClose, user }) {
         setLoadingGroups(false);
       }
     };
-    
+
     if (isOpen) {
       fetchGroups();
     }
   }, [isOpen]);
 
-  // Handle when a new group is created
+  // ✅ MANTER SÓ ESTA (deletar a outra)
   const handleGroupCreated = (newGroup) => {
     setGroups((prev) => [newGroup, ...prev]);
+    router.push(`/dashboard/groups/${newGroup._id}/dashboard`);
   };
 
   // Handle when user joins a group
   const handleGroupJoined = async () => {
-    // Refetch groups to update the list with the newly joined group
     try {
       const response = await fetch("/api/group", { method: "GET" });
       const data = await response.json();
-      
+
       if (response.ok && Array.isArray(data)) {
         setGroups(data);
       }

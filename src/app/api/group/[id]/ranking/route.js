@@ -9,7 +9,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 export async function GET(req, { params }) {
   try {
     await connectDB();
-    
+
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -18,19 +18,22 @@ export async function GET(req, { params }) {
     const { id } = params;
 
     // Buscar grupo com membros populados
-    const group = await Group.findById(id).populate("members.user", "name avatar streak");
-    
+    const group = await Group.findById(id).populate(
+      "members.user",
+      "name avatar streak"
+    );
+
     if (!group) {
       return NextResponse.json({ message: "Group not found" }, { status: 404 });
     }
 
     // Extrair IDs dos membros
-    const userIds = group.members.map(m => m.user._id);
+    const userIds = group.members.map((m) => m.user._id);
 
     // Buscar TODOS os posts do grupo com os dados necessários
     const allPosts = await Post.find({
       group: id,
-      user: { $in: userIds }
+      user: { $in: userIds },
     }).select("user duration");
 
     console.log("📊 Total posts found:", allPosts.length);
@@ -38,29 +41,35 @@ export async function GET(req, { params }) {
     // Calcular estatísticas por usuário
     const userStats = {};
 
-    allPosts.forEach(post => {
+    allPosts.forEach((post) => {
       const userId = post.user.toString();
-      
+
       if (!userStats[userId]) {
         userStats[userId] = {
           totalMinutes: 0,
-          postCount: 0
+          postCount: 0,
         };
       }
-      
+
       // Somar duração (em minutos)
       const duration = parseInt(post.duration) || 0;
       userStats[userId].totalMinutes += duration;
       userStats[userId].postCount += 1;
 
-      console.log(`👤 User ${userId}: +${duration} min (total: ${userStats[userId].totalMinutes})`);
+      console.log(
+        `👤 User ${userId}: +${duration} min (total: ${userStats[userId].totalMinutes})`
+      );
     });
 
-    // Criar array de ranking
     const ranking = group.members.map((member) => {
       const userId = member.user._id.toString();
       const stats = userStats[userId] || { totalMinutes: 0, postCount: 0 };
-      
+
+      const groupStreak = member.user.groupStreaks?.get(id) || {
+        streak: 0,
+        checkIns: 0,
+      };
+
       const totalMinutes = stats.totalMinutes;
       const hours = Math.floor(totalMinutes / 60);
       const minutes = totalMinutes % 60;
@@ -69,28 +78,34 @@ export async function GET(req, { params }) {
         _id: member.user._id,
         name: member.user.name,
         avatar: member.user.avatar,
-        streak: member.user.streak || 0,
+        streak: groupStreak.checkIns,
         studyMinutes: totalMinutes,
         studyHours: hours,
         studyMinutesRemainder: minutes,
-        postCount: stats.postCount
+        postCount: stats.postCount,
       };
     });
 
-    // Ordenar por tempo de estudo (decrescente)
+    ranking.sort((a, b) => b.streak - a.streak);
+
     ranking.sort((a, b) => b.studyMinutes - a.studyMinutes);
 
-    console.log("🏆 Final ranking:", ranking.map(r => ({
-      name: r.name,
-      minutes: r.studyMinutes,
-      posts: r.postCount
-    })));
+    console.log(
+      "🏆 Final ranking:",
+      ranking.map((r) => ({
+        name: r.name,
+        minutes: r.studyMinutes,
+        posts: r.postCount,
+      }))
+    );
 
-    return NextResponse.json({
-      success: true,
-      ranking
-    }, { status: 200 });
-
+    return NextResponse.json(
+      {
+        success: true,
+        ranking,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("❌ Ranking error:", error);
     return NextResponse.json(

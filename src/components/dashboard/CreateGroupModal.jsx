@@ -121,11 +121,10 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }) {
 
         setTimeout(() => {
           resetForm();
-          onClose();
           if (onGroupCreated) {
             onGroupCreated(data);
           }
-        }, 1500);
+        }, 100);
       } else {
         showAlert("Error", data.message || "Error creating group", "error");
       }

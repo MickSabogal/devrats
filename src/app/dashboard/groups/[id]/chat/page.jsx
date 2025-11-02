@@ -322,7 +322,7 @@ export default function GroupChatPage() {
                   }
                 }}
                 placeholder="Type a message..."
-                className="flex-1 bg-[#1e2939] text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-600 resize-none max-h-32 overflow-y-auto"
+                className="flex-1 bg-[#1e2939] text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-600 resize-none max-h-32 overflow-y-auto"
                 rows={1}
                 disabled={sending}
               />

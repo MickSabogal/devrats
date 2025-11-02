@@ -72,11 +72,8 @@ export async function POST(req, { params }) {
 
     // Upload imagem para Cloudinary
     let imageUrl = null;
-    if (image && image.startsWith('data:')) {
-      const { url } = await uploadToCloudinary(
-        image,
-        'posts'
-      );
+    if (image && image.startsWith("data:")) {
+      const { url } = await uploadToCloudinary(image, "posts");
       imageUrl = url;
     }
 
@@ -92,25 +89,51 @@ export async function POST(req, { params }) {
       metrics: metrics || {},
     });
 
-    // Atualizar streak do usuário
+    // Linha 90-115, substituir lógica de streak:
     const today = new Date().toISOString().split("T")[0];
+    const yesterday = new Date(Date.now() - 86400000)
+      .toISOString()
+      .split("T")[0];
+
+    // ✅ Atualizar streak PESSOAL (perfil)
     const lastPost = user.lastPostDate
       ? new Date(user.lastPostDate).toISOString().split("T")[0]
       : null;
 
     if (lastPost !== today) {
-      const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
-      
       if (lastPost === yesterday) {
         user.streak += 1;
       } else if (lastPost !== today) {
         user.streak = 1;
       }
-
       user.lastPostDate = new Date();
       user.activity.set(today, true);
-      await user.save();
     }
+
+    if (!user.groupStreaks) user.groupStreaks = new Map();
+
+    const groupStreak = user.groupStreaks.get(groupId) || {
+      streak: 0,
+      lastPostDate: null,
+      checkIns: 0,
+    };
+
+    const lastGroupPost = groupStreak.lastPostDate
+      ? new Date(groupStreak.lastPostDate).toISOString().split("T")[0]
+      : null;
+
+    if (lastGroupPost !== today) {
+      if (lastGroupPost === yesterday) {
+        groupStreak.streak += 1;
+      } else {
+        groupStreak.streak = 1;
+      }
+      groupStreak.lastPostDate = new Date();
+      groupStreak.checkIns += 1; // ✅ Incrementa total de check-ins únicos
+    }
+
+    user.groupStreaks.set(groupId, groupStreak);
+    await user.save();
 
     const populatedPost = await Post.findById(newPost._id)
       .populate("user", "name avatar streak")
@@ -123,7 +146,11 @@ export async function POST(req, { params }) {
   } catch (error) {
     console.error("POST /group/[id]/post error:", error);
     return NextResponse.json(
-      { success: false, message: "Internal server error", error: error.message },
+      {
+        success: false,
+        message: "Internal server error",
+        error: error.message,
+      },
       { status: 500 }
     );
   }

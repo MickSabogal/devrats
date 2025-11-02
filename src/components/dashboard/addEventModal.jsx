@@ -303,7 +303,7 @@ export default function AddEventModal({
                     className={`w-full flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed rounded-lg transition-colors disabled:opacity-50
     ${
       errors.image
-        ? "border-green-500 bg-green-500/10"
+        ? "border-red-500 bg-red-500/10"
         : "border-green-400 dark:border-green-500 bg-green-500/10 hover:border-green-600 dark:hover:border-green-400"
     }`}
                   >
@@ -368,7 +368,7 @@ export default function AddEventModal({
                     ${
                       errors.duration
                         ? "border-red-500 focus:ring-red-500"
-                        : "border-gray-300 dark:border-gray-600 focus:ring-red-600"
+                        : "border-gray-300 dark:border-gray-600 focus:ring-green-600"
                     } bg-white dark:bg-[#0B111c] text-gray-900 dark:text-white focus:ring-2 focus:border-transparent outline-none`}
                 >
                   {formatDuration(formData.duration)}
@@ -389,7 +389,7 @@ export default function AddEventModal({
                               formData.duration % 60
                             )
                           }
-                          className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#1e2939] text-gray-900 dark:text-white focus:ring-2 focus:ring-red-600 outline-none"
+                          className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#1e2939] text-gray-900 dark:text-white focus:ring-2 focus:ring-green-600 outline-none"
                         >
                           {[...Array(13)].map((_, i) => (
                             <option key={i} value={i}>
@@ -492,7 +492,15 @@ export default function AddEventModal({
 
       <AlertModal
         isOpen={alert.isOpen}
-        onClose={() => setAlert({ ...alert, isOpen: false })}
+        onClose={() => {
+          setAlert({ ...alert, isOpen: false });
+          if (alert.type === "success") {
+            onClose();
+            if (onGroupCreated) {
+              router.push(`/dashboard/groups/${newGroup._id}/dashboard`);
+            }
+          }
+        }}
         title={alert.title}
         message={alert.message}
         type={alert.type}
