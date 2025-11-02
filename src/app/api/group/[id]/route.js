@@ -28,6 +28,7 @@ export async function GET(req, { params }) {
 }
 
 // PATCH — Update group info partially (or remove member)
+// PATCH — Update group info partially (or remove member)
 export async function PATCH(req, { params }) {
   try {
     const session = await getServerSession(authOptions);
@@ -53,9 +54,7 @@ export async function PATCH(req, { params }) {
       if (name) group.name = name;
       if (description) group.description = description;
       
-      // Se houver nova cover picture
       if (coverPicture && coverPicture.startsWith('data:')) {
-        // Deletar cover antiga do Cloudinary
         if (group.coverPicture) {
           const oldPublicId = extractPublicId(group.coverPicture);
           if (oldPublicId) {
@@ -63,7 +62,6 @@ export async function PATCH(req, { params }) {
           }
         }
 
-        // Upload nova cover
         const { url } = await uploadToCloudinary(
           coverPicture,
           'groups',
@@ -73,9 +71,14 @@ export async function PATCH(req, { params }) {
       }
     }
 
-    // Remove member action
+    // ✅ REMOVE MEMBER ACTION - ATUALIZADO
     if (action === 'remove-member' && memberId) {
       group.members = group.members.filter(m => m.user.toString() !== memberId);
+      
+      // ✅ REMOVER GRUPO DO USUÁRIO TAMBÉM
+      await User.findByIdAndUpdate(memberId, {
+        $pull: { userGroups: group._id }
+      });
     }
 
     await group.save();
@@ -132,19 +135,18 @@ export async function DELETE(req, { params }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session || !session.user)
-      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
     const { id } = params;
 
     await connectDB();
 
     const group = await Group.findById(id);
-    if (!group) return NextResponse.json({ message: 'Group not found' }, { status: 404 });
+    if (!group) return NextResponse.json({ message: "Group not found" }, { status: 404 });
 
     if (group.admin.toString() !== session.user.id)
-      return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
+      return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
 
-    // Deletar cover picture do Cloudinary
     if (group.coverPicture) {
       const publicId = extractPublicId(group.coverPicture);
       if (publicId) {
@@ -152,11 +154,27 @@ export async function DELETE(req, { params }) {
       }
     }
 
+    const posts = await Post.find({ group: id });
+    for (const post of posts) {
+      if (post.image) {
+        const postPublicId = extractPublicId(post.image);
+        if (postPublicId) {
+          await deleteFromCloudinary(postPublicId);
+        }
+      }
+      
+      post.title = "[Deleted]";
+      post.content = "";
+      post.image = null;
+      post.metrics = {};
+      await post.save();
+    }
+
     await group.deleteOne();
 
-    return NextResponse.json({ message: 'Group deleted successfully' }, { status: 200 });
+    return NextResponse.json({ message: "Group deleted successfully" }, { status: 200 });
   } catch (err) {
-    console.error('DELETE /group/[id] error:', err);
-    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+    console.error("DELETE /group/[id] error:", err);
+    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
   }
 }

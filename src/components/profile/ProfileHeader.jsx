@@ -7,7 +7,7 @@ export default function ProfileHeader({ user }) {
     .slice(0, 2) || "??";
 
   return (
-    <div className="w-41 h-41 rounded-2xl bg-green-600 flex items-center justify-center overflow-hidden border-8 border-black flex-shrink-0">
+    <div className="w-41 h-41 rounded-2xl bg-third flex items-center justify-center overflow-hidden border-8 border-black flex-shrink-0">  {/* ✅ MUDEI bg-red-600 para bg-third */}
       {user?.avatar && user.avatar !== "/images/default-avatar.png" ? (
         <img
           src={user.avatar}

@@ -109,9 +109,12 @@ export default function GroupDashboard() {
           <h1 className="text-xl font-bold text-primary mb-4">
             {group?.name || "Group"}
           </h1>
-          
-          <GroupBanner user={user} group={group} />
 
+          <GroupBanner
+            user={user}
+            group={group}
+            onUpdate={fetchGroupAndPosts}
+          />
           <div className="w-full text-center mt-4 mb-6">
             <p className="text-muted text-sm">
               {new Date().toLocaleDateString("en-US", {
@@ -129,7 +132,9 @@ export default function GroupDashboard() {
                   <TiPlus className="w-8 h-8 text-muted" />
                 </div>
                 <p className="text-secondary font-medium">No posts yet</p>
-                <p className="text-muted text-sm">Be the first to share something!</p>
+                <p className="text-muted text-sm">
+                  Be the first to share something!
+                </p>
               </div>
             </div>
           ) : (

@@ -8,8 +8,8 @@ export default function AlertModal({
   title, 
   message, 
   type = "info",
-  autoClose = true, // novo prop para controlar auto-close
-  showButton = false // novo prop para mostrar/esconder botão
+  autoClose = true,
+  showButton = false
 }) {
   const [progress, setProgress] = useState(100);
 
@@ -22,17 +22,15 @@ export default function AlertModal({
         onClose();
       }, duration);
 
-      // Animar barra de progresso de forma mais suave
       const progressInterval = setInterval(() => {
         const elapsed = Date.now() - startTime;
         const remaining = Math.max(0, 100 - (elapsed / duration) * 100);
         setProgress(remaining);
 
-        // Para quando chegar a 0
         if (remaining === 0) {
           clearInterval(progressInterval);
         }
-      }, 16); // ~60fps para animação mais suave
+      }, 16);
 
       return () => {
         clearTimeout(timer);
@@ -41,7 +39,6 @@ export default function AlertModal({
     }
   }, [isOpen, onClose, autoClose]);
 
-  // Reset progress quando modal fecha
   useEffect(() => {
     if (!isOpen) {
       setProgress(100);
@@ -51,7 +48,7 @@ export default function AlertModal({
   if (!isOpen) return null;
 
   const typeStyles = {
-    success: "bg-green-600",
+    success: "bg-third",
     error: "bg-red-600",
     warning: "bg-yellow-600",
     info: "bg-blue-600"
@@ -99,7 +96,6 @@ export default function AlertModal({
           {message}
         </p>
 
-        {/* Barra de progresso (só aparece se autoClose = true) */}
         {autoClose && !showButton && (
           <div className="w-full h-1.5 bg-gray-700 rounded-full overflow-hidden mb-4">
             <div 
@@ -112,7 +108,6 @@ export default function AlertModal({
           </div>
         )}
 
-        {/* Botão (só aparece se showButton = true) */}
         {showButton && (
           <button
             onClick={onClose}
