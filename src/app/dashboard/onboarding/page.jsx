@@ -156,7 +156,7 @@ export default function OnboardingPage() {
                 <Button
                   fullWidth
                   size="lg"
-                  variant="outline"
+                  variant="greenOutline"
                   icon={HiUserGroup}
                   onClick={() => setIsJoinGroupModalOpen(true)}
                 >
