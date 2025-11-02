@@ -17,7 +17,7 @@ export async function DELETE(req, { params }) {
         // Deleting the Message 
         await Message.findByIdAndDelete(id);
 
-        return NextResponse({message: "Message deleted successfully"}, {status: 200});
+        return NextResponse.json({message: "Message deleted successfully"}, {status: 200});
     }catch (error) {
         console.error("Error deleting message:", error);
         return NextResponse.json({error: "Failed to delete your message"}, {status: 500});
