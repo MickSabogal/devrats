@@ -50,8 +50,14 @@ export default function AddEventModal({
     }
   }, [isOpen]);
 
-  const showAlert = (title, message, type = "info") => {
-    setAlert({ isOpen: true, title, message, type });
+  const showAlert = (
+    title,
+    message,
+    type = "info",
+    autoClose = true,
+    showButton = false
+  ) => {
+    setAlert({ isOpen: true, title, message, type, autoClose, showButton });
   };
 
   const handleImageChange = (e) => {
@@ -209,7 +215,13 @@ export default function AddEventModal({
       console.log("📥 Response:", data);
 
       if (data.success) {
-        showAlert("Success", "Activity posted successfully!", "success");
+        showAlert(
+          "Success",
+          "Activity posted successfully!",
+          "success",
+          true,
+          false
+        );
 
         setTimeout(() => {
           if (onPostCreated) onPostCreated(data.post);
@@ -484,6 +496,8 @@ export default function AddEventModal({
         title={alert.title}
         message={alert.message}
         type={alert.type}
+        autoClose={alert.autoClose}
+        showButton={alert.showButton}
       />
     </>
   );

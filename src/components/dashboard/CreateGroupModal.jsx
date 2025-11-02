@@ -32,7 +32,11 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }) {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        showAlert("File Too Large", "Image size must be less than 5MB", "error");
+        showAlert(
+          "File Too Large",
+          "Image size must be less than 5MB",
+          "error"
+        );
         return;
       }
 
@@ -46,7 +50,7 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }) {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
@@ -60,15 +64,15 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }) {
 
   const validate = () => {
     const newErrors = {};
-    
+
     if (!formData.name.trim()) {
       newErrors.name = "Group name is required";
     }
-    
+
     if (!formData.description.trim()) {
       newErrors.description = "Description is required";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -107,8 +111,14 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }) {
       const data = await response.json();
 
       if (response.ok) {
-        showAlert("Success", "Group created successfully!", "success");
-        
+        showAlert(
+          "Success",
+          "Group created successfully!",
+          "success",
+          true,
+          false
+        );
+
         setTimeout(() => {
           resetForm();
           onClose();
@@ -131,11 +141,16 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }) {
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-end justify-center">
-        <div onClick={onClose} className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+        <div
+          onClick={onClose}
+          className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        />
 
         <div className="relative w-full max-w-md bg-white dark:bg-[#1e2939] rounded-t-3xl shadow-2xl max-h-[90vh] overflow-hidden">
           <div className="sticky top-0 bg-white dark:bg-[#1e2939] border-b border-gray-200 dark:border-gray-700/50 px-6 py-4 flex items-center justify-between z-10">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">Create Group</h2>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+              Create Group
+            </h2>
             <button
               onClick={onClose}
               disabled={isLoading}
@@ -145,7 +160,10 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }) {
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="overflow-y-auto max-h-[calc(90vh-140px)]">
+          <form
+            onSubmit={handleSubmit}
+            className="overflow-y-auto max-h-[calc(90vh-140px)]"
+          >
             <div className="px-6 py-4 space-y-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -154,7 +172,11 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }) {
 
                 {coverPreview ? (
                   <div className="relative w-full h-48 rounded-lg overflow-hidden">
-                    <img src={coverPreview} alt="Cover Preview" className="w-full h-full object-cover" />
+                    <img
+                      src={coverPreview}
+                      alt="Cover Preview"
+                      className="w-full h-full object-cover"
+                    />
                     <button
                       type="button"
                       onClick={() => {
@@ -176,7 +198,9 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }) {
                     className="w-full flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-blue-500 dark:hover:border-white transition-colors"
                   >
                     <IoCamera className="w-8 h-8 text-gray-400 dark:text-gray-500" />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Take Photo</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      Take Photo
+                    </span>
                   </button>
                 )}
 
@@ -215,7 +239,8 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }) {
 
               <div className="p-4 rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/20">
                 <p className="text-sm text-blue-800 dark:text-blue-200">
-                  <strong>Note:</strong> You'll be added as the group admin and receive an invite link to share with others.
+                  <strong>Note:</strong> You'll be added as the group admin and
+                  receive an invite link to share with others.
                 </p>
               </div>
             </div>

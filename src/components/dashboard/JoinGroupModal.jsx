@@ -19,26 +19,31 @@ export default function JoinGroupModal({ isOpen, onClose, onGroupJoined }) {
   });
   const [error, setError] = useState("");
 
-  const showAlert = (title, message, type = "info") =>
-    setAlert({ isOpen: true, title, message, type });
+  const showAlert = (
+    title,
+    message,
+    type = "info",
+    autoClose = true,
+    showButton = false
+  ) => setAlert({ isOpen: true, title, message, type, autoClose, showButton });
 
   const extractToken = (input) => {
     const trimmed = input.trim();
-    
+
     // Se for apenas o token (hash)
-    if (!trimmed.includes('/') && !trimmed.includes('http')) {
+    if (!trimmed.includes("/") && !trimmed.includes("http")) {
       return trimmed;
     }
-    
+
     // Se for um link completo, extrair o token
     try {
       const url = new URL(trimmed);
-      const pathParts = url.pathname.split('/');
+      const pathParts = url.pathname.split("/");
       const token = pathParts[pathParts.length - 1];
       return token;
     } catch {
       // Se falhar ao fazer parse como URL, tentar extrair manualmente
-      const parts = trimmed.split('/');
+      const parts = trimmed.split("/");
       return parts[parts.length - 1];
     }
   };
@@ -78,8 +83,14 @@ export default function JoinGroupModal({ isOpen, onClose, onGroupJoined }) {
       const data = await response.json();
 
       if (response.ok) {
-        showAlert("Success", "You've joined the group successfully!", "success");
-        
+        showAlert(
+          "Success",
+          "You've joined the group successfully!",
+          "success",
+          true,
+          false
+        );
+
         setTimeout(() => {
           resetForm();
           onClose();
@@ -93,9 +104,17 @@ export default function JoinGroupModal({ isOpen, onClose, onGroupJoined }) {
         }, 1500);
       } else {
         if (response.status === 404) {
-          showAlert("Invalid Link", "This invite link doesn't exist or has expired", "error");
+          showAlert(
+            "Invalid Link",
+            "This invite link doesn't exist or has expired",
+            "error"
+          );
         } else if (response.status === 400) {
-          showAlert("Already a Member", data.message || "You're already in this group", "warning");
+          showAlert(
+            "Already a Member",
+            data.message || "You're already in this group",
+            "warning"
+          );
         } else {
           showAlert("Error", data.message || "Error joining group", "error");
         }
@@ -113,11 +132,16 @@ export default function JoinGroupModal({ isOpen, onClose, onGroupJoined }) {
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-end justify-center">
-        <div onClick={onClose} className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+        <div
+          onClick={onClose}
+          className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        />
 
         <div className="relative w-full max-w-md bg-white dark:bg-[#1e2939] rounded-t-3xl shadow-2xl max-h-[90vh] overflow-hidden">
           <div className="sticky top-0 bg-white dark:bg-[#1e2939] border-b border-gray-200 dark:border-gray-700/50 px-6 py-4 flex items-center justify-between z-10">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">Join Group</h2>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+              Join Group
+            </h2>
             <button
               onClick={onClose}
               disabled={isLoading}
@@ -172,7 +196,9 @@ export default function JoinGroupModal({ isOpen, onClose, onGroupJoined }) {
                 <p className="text-xs text-gray-500 dark:text-gray-500 mt-1 font-mono">
                   https://yoursite.com/group/join/abc123xyz
                 </p>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">or simply:</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                  or simply:
+                </p>
                 <p className="text-xs text-gray-500 dark:text-gray-500 mt-1 font-mono">
                   abc123xyz
                 </p>
@@ -200,6 +226,8 @@ export default function JoinGroupModal({ isOpen, onClose, onGroupJoined }) {
         title={alert.title}
         message={alert.message}
         type={alert.type}
+        autoClose={alert.autoClose}
+        showButton={alert.showButton}
       />
     </>
   );

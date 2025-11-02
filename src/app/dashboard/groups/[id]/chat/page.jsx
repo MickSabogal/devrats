@@ -34,8 +34,13 @@ export default function GroupChatPage() {
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
 
-  const showAlert = (title, message, type = "info") =>
-    setAlert({ isOpen: true, title, message, type });
+  const showAlert = (
+    title,
+    message,
+    type = "info",
+    autoClose = true,
+    showButton = false
+  ) => setAlert({ isOpen: true, title, message, type, autoClose, showButton });
 
   // Fetch user
   useEffect(() => {
@@ -137,7 +142,13 @@ export default function GroupChatPage() {
         );
         setMessageText("");
         setEditingMessage(null);
-        showAlert("Success", "Message updated successfully", "success");
+        showAlert(
+          "Success",
+          "Message updated successfully",
+          "success",
+          true,
+          false
+        );
       } else {
         showAlert("Error", data.message || "Failed to edit message", "error");
       }
@@ -156,7 +167,13 @@ export default function GroupChatPage() {
 
       if (res.ok) {
         setMessages((prev) => prev.filter((msg) => msg._id !== messageId));
-        showAlert("Success", "Message deleted successfully", "success");
+        showAlert(
+          "Success",
+          "Message deleted successfully",
+          "success",
+          true,
+          false
+        );
       } else {
         const data = await res.json();
         showAlert("Error", data.message || "Failed to delete message", "error");
@@ -345,6 +362,8 @@ export default function GroupChatPage() {
         title={alert.title}
         message={alert.message}
         type={alert.type}
+        autoClose={alert.autoClose}
+        showButton={alert.showButton}
       />
     </>
   );

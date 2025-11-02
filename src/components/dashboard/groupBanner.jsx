@@ -22,8 +22,14 @@ export default function GroupBanner({ user, group, onUpdate }) {
     type: "info",
   });
 
-  const showAlert = (title, message, type = "info") => {
-    setAlert({ isOpen: true, title, message, type });
+  const showAlert = (
+    title,
+    message,
+    type = "info",
+    autoClose = true,
+    showButton = false
+  ) => {
+    setAlert({ isOpen: true, title, message, type, autoClose, showButton });
   };
 
   const isAdmin = session?.user?.id === group?.admin?._id?.toString();
@@ -43,13 +49,21 @@ export default function GroupBanner({ user, group, onUpdate }) {
           showAlert(
             "No Active Groups",
             "Oops! Seems like you don't have any active groups. You will be redirected to our onboarding page.",
-            "warning"
+            "warning",
+            false,
+            true
           );
           setTimeout(() => {
             router.push("/dashboard/onboarding");
           }, 3000);
         } else {
-          showAlert("Success", "Group deleted successfully", "success");
+          showAlert(
+            "Success",
+            "Group deleted successfully",
+            "success",
+            true,
+            false
+          );
           setTimeout(() => {
             router.push("/dashboard/home");
           }, 1500);
@@ -69,11 +83,6 @@ export default function GroupBanner({ user, group, onUpdate }) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      showAlert("File Too Large", "Image size must be less than 5MB", "error");
-      return;
-    }
-
     setIsUploading(true);
 
     try {
@@ -88,7 +97,13 @@ export default function GroupBanner({ user, group, onUpdate }) {
         });
 
         if (response.ok) {
-          showAlert("Success", "Cover photo updated successfully!", "success");
+          showAlert(
+            "Success",
+            "Cover photo updated successfully!",
+            "success",
+            true,
+            false
+          );
           if (onUpdate) onUpdate();
         } else {
           showAlert("Error", "Failed to update cover photo", "error");
@@ -238,6 +253,8 @@ export default function GroupBanner({ user, group, onUpdate }) {
         title={alert.title}
         message={alert.message}
         type={alert.type}
+        autoClose={alert.autoClose}
+        showButton={alert.showButton}
       />
     </>
   );
