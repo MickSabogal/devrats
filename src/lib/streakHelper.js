@@ -1,6 +1,24 @@
 // src/lib/streakHelper.js
 
-export function calculateStreak(activityMap) {
+export function hasPostedToday(lastPostDate) {
+  if (!lastPostDate) return false;
+  
+  const today = new Date().toISOString().split("T")[0];
+  const lastPost = new Date(lastPostDate).toISOString().split("T")[0];
+  
+  return today === lastPost;
+}
+
+export function hasPostedTodayInGroup(groupStreak) {
+  if (!groupStreak || !groupStreak.lastPostDate) return false;
+  
+  const today = new Date().toISOString().split("T")[0];
+  const lastPost = new Date(groupStreak.lastPostDate).toISOString().split("T")[0];
+  
+  return today === lastPost;
+}
+
+export function calculatePersonalStreak(activityMap) {
   if (!activityMap || activityMap.size === 0) return 0;
 
   const today = new Date().toISOString().split("T")[0];
@@ -27,13 +45,17 @@ export function calculateStreak(activityMap) {
     
     if (dateStr === currentDate) {
       streak++;
-      checkDate.setDate(checkDate.getDate() - 1); // Volta 1 dia
+      checkDate.setDate(checkDate.getDate() - 1);
     } else {
       break;
     }
   }
 
   return streak;
+}
+
+export function calculateStreak(activityMap) {
+  return calculatePersonalStreak(activityMap);
 }
 
 export async function calculateGroupStreak(userId, groupId) {
