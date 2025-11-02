@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { IoTrophy, IoTimeOutline, IoArrowBack, IoFlameOutline } from "react-icons/io5";
+import { IoFlashOutline, IoTimeOutline, IoArrowBack, IoFlameOutline, IoInformationCircleOutline, IoTrophy } from "react-icons/io5";
 import { FiAward } from "react-icons/fi";
 import BottomNavbar from "@/components/dashboard/bottomNavBar";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
@@ -18,6 +18,7 @@ export default function GroupRankingPage() {
   const [ranking, setRanking] = useState([]);
   const [loading, setLoading] = useState(true);
   const [timePeriod, setTimePeriod] = useState("weekly");
+  const [showCriteria, setShowCriteria] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -103,8 +104,31 @@ export default function GroupRankingPage() {
             <IoArrowBack className="w-6 h-6 text-primary" />
           </button>
           <h1 className="text-xl font-bold text-primary">Leaderboard</h1>
-          <div className="w-10" />
+          <button
+            onClick={() => setShowCriteria(!showCriteria)}
+            className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-white/10 transition-colors"
+          >
+            <IoInformationCircleOutline className="w-6 h-6 text-primary" />
+          </button>
         </div>
+
+        {/* Info Banner - Collapsible */}
+        {showCriteria && (
+          <div className="bg-card rounded-lg p-3 mb-4 border-l-4 border-third animate-in slide-in-from-top duration-200">
+            <div className="flex items-start gap-2">
+              <IoFlashOutline className="w-5 h-5 text-third flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-primary text-sm font-medium mb-1">Ranking Criteria</p>
+                <p className="text-secondary text-xs mb-2">
+                  Rankings are based on <strong className="text-third">group activity days</strong> 
+                </p>
+                <p className="text-secondary text-xs">
+                  If two members have the same activity days, <strong className="text-primary">study time</strong> is used as a tiebreaker 
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Period Filter */}
         <div className="flex gap-2 mb-6">
@@ -175,8 +199,12 @@ export default function GroupRankingPage() {
                       <p className="text-primary font-semibold text-sm truncate w-full text-center mb-1">
                         {topThree[1].name}
                       </p>
-                      <p className="text-third font-bold text-lg">
-                        {formatTime(topThree[1].studyMinutes)}
+                      <div className="flex items-center gap-1 mb-1">
+                        <IoFlashOutline className="w-5 h-5 text-third" />
+                        <span className="text-third font-bold text-xl">{topThree[1].streak}</span>
+                      </div>
+                      <p className="text-secondary text-xs">
+                        {formatTime(topThree[1].studyMinutes)} studied
                       </p>
                       <div className={`w-full ${getPodiumHeight(1)} bg-gradient-to-br from-gray-300/20 to-gray-500/20 rounded-t-lg mt-2 flex items-center justify-center`}>
                         <FiAward className="w-8 h-8 text-gray-400" />
@@ -201,7 +229,7 @@ export default function GroupRankingPage() {
                             </div>
                           )}
                         </div>
-                        <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                           <IoTrophy className="w-8 h-8 text-yellow-400" />
                         </div>
                         <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-gradient-to-br from-yellow-400 to-yellow-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-lg">
@@ -211,8 +239,12 @@ export default function GroupRankingPage() {
                       <p className="text-primary font-semibold text-sm truncate w-full text-center mb-1">
                         {topThree[0].name}
                       </p>
-                      <p className="text-third font-bold text-xl">
-                        {formatTime(topThree[0].studyMinutes)}
+                      <div className="flex items-center gap-1 mb-1">
+                        <IoFlashOutline className="w-6 h-6 text-third" />
+                        <span className="text-third font-bold text-2xl">{topThree[0].streak}</span>
+                      </div>
+                      <p className="text-secondary text-xs">
+                        {formatTime(topThree[0].studyMinutes)} studied
                       </p>
                       <div className={`w-full ${getPodiumHeight(0)} bg-gradient-to-br from-yellow-400/20 to-yellow-600/20 rounded-t-lg mt-2 flex items-center justify-center`}>
                         <FiAward className="w-10 h-10 text-yellow-400" />
@@ -244,8 +276,12 @@ export default function GroupRankingPage() {
                       <p className="text-primary font-semibold text-sm truncate w-full text-center mb-1">
                         {topThree[2].name}
                       </p>
-                      <p className="text-third font-bold text-lg">
-                        {formatTime(topThree[2].studyMinutes)}
+                      <div className="flex items-center gap-1 mb-1">
+                        <IoFlashOutline className="w-5 h-5 text-third" />
+                        <span className="text-third font-bold text-xl">{topThree[2].streak}</span>
+                      </div>
+                      <p className="text-secondary text-xs">
+                        {formatTime(topThree[2].studyMinutes)} studied
                       </p>
                       <div className={`w-full ${getPodiumHeight(2)} bg-gradient-to-br from-orange-400/20 to-orange-600/20 rounded-t-lg mt-2 flex items-center justify-center`}>
                         <FiAward className="w-8 h-8 text-orange-400" />
@@ -295,20 +331,25 @@ export default function GroupRankingPage() {
                             <span className="text-muted text-xs ml-2">(You)</span>
                           )}
                         </h4>
-                        <div className="flex items-center gap-1">
-                          <IoFlameOutline className="w-4 h-4 text-orange-500" />
-                          <span className="text-orange-500 text-sm font-semibold">
-                            {member.streak} day streak
+                        <div className="flex items-center gap-3 text-sm">
+                          <span className="text-secondary">
+                            {formatTime(member.studyMinutes)} studied
+                          </span>
+                          <span className="text-muted">
+                            • {member.postCount} {member.postCount === 1 ? "post" : "posts"}
                           </span>
                         </div>
                       </div>
 
-                      <div className="text-right">
-                        <p className="text-third font-bold text-lg">
-                          {formatTime(member.studyMinutes)}
-                        </p>
+                      <div className="flex flex-col items-end">
+                        <div className="flex items-center gap-1 mb-1">
+                          <IoFlashOutline className="w-5 h-5 text-third" />
+                          <span className="text-third font-bold text-xl">
+                            {member.streak}
+                          </span>
+                        </div>
                         <p className="text-muted text-xs">
-                          {member.postCount} {member.postCount === 1 ? "post" : "posts"}
+                          activity days
                         </p>
                       </div>
                     </div>
