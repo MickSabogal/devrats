@@ -244,7 +244,7 @@ export default function GroupChatPage() {
                     <div
                       className={`max-w-[75%] ${
                         isOwnMessage
-                          ? "bg-red-600 text-white"
+                          ? "bg-third text-white"
                           : "bg-[#1e2939] text-white"
                       } rounded-2xl px-4 py-2 shadow-lg`}
                     >
@@ -322,7 +322,7 @@ export default function GroupChatPage() {
                   }
                 }}
                 placeholder="Type a message..."
-                className="flex-1 bg-[#1e2939] text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-600 resize-none max-h-32 overflow-y-auto"
+                className="flex-1 bg-[#1e2939] text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-third resize-none max-h-32 overflow-y-auto"
                 rows={1}
                 disabled={sending}
               />
@@ -330,7 +330,7 @@ export default function GroupChatPage() {
               <button
                 onClick={editingMessage ? handleEditMessage : handleSendMessage}
                 disabled={sending || !messageText.trim()}
-                className="bg-red-600 text-white p-3 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                className="bg-third text-white p-3 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
               >
                 {sending ? (
                   <LoadingSpinner size="sm" />
