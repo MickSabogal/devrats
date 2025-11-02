@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Group from "@/models/Group";
+import User from "@/models/User";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
@@ -38,6 +39,19 @@ export async function PATCH(req, { params }) {
     // Remove user from members
     group.members = group.members.filter(m => m.user._id.toString() !== userId);
     await group.save();
+
+    const user = await User.findById(userId);
+    if (user) {
+      const update = {
+        $pull: { userGroups: group._id }
+      };
+
+      if (user.activeGroup?.toString() === groupId) {
+        update.$set = { activeGroup: null };
+      }
+
+      await User.findByIdAndUpdate(userId, update);
+    }
 
     return NextResponse.json({
       message: "You have left the group successfully"
