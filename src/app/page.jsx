@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import connectDB from "@/lib/mongodb";
 import Group from "@/models/Group";
+import { ObjectId } from "mongodb";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
@@ -13,12 +14,12 @@ export default async function Home() {
 
   try {
     await connectDB();
-    
+
     const userGroups = await Group.find({
       $or: [
-        { 'members.user': session.user.id },
-        { admin: session.user.id }
-      ]
+        { "members.user": new ObjectId(session.user.id) },
+        { admin: new ObjectId(session.user.id) },
+      ],
     }).lean();
 
     if (!userGroups || userGroups.length === 0) {
@@ -27,7 +28,6 @@ export default async function Home() {
 
     const firstGroup = userGroups[0];
     redirect(`/dashboard/groups/${firstGroup._id}/dashboard`);
-    
   } catch (error) {
     redirect("/dashboard/onboarding");
   }
