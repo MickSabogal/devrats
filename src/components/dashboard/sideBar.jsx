@@ -22,6 +22,7 @@ export default function Sidebar({ isOpen, onClose, user }) {
   const [groups, setGroups] = useState([]);
   const [loadingGroups, setLoadingGroups] = useState(true);
 
+  // Fetch groups immediately on mount (não depende de isOpen)
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -38,10 +39,8 @@ export default function Sidebar({ isOpen, onClose, user }) {
       }
     };
 
-    if (isOpen) {
-      fetchGroups();
-    }
-  }, [isOpen]);
+    fetchGroups();
+  }, []); // ✅ Carrega uma vez no início, sem depender de isOpen
 
   const handleGroupCreated = (newGroup) => {
     setGroups((prev) => [newGroup, ...prev]);
