@@ -24,11 +24,11 @@ export default function Input({
             w-full px-4 py-3 rounded-lg
             bg-gray-800 border border-gray-700
             text-white placeholder-gray-400
-            focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent
+            focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent
             transition-all
             disabled:opacity-50 disabled:cursor-not-allowed
             ${Icon ? 'pl-11' : ''}
-            ${error ? 'border-red-500 focus:ring-red-500' : ''}
+            ${error ? 'border-red-500 focus:ring-green-500' : ''}
             ${className}
           `}
           {...props}

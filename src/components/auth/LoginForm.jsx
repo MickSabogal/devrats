@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -10,7 +10,8 @@ import Alert from "@/components/ui/Alert";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { Github } from "lucide-react";
 
-export default function LoginForm() {
+
+function LoginFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const registered = searchParams.get("registered");
@@ -178,7 +179,7 @@ export default function LoginForm() {
           Don't have an account?{" "}
           <Link
             href="/register"
-            className="text-red-600 font-semibold hover:text-pink-500"
+            className="text-green-600 font-semibold hover:text-pink-500"
           >
             Sign up
           </Link>
@@ -200,5 +201,17 @@ export default function LoginForm() {
         `}</style>
       </div>
     </div>
+  );
+}
+
+export default function LoginForm() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-primary">
+        <LoadingSpinner size="lg" />
+      </div>
+    }>
+      <LoginFormContent />
+    </Suspense>
   );
 }

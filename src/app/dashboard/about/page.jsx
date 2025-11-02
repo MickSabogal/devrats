@@ -1,13 +1,10 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { ArrowLeft, Code2, Trophy, Calendar, Users } from "lucide-react";
 import { useState } from "react";
 import TeamModal from "@/components/dashboard/TeamModal";
-import Button from "@/components/ui/Button";
 
 export default function AboutPage() {
-  const router = useRouter();
   const [showTeamModal, setShowTeamModal] = useState(false);
 
   const teamMembers = [
@@ -23,7 +20,7 @@ export default function AboutPage() {
       role: "Developer",
       github: "https://github.com/iorsini",
       linkedin: "https://www.linkedin.com/in/isadora-barradas/",
-      avatar: "/images/isadora.png",
+      avatar: "/images/isadora.jpeg",
     },
     {
       name: "Jhonathan Tinoco",
@@ -37,7 +34,7 @@ export default function AboutPage() {
       role: "Developer",
       github: "https://github.com/MickSabogal",
       linkedin: "https://www.linkedin.com/in/miguel-alejandro-sabogal-guzman/",
-      avatar: "/images/miguel.png",
+      avatar: "/images/miguel.jpeg",
     },
     {
       name: "Mishal Saheer",
@@ -48,111 +45,105 @@ export default function AboutPage() {
     },
   ];
 
+  const features = [
+    {
+      icon: <Code2 className="w-5 h-5" />,
+      title: "Daily Check-ins",
+      description: "Share your study sessions with photo proof"
+    },
+    {
+      icon: <Trophy className="w-5 h-5" />,
+      title: "Streak Tracking",
+      description: "Maintain consistency and build lasting habits"
+    },
+    {
+      icon: <Users className="w-5 h-5" />,
+      title: "Group Leaderboards",
+      description: "Compete with friends and stay motivated"
+    },
+    {
+      icon: <Calendar className="w-5 h-5" />,
+      title: "Activity Calendar",
+      description: "Visualize your progress over time"
+    }
+  ];
+
   return (
-    <div className="min-h-screen bg-primary">
-      <div className="max-w-md mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-800">
-          <button
-            onClick={() => router.back()}
-            className="text-white p-2 hover:bg-white/10 rounded-lg transition"
-          >
-            <ArrowLeft size={24} />
-          </button>
-          <h2 className="text-white text-xl font-bold">About DevRats</h2>
-          <img
-            src="/images/logo_devrats.png"
-            alt="DevRats"
-            className="w-10 h-10 rounded-full object-cover"
-          />
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      <div className="max-w-4xl mx-auto">
+        {/* Header moderno */}
+        <div className="bg-primary border-b border-green-500/30">
+          <div className="flex items-center justify-between p-5">
+            <button
+              onClick={() => window.history.back()}
+              className="text-white p-2 hover:bg-white/20 rounded-xl transition-all hover:-translate-x-1 duration-300"
+            >
+              <ArrowLeft size={24} />
+            </button>
+            <h2 className="text-white text-2xl font-bold">About DevRats</h2>
+            <img
+              src="/images/logo_devrats.png"
+              alt="DevRats"
+              className="w-20 h-20 rounded-full object-cover"
+            />
+          </div>
         </div>
 
         {/* Conteúdo scrollável */}
-        <div className="px-6 py-3 space-y-6 max-h-[calc(100vh-80px)] overflow-y-auto">
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-white text-lg font-bold mb-2">
-                What is DevRats?
-              </h3>
-              <p className="text-gray-300 text-sm leading-relaxed">
-                DevRats is a community platform designed to help developers stay
-                consistent with their learning journey. Track your study
-                sessions, compete with friends, and build lasting habits through
-                daily check-ins and group challenges.
-              </p>
-            </div>
+        <div className="px-6 py-8 space-y-8 max-h-[calc(100vh-88px)] overflow-y-auto">
+          
+          {/* Hero Section */}
+          <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-3xl p-4 border border-green-500/30">
+            <p className="text-gray-300 text-base leading-relaxed">
+              DevRats is a community platform designed to help developers stay
+              consistent with their learning journey. Track your study
+              sessions, compete with friends, and build lasting habits through
+              daily check-ins and group challenges.
+            </p>
+          </div>
 
-            <div>
-              <h3 className="text-white text-lg font-bold mb-2">
-                Key Features
-              </h3>
-              <ul className="space-y-2 text-gray-300 text-sm">
-                <li className="flex items-start gap-2">
-                  <span className="text-green-500 mt-1">•</span>
-                  <span>
-                    Daily check-ins with photo proof of your study sessions
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-500 mt-1">•</span>
-                  <span>Streak tracking to maintain consistency</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-500 mt-1">•</span>
-                  <span>Group leaderboards to compete with friends</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-500 mt-1">•</span>
-                  <span>Activity calendar to visualize your progress</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Development Team */}
-            <div>
-              <h3 className="text-white text-lg font-bold mb-2">
-                Development Team
-              </h3>
-              <p className="text-gray-300 text-sm leading-relaxed mb-2">
-                DevRats was created by a team of passionate developers dedicated
-                to building tools that help others grow.
-              </p>
-
-              {/* Button */}
-              <Button
-                onClick={() => setShowTeamModal(true)}
-                variant="attention"
-                size="sm"
-                className="underline text-green-600 font-bold hover:text-green-800 transition-colors duration-200"
-              >
-                Meet the team →
-              </Button>
-            </div>
-
-            {/* Picture */}
-            <div className="mb-4 flex justify-center items-center">
-              <img
-                src="/images/team.jpeg"
-                alt="Team"
-                className="w-80 rounded-2xl"
-              />
-            </div>
-
-            <div className="pt-4 border-t border-gray-800">
-              <p className="text-gray-400 text-xs text-center">
-                © 2026 DevRats
-              </p>
+          {/* Features Grid */}
+          <div>
+            <h3 className="text-white text-xl font-bold mb-4">Key Features</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {features.map((feature, index) => (
+                <div
+                  key={index}
+                  className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-2xl p-5 border border-gray-700/50 hover:border-green-500/50 transition-all duration-300 group hover:transform hover:scale-[1.02]"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="p-3 bg-green-500/20 rounded-xl text-green-400 group-hover:bg-green-500/30 transition-colors">
+                      {feature.icon}
+                    </div>
+                    <div>
+                      <h4 className="text-white font-semibold mb-1">{feature.title}</h4>
+                      <p className="text-gray-400 text-sm">{feature.description}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
+
+          <div className="bg-gradient-to-br from-gray-800/30 to-gray-900/30 rounded-3xl p-1">
+            <button
+              onClick={() => setShowTeamModal(true)}
+              className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-semibold rounded-xl transition-all duration-300 hover:transform hover:scale-105 hover:shadow-lg hover:shadow-green-500/30"
+            >
+              <Users className="w-5 h-5" />
+              Meet the Team
+              <ArrowLeft className="w-4 h-4 rotate-180 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
       </div>
 
-      {/* Modal do Team */}
+      {/* Modal */}
       <TeamModal
         isOpen={showTeamModal}
         onClose={() => setShowTeamModal(false)}
         teamMembers={teamMembers}
       />
+    </div>
     </div>
   );
 }

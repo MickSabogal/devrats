@@ -3,7 +3,12 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { IoArrowBack, IoSettingsOutline } from "react-icons/io5";
+import { 
+  IoArrowBack, 
+  IoSettingsOutline,
+  IoLinkOutline,
+  IoPersonOutline
+} from "react-icons/io5";
 import { FiUsers, FiCalendar } from "react-icons/fi";
 import BottomNavbar from "@/components/dashboard/bottomNavBar";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
@@ -23,12 +28,10 @@ export default function GroupDetailsPage() {
       try {
         setLoading(true);
 
-        // Fetch user
         const resUser = await fetch("/api/users/me");
         const userData = await resUser.json();
         setUser(userData.user);
 
-        // Fetch group
         const resGroup = await fetch(`/api/group/${id}`);
         const groupData = await resGroup.json();
 
@@ -96,7 +99,6 @@ export default function GroupDetailsPage() {
   return (
     <div className="bg-primary min-h-screen">
       <div className="max-w-md mx-auto relative min-h-screen px-6 pt-6 pb-28">
-        {/* Header with Back Button */}
         <div className="flex items-center justify-between mb-4">
           <button
             onClick={() => router.push(`/dashboard/groups/${id}/dashboard`)}
@@ -116,7 +118,6 @@ export default function GroupDetailsPage() {
           {!isAdmin && <div className="w-10" />}
         </div>
 
-        {/* Group Cover Picture */}
         <div className="relative h-40 rounded-lg overflow-hidden mb-6">
           <img
             src={group?.coverPicture || "/images/background.png"}
@@ -135,14 +136,13 @@ export default function GroupDetailsPage() {
           </div>
         </div>
 
-        {/* Tabs */}
         <div className="flex gap-2 mb-6">
           <button
             onClick={() => setActiveTab("info")}
             className={`flex-1 py-3 rounded-lg font-medium transition-all ${
               activeTab === "info"
-                ? "bg-green-500 text-primary shadow-lg"
-                : "bg-[#1e2939] text-gray-400 hover:bg-[#2a3544]"
+                ? "bg-third text-white shadow-third"
+                : "bg-card text-secondary hover:bg-card-hover"
             }`}
           >
             Information
@@ -151,31 +151,29 @@ export default function GroupDetailsPage() {
             onClick={() => setActiveTab("members")}
             className={`flex-1 py-3 rounded-lg font-medium transition-all ${
               activeTab === "members"
-                ? "bg-green-500 text-primary shadow-lg"
-                : "bg-[#1e2939] text-gray-400 hover:bg-[#2a3544]"
+                ? "bg-third text-white shadow-third"
+                : "bg-card text-secondary hover:bg-card-hover"
             }`}
           >
             Members ({group?.members?.length || 0})
           </button>
         </div>
 
-        {/* Content */}
         {activeTab === "info" && (
           <div className="space-y-4">
-            {/* Description */}
-            <div className="bg-[#1e2939] rounded-lg p-4">
-              <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-                <span>📝</span> Description
+            <div className="bg-card rounded-lg p-4">
+              <h3 className="text-primary font-semibold mb-3 flex items-center gap-2">
+                Description
               </h3>
-              <p className="text-gray-300 text-sm leading-relaxed">
+              <p className="text-secondary text-sm leading-relaxed">
                 {group?.description || "No description available."}
               </p>
             </div>
 
-            {/* Admin Info */}
-            <div className="bg-[#1e2939] rounded-lg p-4">
-              <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-                <span>👑</span> Admin
+            <div className="bg-card rounded-lg p-4">
+              <h3 className="text-primary font-semibold mb-3 flex items-center gap-2">
+                <IoPersonOutline className="w-5 h-5 text-third" />
+                Admin
               </h3>
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-700">
@@ -192,18 +190,18 @@ export default function GroupDetailsPage() {
                   )}
                 </div>
                 <div>
-                  <p className="text-white font-medium">{group?.admin?.name}</p>
-                  <p className="text-gray-400 text-sm">Group creator</p>
+                  <p className="text-primary font-medium">{group?.admin?.name}</p>
+                  <p className="text-muted text-sm">Group creator</p>
                 </div>
               </div>
             </div>
 
-            {/* Created Date */}
-            <div className="bg-[#1e2939] rounded-lg p-4">
-              <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-                <FiCalendar className="w-5 h-5" /> Created
+            <div className="bg-card rounded-lg p-4">
+              <h3 className="text-primary font-semibold mb-3 flex items-center gap-2">
+                <FiCalendar className="w-5 h-5 text-third" />
+                Created
               </h3>
-              <p className="text-gray-300 text-sm">
+              <p className="text-secondary text-sm">
                 {group?.createdAt
                   ? new Date(group.createdAt).toLocaleDateString("en-US", {
                       year: "numeric",
@@ -214,14 +212,14 @@ export default function GroupDetailsPage() {
               </p>
             </div>
 
-            {/* Invite Token */}
             {isAdmin && (
-              <div className="bg-[#1e2939] rounded-lg p-4">
-                <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-                  <span>🔗</span> Invite Code
+              <div className="bg-card rounded-lg p-4">
+                <h3 className="text-primary font-semibold mb-3 flex items-center gap-2">
+                  <IoLinkOutline className="w-5 h-5 text-third" />
+                  Invite Code
                 </h3>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 bg-primary px-3 py-2 rounded text-green-500 font-mono text-sm">
+                  <code className="flex-1 bg-primary px-3 py-2 rounded text-third font-mono text-sm">
                     {group?.inviteToken}
                   </code>
                   <button
@@ -231,7 +229,7 @@ export default function GroupDetailsPage() {
                       );
                       alert("Invite link copied!");
                     }}
-                    className="bg-green-500 text-primary px-4 py-2 rounded hover:bg-green-600 transition-colors text-sm font-medium"
+                    className="bg-third text-white px-4 py-2 rounded hover-bg-third hover:opacity-90 transition-all text-sm font-medium"
                   >
                     Copy Link
                   </button>
@@ -251,7 +249,7 @@ export default function GroupDetailsPage() {
               return (
                 <div
                   key={member.user._id}
-                  className="bg-[#1e2939] rounded-lg p-4 flex items-center justify-between hover:bg-[#2a3544] transition-colors"
+                  className="bg-card rounded-lg p-4 flex items-center justify-between hover:bg-card-hover transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-700">
@@ -268,15 +266,15 @@ export default function GroupDetailsPage() {
                       )}
                     </div>
                     <div>
-                      <h4 className="text-white font-medium">
+                      <h4 className="text-primary font-medium">
                         {member.user.name}
                         {isCurrentUser && (
-                          <span className="text-gray-400 text-xs ml-2">
+                          <span className="text-muted text-xs ml-2">
                             (You)
                           </span>
                         )}
                       </h4>
-                      <p className="text-gray-400 text-xs">
+                      <p className="text-muted text-xs">
                         Joined{" "}
                         {new Date(member.joinedAt).toLocaleDateString("en-US", {
                           month: "short",

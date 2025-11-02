@@ -3,10 +3,10 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { IoTrophy, IoTimeOutline } from "react-icons/io5";
+import { IoTrophy, IoTimeOutline, IoArrowBack, IoFlameOutline } from "react-icons/io5";
+import { FiAward } from "react-icons/fi";
 import BottomNavbar from "@/components/dashboard/bottomNavBar";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import { ArrowLeft } from "lucide-react";
 
 export default function GroupRankingPage() {
   const router = useRouter();
@@ -23,17 +23,14 @@ export default function GroupRankingPage() {
       try {
         setLoading(true);
 
-        // Fetch user
         const resUser = await fetch("/api/users/me");
         const userData = await resUser.json();
         setUser(userData.user);
 
-        // Fetch group
         const resGroup = await fetch(`/api/group/${id}`);
         const groupData = await resGroup.json();
         setGroup(groupData);
 
-        // Fetch ranking
         const resRanking = await fetch(`/api/group/${id}/ranking`);
         const rankingData = await resRanking.json();
 
@@ -63,16 +60,16 @@ export default function GroupRankingPage() {
     return `${hours}h ${mins}m`;
   };
 
-  const getMedalIcon = (index) => {
+  const getMedalColor = (index) => {
     switch(index) {
       case 0:
-        return "🥇";
+        return "text-yellow-400";
       case 1:
-        return "🥈";
+        return "text-gray-300";
       case 2:
-        return "🥉";
+        return "text-orange-400";
       default:
-        return null;
+        return "text-gray-500";
     }
   };
 
@@ -87,53 +84,56 @@ export default function GroupRankingPage() {
   return (
     <div className="bg-primary min-h-screen">
       <div className="max-w-md mx-auto relative min-h-screen px-6 pt-6 pb-28">
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => router.push(`/dashboard/groups/${id}/dashboard`)}
-            className="flex items-center justify-center w-10 h-10 rounded-lg transition-colors hover:bg-white/10"
+            className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-white/10 transition-colors"
           >
-            <ArrowLeft className="w-6 h-6 text-white" />
+            <IoArrowBack className="w-6 h-6 text-white" />
           </button>
           <h1 className="text-xl font-bold text-white">Ranking</h1>
           <div className="w-10" />
         </div>
 
-        {/* Group Info */}
-        <div className="bg-[#1e2939] rounded-lg p-4 mb-6">
+        <div className="bg-card rounded-lg p-4 mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-white font-semibold text-lg">{group?.name}</h2>
-              <p className="text-gray-400 text-sm">{ranking.length} members</p>
+              <h2 className="text-primary font-semibold text-lg">{group?.name}</h2>
+              <p className="text-muted text-sm">{ranking.length} members</p>
             </div>
             <IoTrophy className="w-8 h-8 text-yellow-400" />
           </div>
         </div>
 
-        {/* Ranking List */}
         <div className="space-y-3">
           {ranking.length === 0 ? (
-            <div className="text-center text-gray-400 py-8">
+            <div className="text-center text-muted py-8">
+              <FiAward className="w-12 h-12 mx-auto mb-3 opacity-50" />
               <p>No activity yet. Be the first to post!</p>
             </div>
           ) : (
             ranking.map((member, index) => {
               const isCurrentUser = user?._id === member._id?.toString();
-              const medal = getMedalIcon(index);
+              const medalColor = getMedalColor(index);
+              const isTopThree = index < 3;
 
               return (
                 <div
                   key={member._id}
-                  className={`bg-[#1e2939] rounded-lg p-4 flex items-center gap-4 transition-all ${
-                    isCurrentUser ? "ring-2 ring-red-600" : ""
+                  className={`bg-card rounded-lg p-4 flex items-center gap-4 transition-all hover:bg-card-hover ${
+                    isCurrentUser ? "ring-2 ring-third" : ""
                   }`}
                 >
-                  {/* Rank Number / Medal */}
-                  <div className="text-2xl font-bold text-gray-400 w-12 text-center">
-                    {medal || `#${index + 1}`}
+                  <div className={`text-2xl font-bold w-12 text-center ${
+                    isTopThree ? medalColor : "text-muted"
+                  }`}>
+                    {isTopThree ? (
+                      <FiAward className="w-8 h-8 mx-auto" />
+                    ) : (
+                      `#${index + 1}`
+                    )}
                   </div>
 
-                  {/* Avatar */}
                   <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-700 flex-shrink-0">
                     {member.avatar ? (
                       <img
@@ -148,38 +148,36 @@ export default function GroupRankingPage() {
                     )}
                   </div>
 
-                  {/* Member Info */}
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-white font-medium truncate">
+                    <h4 className="text-primary font-medium truncate">
                       {member.name}
                       {isCurrentUser && (
-                        <span className="text-gray-400 text-xs ml-2">(You)</span>
+                        <span className="text-muted text-xs ml-2">(You)</span>
                       )}
                     </h4>
                     <div className="flex items-center gap-4 mt-1">
                       <div className="flex items-center gap-1">
-                        <IoTimeOutline className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-400 text-sm">
+                        <IoTimeOutline className="w-4 h-4 text-muted" />
+                        <span className="text-secondary text-sm">
                           {formatTime(member.studyMinutes)}
                         </span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <span className="text-gray-400 text-sm">
+                        <span className="text-secondary text-sm">
                           {member.postCount} {member.postCount === 1 ? "post" : "posts"}
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Streak */}
                   <div className="flex flex-col items-center">
                     <div className="flex items-center gap-1">
-                      <img src="/images/star.png" alt="Streak" className="w-5 h-5" />
-                      <span className="text-green-500 font-bold">
+                      <IoFlameOutline className="w-5 h-5 text-orange-500" />
+                      <span className="text-orange-500 font-bold">
                         {member.streak}
                       </span>
                     </div>
-                    <span className="text-gray-400 text-xs">streak</span>
+                    <span className="text-muted text-xs">streak</span>
                   </div>
                 </div>
               );

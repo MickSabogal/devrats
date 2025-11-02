@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import connectDB from '@/lib/mongodb';
-import Group from '@/models/Group';
-import User from '@/models/User';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import connectDB from "@/lib/mongodb";
+import Group from "@/models/Group";
+import User from "@/models/User";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 // POST — Join a group using an invite link (code)
 export async function POST(req, { params }) {
@@ -35,20 +35,21 @@ export async function POST(req, { params }) {
     group.members.push({ user: userId, role: 'member' });
     await group.save();
 
-    // Add the group to the user's userGroups array
-    await User.findByIdAndUpdate(
-      userId,
-      { 
-        $addToSet: { userGroups: group._id },
-        // Optionally set as active group if user doesn't have one
-        $setOnInsert: { activeGroup: group._id }
-      },
-      { 
-        upsert: false,
-        new: true 
-      }
-    );
+    const user = await User.findById(userId);
+    if (!user) {
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    }
 
+    const update = {
+      $addToSet: { userGroups: group._id }
+    };
+
+    if (!user.activeGroup) {
+      update.$set = { activeGroup: group._id };
+    }
+
+    await User.findByIdAndUpdate(userId, update, { new: true });
+    
     // Return success response with the group ID
     return NextResponse.json({ 
       message: 'Joined group successfully', 

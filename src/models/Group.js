@@ -6,7 +6,7 @@ const groupSchema = new Schema(
     name: { type: String, required: true },
     description: { type: String, required: true },
     picture: { type: String, default: ""},
-    inviteCode: { 
+    inviteCode: {
       type: String,
       unique: true,
       default: () => crypto.randomBytes(3).toString("hex"), // 6 caracteres

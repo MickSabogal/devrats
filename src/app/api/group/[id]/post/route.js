@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Post from "@/models/Post";
 import User from "@/models/User";
+import Group from "@/models/Group";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { uploadToCloudinary } from "@/lib/cloudinary";
@@ -46,7 +47,29 @@ export async function POST(req, { params }) {
       );
     }
 
+
     // Create post (aligned with our plan)
+
+    const group = await Group.findById(groupId).select("members");
+    if (!group) {
+      return NextResponse.json(
+        { success: false, message: "Group not found" },
+        { status: 404 }
+      );
+    }
+
+    const isMember = group.members.some(
+      (member) => member.user.toString() === user._id.toString()
+    );
+
+    if (!isMember) {
+      return NextResponse.json(
+        { success: false, message: "You are not a member of this group" },
+        { status: 403 }
+      );
+    }
+
+  
 
     const newPost = await Post.create({
       group: groupId,
@@ -80,7 +103,32 @@ export async function POST(req, { params }) {
 export async function GET(req, { params }) {
   try {
     await connectDB();
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
     const { id: groupId } = params;
+
+    const group = await Group.findById(groupId).select("members");
+    if (!group) {
+      return NextResponse.json(
+        { success: false, message: "Group not found" },
+        { status: 404 }
+      );
+    }
+
+    const isMember = group.members.some(
+      (member) => member.user.toString() === session.user.id
+    );
+
+    if (!isMember) {
+      return NextResponse.json(
+        { success: false, message: "You are not a member of this group" },
+        { status: 403 }
+      );
+    }
 
     const posts = await Post.find({ group: groupId })
       .populate("user", "name avatar")

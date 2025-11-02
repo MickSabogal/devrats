@@ -10,7 +10,7 @@ import { uploadToCloudinary, deleteFromCloudinary, extractPublicId } from '@/lib
 export async function GET(req, { params }) {
   try {
     await connectDB();
-    const { id } = await params;
+    const { id } = params;
 
     const group = await Group.findById(id)
       .populate('creator', 'name avatar streak')
