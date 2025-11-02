@@ -4,9 +4,42 @@
   --background: #ffffff;
   --foreground: #171717;
 }
+
 @theme {
+  /* Main colors */
   --color-primary: #0B111c;
-  --color-secondary: #1e2939
+  --color-secondary: #1e2939;
+  --color-third: #e7000c;
+  
+  /* UI colors */
+  --color-background: #000000;
+  --color-card: #1e2939;
+  --color-card-hover: #2a3544;
+  
+  /* Text colors */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #9ca3af;
+  --color-text-muted: #6b7280;
+  
+  /* Accent colors */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+  
+  /* Interactive states */
+  --color-hover: rgba(255, 255, 255, 0.1);
+  --color-active: rgba(231, 0, 12, 0.1);
+  
+  /* Borders */
+  --color-border: #374151;
+  --color-border-light: rgba(255, 255, 255, 0.1);
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --shadow-third: 0 10px 30px -10px rgba(231, 0, 12, 0.3);
 }
 
 @theme inline {
@@ -27,4 +60,75 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Utility classes */
+.bg-primary {
+  background-color: var(--color-primary);
+}
+
+.bg-secondary {
+  background-color: var(--color-secondary);
+}
+
+.bg-third {
+  background-color: var(--color-third);
+}
+
+.bg-card {
+  background-color: var(--color-card);
+}
+
+.bg-card-hover {
+  background-color: var(--color-card-hover);
+}
+
+.text-primary {
+  color: var(--color-text-primary);
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+.text-third {
+  color: var(--color-third);
+}
+
+.border-custom {
+  border-color: var(--color-border);
+}
+
+.border-light {
+  border-color: var(--color-border-light);
+}
+
+.shadow-third {
+  box-shadow: var(--shadow-third);
+}
+
+/* Hover utilities */
+.hover-bg-third:hover {
+  background-color: var(--color-third);
+}
+
+.hover-text-third:hover {
+  color: var(--color-third);
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* Transition utilities */
+.transition-all-smooth {
+  transition: all 0.3s ease-in-out;
+}
+
+.transition-colors-smooth {
+  transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out;
 }
