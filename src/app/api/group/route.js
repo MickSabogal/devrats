@@ -1,65 +1,97 @@
-import { NextResponse } from "next/server";
+// src/app/api/group/route.js
+import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Group from '@/models/Group';
+import User from '@/models/User';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]/route';
+import { uploadToCloudinary } from '@/lib/cloudinary';
 
-export async function GET(req) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user)
-      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-
-    const userId = session.user.id;
-    await connectDB();
-
-    const groups = await Group.find({ 'members.user': userId })
-      .populate('admin', 'name avatar')
-      .populate('members.user', 'name avatar');
-
-    return NextResponse.json(groups, { status: 200 });
-  } catch (err) {
-    console.error('GET /groups error:', err);
-    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
-  }
-}
-
+// POST - Criar novo grupo
 export async function POST(req) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !session.user)
+    if (!session || !session.user) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
 
-    const userId = session.user.id;
     const { name, description, coverPicture } = await req.json();
-    if (!name) return NextResponse.json({ message: 'Name is required' }, { status: 400 });
+
+    if (!name || !description) {
+      return NextResponse.json(
+        { message: 'Name and description are required' },
+        { status: 400 }
+      );
+    }
 
     await connectDB();
 
-    const existingGroup = await Group.findOne({ 
-      name, 
-      admin: userId 
-    });
-    
-    if (existingGroup)
-      return NextResponse.json({ message: 'You already have a group with this name' }, { status: 400 });
+    const admin = await User.findOne({ email: session.user.email });
+    if (!admin) {
+      return NextResponse.json({ message: 'Admin not found' }, { status: 404 });
+    }
 
-    const newGroup = new Group({
+    let coverPictureUrl = '';
+
+    // Upload cover picture para Cloudinary se fornecida
+    if (coverPicture && coverPicture.startsWith('data:')) {
+      const { url } = await uploadToCloudinary(
+        coverPicture,
+        'groups'
+      );
+      coverPictureUrl = url;
+    }
+
+    const newGroup = await Group.create({
       name,
       description,
-      coverPicture,
-      admin: userId,
-      members: [{ user: userId, role: 'admin' }],
+      coverPicture: coverPictureUrl,
+      admin: admin._id,
+      members: [{ user: admin._id, role: 'admin' }],
     });
 
-    await newGroup.save();
-    await newGroup.populate('admin', 'name avatar');
+    await User.findByIdAndUpdate(admin._id, {
+      $push: { userGroups: newGroup._id },
+      activeGroup: newGroup._id,
+    });
 
-    const inviteLink = `${process.env.NEXT_PUBLIC_BASE_URL}/group/join/${newGroup.inviteToken}`;
+    await newGroup.populate('admin', 'name avatar streak');
+    await newGroup.populate('members.user', 'name avatar streak');
 
-    return NextResponse.json({ ...newGroup.toObject(), inviteLink }, { status: 201 });
+    return NextResponse.json(newGroup, { status: 201 });
   } catch (err) {
-    console.error('POST /groups error:', err);
+    console.error('POST /group error:', err);
+    return NextResponse.json({ 
+      message: 'Internal server error',
+      error: err.message 
+    }, { status: 500 });
+  }
+}
+
+// GET - Buscar todos os grupos do usuário
+export async function GET(req) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+
+    await connectDB();
+
+    const user = await User.findOne({ email: session.user.email });
+    if (!user) {
+      return NextResponse.json({ message: 'User not found' }, { status: 404 });
+    }
+
+    const groups = await Group.find({
+      'members.user': user._id,
+    })
+      .populate('admin', 'name avatar streak')
+      .populate('members.user', 'name avatar streak');
+
+    return NextResponse.json(groups, { status: 200 });
+  } catch (err) {
+    console.error('GET /group error:', err);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
 }
