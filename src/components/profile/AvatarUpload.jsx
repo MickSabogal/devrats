@@ -7,17 +7,29 @@ import AlertModal from "@/components/ui/AlertModal";
 
 export default function AvatarUpload({ user, onUpdate }) {
   const [uploading, setUploading] = useState(false);
-  const [alert, setAlert] = useState({ isOpen: false, title: "", message: "", type: "info" });
+  const [alert, setAlert] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    type: "info",
+  });
 
-  const initials = user?.name
-    ?.split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2) || "??";
+  const initials =
+    user?.name
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || "??";
 
-  const showAlert = (title, message, type = "info") => {
-    setAlert({ isOpen: true, title, message, type });
+  const showAlert = (
+    title,
+    message,
+    type = "info",
+    autoClose = true,
+    showButton = false
+  ) => {
+    setAlert({ isOpen: true, title, message, type, autoClose, showButton });
   };
 
   const handleFileChange = async (e) => {
@@ -40,7 +52,7 @@ export default function AvatarUpload({ user, onUpdate }) {
       const reader = new FileReader();
       reader.onloadend = async () => {
         const base64Image = reader.result;
-        
+
         const response = await fetch("/api/users/me/avatar", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -49,7 +61,13 @@ export default function AvatarUpload({ user, onUpdate }) {
 
         if (response.ok) {
           onUpdate();
-          showAlert("Success", "Avatar updated successfully!", "success");
+          showAlert(
+            "Success",
+            "Avatar updated successfully!",
+            "success",
+            true,
+            false
+          );
         } else {
           showAlert("Upload Failed", "Failed to upload avatar", "error");
         }
@@ -103,6 +121,8 @@ export default function AvatarUpload({ user, onUpdate }) {
         title={alert.title}
         message={alert.message}
         type={alert.type}
+        autoClose={alert.autoClose}
+        showButton={alert.showButton}
       />
     </>
   );

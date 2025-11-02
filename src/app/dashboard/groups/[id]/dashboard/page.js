@@ -15,6 +15,7 @@ export default function GroupDashboard() {
   const params = useParams();
   const router = useRouter();
   const groupId = params.id;
+  const { id } = params;
 
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -23,17 +24,17 @@ export default function GroupDashboard() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch("/api/users/me");
-        const data = await res.json();
-        setUser(data.user);
-      } catch (error) {
-        console.error("Error fetching user:", error);
-      }
-    };
+  const fetchUser = async () => {
+    try {
+      const res = await fetch("/api/users/me");
+      const data = await res.json();
+      setUser(data.user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+    }
+  };
 
+  useEffect(() => {
     fetchUser();
   }, []);
 
@@ -72,12 +73,16 @@ export default function GroupDashboard() {
     fetchGroupAndPosts();
   }, [groupId, router]);
 
-  const handlePostCreated = (newPost) => {
+  const handlePostCreated = async (newPost) => {
     setPosts((prev) => [newPost, ...prev]);
+    // ✅ Atualiza o user para pegar o streak novo
+    await fetchUser();
   };
 
-  const handlePostDeleted = (postId) => {
+  const handlePostDeleted = async (postId) => {
     setPosts((prev) => prev.filter((post) => post._id !== postId));
+    // ✅ Atualiza o user para pegar o streak atualizado
+    await fetchUser();
   };
 
   if (loading) {
@@ -147,12 +152,12 @@ export default function GroupDashboard() {
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="fixed bottom-24 right-6 bg-white text-primary text-3xl w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform duration-200 z-10"
+          className="fixed bottom-24 right-6 bg-green-500 text-primary text-3xl w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 z-10 hover:rotate-90"
         >
           <TiPlus />
         </button>
 
-        <BottomNavbar />
+        <BottomNavbar groupId={id} />
 
         <AddEventModal
           isOpen={isModalOpen}

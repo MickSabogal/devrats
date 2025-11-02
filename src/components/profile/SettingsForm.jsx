@@ -12,12 +12,22 @@ export default function SettingsForm({ user, onUpdate }) {
     email: user?.email || "",
   });
   const [saving, setSaving] = useState(false);
-  const [alert, setAlert] = useState({ isOpen: false, title: "", message: "", type: "info" });
+  const [alert, setAlert] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    type: "info",
+  });
 
-  const showAlert = (title, message, type = "info") => {
-    setAlert({ isOpen: true, title, message, type });
+  const showAlert = (
+    title,
+    message,
+    type = "info",
+    autoClose = true,
+    showButton = false
+  ) => {
+    setAlert({ isOpen: true, title, message, type, autoClose, showButton });
   };
-
   const handleSave = async (field) => {
     setSaving(true);
     try {
@@ -30,7 +40,13 @@ export default function SettingsForm({ user, onUpdate }) {
       if (response.ok) {
         setEditing({ ...editing, [field]: false });
         onUpdate();
-        showAlert("Success", `${field === 'name' ? 'Name' : 'Email'} updated successfully!`, "success");
+        showAlert(
+          "Success",
+          `${field === "name" ? "Name" : "Email"} updated successfully!`,
+          "success",
+          true,
+          false
+        );
       } else {
         const data = await response.json();
         showAlert("Update Failed", data.message || "Failed to update", "error");
@@ -45,9 +61,9 @@ export default function SettingsForm({ user, onUpdate }) {
 
   const handleSignOut = async () => {
     try {
-      await signOut({ 
+      await signOut({
         callbackUrl: "/login",
-        redirect: true 
+        redirect: true,
       });
     } catch (error) {
       console.error("Sign out error:", error);
@@ -163,6 +179,8 @@ export default function SettingsForm({ user, onUpdate }) {
         title={alert.title}
         message={alert.message}
         type={alert.type}
+        autoClose={alert.autoClose}
+        showButton={alert.showButton}
       />
     </>
   );

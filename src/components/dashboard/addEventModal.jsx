@@ -2,19 +2,35 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { IoClose, IoCamera, IoCalendar, IoGitBranch, IoTime } from "react-icons/io5";
+import {
+  IoClose,
+  IoCamera,
+  IoCalendar,
+  IoGitBranch,
+  IoTime,
+} from "react-icons/io5";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import AlertModal from "@/components/ui/AlertModal";
 
-export default function AddEventModal({ isOpen, onClose, onPostCreated, groupId }) {
+export default function AddEventModal({
+  isOpen,
+  onClose,
+  onPostCreated,
+  groupId,
+}) {
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [showMetrics, setShowMetrics] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showDurationPicker, setShowDurationPicker] = useState(false);
-  const [alert, setAlert] = useState({ isOpen: false, title: "", message: "", type: "info" });
+  const [alert, setAlert] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    type: "info",
+  });
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     title: "",
@@ -34,21 +50,31 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated, groupId 
     }
   }, [isOpen]);
 
-  const showAlert = (title, message, type = "info") => {
-    setAlert({ isOpen: true, title, message, type });
+  const showAlert = (
+    title,
+    message,
+    type = "info",
+    autoClose = true,
+    showButton = false
+  ) => {
+    setAlert({ isOpen: true, title, message, type, autoClose, showButton });
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        showAlert("File Too Large", "Image size must be less than 5MB", "error");
+        showAlert(
+          "File Too Large",
+          "Image size must be less than 5MB",
+          "error"
+        );
         return;
       }
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
       if (errors.image) {
-        setErrors(prev => ({ ...prev, image: "" }));
+        setErrors((prev) => ({ ...prev, image: "" }));
       }
     }
   };
@@ -57,7 +83,7 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated, groupId 
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
@@ -65,7 +91,7 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated, groupId 
     const totalMinutes = hours * 60 + minutes;
     setFormData((prev) => ({ ...prev, duration: totalMinutes }));
     if (errors.duration) {
-      setErrors(prev => ({ ...prev, duration: "" }));
+      setErrors((prev) => ({ ...prev, duration: "" }));
     }
   };
 
@@ -101,7 +127,11 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated, groupId 
 
     if (!imageFile || !imagePreview) {
       newErrors.image = "Photo is required";
-      showAlert("Error", "Photo is required. Please take or select a photo.", "error");
+      showAlert(
+        "Error",
+        "Photo is required. Please take or select a photo.",
+        "error"
+      );
     }
 
     if (!formData.title.trim()) {
@@ -153,18 +183,25 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated, groupId 
         duration: formData.duration,
       };
 
-      if (showMetrics && (formData.commitLines || formData.activityDescription || formData.repoLink)) {
+      if (
+        showMetrics &&
+        (formData.commitLines ||
+          formData.activityDescription ||
+          formData.repoLink)
+      ) {
         postData.metrics = {
-          commitLines: formData.commitLines ? parseInt(formData.commitLines) : null,
+          commitLines: formData.commitLines
+            ? parseInt(formData.commitLines)
+            : null,
           activityDescription: formData.activityDescription || null,
           repoLink: formData.repoLink || null,
         };
       }
 
-      console.log("📤 Sending post data:", { 
-        title: postData.title, 
+      console.log("📤 Sending post data:", {
+        title: postData.title,
         duration: postData.duration,
-        hasImage: !!postData.image 
+        hasImage: !!postData.image,
       });
 
       // ✅ CORRIGIDO - rota correta
@@ -178,8 +215,14 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated, groupId 
       console.log("📥 Response:", data);
 
       if (data.success) {
-        showAlert("Success", "Activity posted successfully!", "success");
-        
+        showAlert(
+          "Success",
+          "Activity posted successfully!",
+          "success",
+          true,
+          false
+        );
+
         setTimeout(() => {
           if (onPostCreated) onPostCreated(data.post);
           resetForm();
@@ -201,11 +244,16 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated, groupId 
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-end justify-center">
-        <div onClick={onClose} className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+        <div
+          onClick={onClose}
+          className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        />
 
         <div className="relative w-full max-w-md bg-white dark:bg-[#1e2939] rounded-t-3xl shadow-2xl max-h-[90vh] overflow-hidden">
           <div className="sticky top-0 bg-white dark:bg-[#1e2939] border-b border-gray-200 dark:border-gray-700/50 px-6 py-4 flex items-center justify-between z-10">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">Add Activity</h2>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+              Add Activity
+            </h2>
             <button
               onClick={onClose}
               disabled={isLoading}
@@ -215,7 +263,10 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated, groupId 
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="overflow-y-auto max-h-[calc(90vh-140px)]">
+          <form
+            onSubmit={handleSubmit}
+            className="overflow-y-auto max-h-[calc(90vh-140px)]"
+          >
             <div className="px-6 py-4 space-y-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
@@ -226,7 +277,11 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated, groupId 
 
                 {imagePreview ? (
                   <div className="relative w-full h-48 rounded-lg overflow-hidden">
-                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
                     <button
                       type="button"
                       onClick={() => {
@@ -246,14 +301,16 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated, groupId 
                     onClick={() => cameraInputRef.current?.click()}
                     disabled={isLoading}
                     className={`w-full flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed rounded-lg transition-colors disabled:opacity-50
-                      ${errors.image 
-                        ? 'border-red-500 bg-red-50 dark:bg-red-950/20' 
-                        : 'border-red-400 dark:border-red-600 bg-red-50 dark:bg-red-950/20 hover:border-red-600 dark:hover:border-red-400'
-                      }`}
+    ${
+      errors.image
+        ? "border-green-500 bg-green-500/10"
+        : "border-green-400 dark:border-green-500 bg-green-500/10 hover:border-green-600 dark:hover:border-green-400"
+    }`}
                   >
-                    <IoCamera className="w-8 h-8 text-red-600 dark:text-red-400" />
-                    <span className="text-sm text-red-600 dark:text-red-400 font-medium">Take Photo</span>
-                    <span className="text-xs text-red-500 dark:text-red-500">Required</span>
+                    <IoCamera className="w-8 h-8 text-white-500 dark:text-white-400" />
+                    <span className="text-sm text-white-600 dark:text-white-400 font-medium">
+                      Take Photo
+                    </span>
                   </button>
                 )}
 
@@ -308,9 +365,10 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated, groupId 
                   onClick={() => setShowDurationPicker(!showDurationPicker)}
                   disabled={isLoading}
                   className={`w-full px-4 py-3 rounded-lg border text-left transition-all disabled:opacity-50
-                    ${errors.duration
-                      ? 'border-red-500 focus:ring-red-500'
-                      : 'border-gray-300 dark:border-gray-600 focus:ring-red-600'
+                    ${
+                      errors.duration
+                        ? "border-red-500 focus:ring-red-500"
+                        : "border-gray-300 dark:border-gray-600 focus:ring-red-600"
                     } bg-white dark:bg-[#0B111c] text-gray-900 dark:text-white focus:ring-2 focus:border-transparent outline-none`}
                 >
                   {formatDuration(formData.duration)}
@@ -320,34 +378,54 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated, groupId 
                   <div className="p-4 bg-gray-50 dark:bg-[#0B111c] rounded-lg border border-gray-300 dark:border-gray-600">
                     <div className="flex gap-4 items-center justify-center">
                       <div className="flex flex-col items-center">
-                        <label className="text-xs text-gray-600 dark:text-gray-400 mb-2">Hours</label>
+                        <label className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                          Hours
+                        </label>
                         <select
                           value={Math.floor(formData.duration / 60)}
-                          onChange={(e) => handleDurationChange(parseInt(e.target.value), formData.duration % 60)}
+                          onChange={(e) =>
+                            handleDurationChange(
+                              parseInt(e.target.value),
+                              formData.duration % 60
+                            )
+                          }
                           className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#1e2939] text-gray-900 dark:text-white focus:ring-2 focus:ring-red-600 outline-none"
                         >
                           {[...Array(13)].map((_, i) => (
-                            <option key={i} value={i}>{i}</option>
+                            <option key={i} value={i}>
+                              {i}
+                            </option>
                           ))}
                         </select>
                       </div>
 
                       <div className="flex flex-col items-center">
-                        <label className="text-xs text-gray-600 dark:text-gray-400 mb-2">Minutes</label>
+                        <label className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                          Minutes
+                        </label>
                         <select
                           value={formData.duration % 60}
-                          onChange={(e) => handleDurationChange(Math.floor(formData.duration / 60), parseInt(e.target.value))}
+                          onChange={(e) =>
+                            handleDurationChange(
+                              Math.floor(formData.duration / 60),
+                              parseInt(e.target.value)
+                            )
+                          }
                           className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#1e2939] text-gray-900 dark:text-white focus:ring-2 focus:ring-red-600 outline-none"
                         >
                           {[0, 15, 30, 45].map((min) => (
-                            <option key={min} value={min}>{min}</option>
+                            <option key={min} value={min}>
+                              {min}
+                            </option>
                           ))}
                         </select>
                       </div>
                     </div>
                   </div>
                 )}
-                {errors.duration && <p className="text-sm text-red-500">{errors.duration}</p>}
+                {errors.duration && (
+                  <p className="text-sm text-red-500">{errors.duration}</p>
+                )}
               </div>
 
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
@@ -418,6 +496,8 @@ export default function AddEventModal({ isOpen, onClose, onPostCreated, groupId 
         title={alert.title}
         message={alert.message}
         type={alert.type}
+        autoClose={alert.autoClose}
+        showButton={alert.showButton}
       />
     </>
   );

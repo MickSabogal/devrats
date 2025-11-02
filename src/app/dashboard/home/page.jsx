@@ -146,9 +146,6 @@ export default function DashboardHome() {
             Join a Group
           </Button>
         </div>
-
-        <BottomNavbar />
-
         <CreateGroupModal
           isOpen={isCreateGroupModalOpen}
           onClose={() => setIsCreateGroupModalOpen(false)}

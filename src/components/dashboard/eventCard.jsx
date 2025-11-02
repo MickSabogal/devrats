@@ -7,7 +7,14 @@ import { useSession } from "next-auth/react";
 import AlertModal from "@/components/ui/AlertModal";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 
-export default function EventCard({ user, eventTitle, eventImage, eventTime, postId, onDelete }) {
+export default function EventCard({
+  user,
+  eventTitle,
+  eventImage,
+  eventTime,
+  postId,
+  onDelete,
+}) {
   const { data: session } = useSession();
   const [showConfirm, setShowConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -18,8 +25,14 @@ export default function EventCard({ user, eventTitle, eventImage, eventTime, pos
     type: "info",
   });
 
-  const showAlert = (title, message, type = "info") => {
-    setAlert({ isOpen: true, title, message, type });
+  const showAlert = (
+    title,
+    message,
+    type = "info",
+    autoClose = true,
+    showButton = false
+  ) => {
+    setAlert({ isOpen: true, title, message, type, autoClose, showButton });
   };
 
   const handleDelete = async () => {
@@ -30,7 +43,13 @@ export default function EventCard({ user, eventTitle, eventImage, eventTime, pos
       });
 
       if (response.ok) {
-        showAlert("Success", "Post deleted successfully", "success");
+        showAlert(
+          "Success",
+          "Post deleted successfully",
+          "success",
+          true,
+          false
+        );
         setTimeout(() => {
           if (onDelete) onDelete(postId);
         }, 1500);
@@ -56,14 +75,18 @@ export default function EventCard({ user, eventTitle, eventImage, eventTime, pos
           className="w-14 h-14 rounded-full"
         />
         <div className="ml-2 w-full">
-          <p className="text-sm font-sans mb-2">{eventTitle || "Event Title"}</p>
+          <p className="text-sm font-sans mb-2">
+            {eventTitle || "Event Title"}
+          </p>
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center">
               <Avatar src={user?.avatar} name={user?.name} size={24} />
               <p className="text-xs ml-1">{user?.name}</p>
             </div>
             <div className="flex items-center gap-2">
-              <small className="text-xs text-gray-400">{eventTime || "Now"}</small>
+              <small className="text-xs text-gray-400">
+                {eventTime || "Now"}
+              </small>
               {isOwner && (
                 <button
                   onClick={() => setShowConfirm(true)}
@@ -94,6 +117,8 @@ export default function EventCard({ user, eventTitle, eventImage, eventTime, pos
         title={alert.title}
         message={alert.message}
         type={alert.type}
+        autoClose={alert.autoClose}
+        showButton={alert.showButton}
       />
     </>
   );

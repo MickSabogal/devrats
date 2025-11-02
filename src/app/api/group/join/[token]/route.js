@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from '@/lib/mongodb';
 import Group from '@/models/Group';
+import User from '@/models/User';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
@@ -30,12 +31,29 @@ export async function POST(req, { params }) {
       return NextResponse.json({ message: 'You are already a member of this group' }, { status: 400 });
     }
 
-    // Add the user as a member with the 'member' role
+    // Add the user as a member with the 'member' role to the group
     group.members.push({ user: userId, role: 'member' });
     await group.save();
 
+    // Add the group to the user's userGroups array
+    await User.findByIdAndUpdate(
+      userId,
+      { 
+        $addToSet: { userGroups: group._id },
+        // Optionally set as active group if user doesn't have one
+        $setOnInsert: { activeGroup: group._id }
+      },
+      { 
+        upsert: false,
+        new: true 
+      }
+    );
+
     // Return success response with the group ID
-    return NextResponse.json({ message: 'Joined group successfully', groupId: group._id }, { status: 200 });
+    return NextResponse.json({ 
+      message: 'Joined group successfully', 
+      groupId: group._id 
+    }, { status: 200 });
   } catch (err) {
     console.error('POST /group/join/[code] error:', err);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });

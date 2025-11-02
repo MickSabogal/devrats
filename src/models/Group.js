@@ -9,7 +9,7 @@ const groupSchema = new Schema(
     inviteCode: { 
       type: String,
       unique: true,
-      default: () => crypto.randomBytes(12).toString("hex"),
+      default: () => crypto.randomBytes(3).toString("hex"), // 6 caracteres
     },
     creator: { type: Types.ObjectId, ref: "User", required: true },
     members: [

@@ -1,16 +1,52 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
-export default function AlertModal({ isOpen, onClose, title, message, type = "info" }) {
+export default function AlertModal({ 
+  isOpen, 
+  onClose, 
+  title, 
+  message, 
+  type = "info",
+  autoClose = true, // novo prop para controlar auto-close
+  showButton = false // novo prop para mostrar/esconder botão
+}) {
+  const [progress, setProgress] = useState(100);
+
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && autoClose) {
+      let startTime = Date.now();
+      const duration = 2000;
+
       const timer = setTimeout(() => {
         onClose();
-      }, 3000);
-      return () => clearTimeout(timer);
+      }, duration);
+
+      // Animar barra de progresso de forma mais suave
+      const progressInterval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const remaining = Math.max(0, 100 - (elapsed / duration) * 100);
+        setProgress(remaining);
+
+        // Para quando chegar a 0
+        if (remaining === 0) {
+          clearInterval(progressInterval);
+        }
+      }, 16); // ~60fps para animação mais suave
+
+      return () => {
+        clearTimeout(timer);
+        clearInterval(progressInterval);
+      };
     }
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, autoClose]);
+
+  // Reset progress quando modal fecha
+  useEffect(() => {
+    if (!isOpen) {
+      setProgress(100);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -46,7 +82,7 @@ export default function AlertModal({ isOpen, onClose, title, message, type = "in
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 rounded-2xl p-6 max-w-sm w-full">
+      <div className="bg-gray-900 rounded-2xl p-6 max-w-sm w-full animate-scale-in">
         <div className="flex justify-center mb-4">
           <div className={`w-12 h-12 rounded-full ${typeStyles[type]} flex items-center justify-center`}>
             {icons[type]}
@@ -59,17 +95,50 @@ export default function AlertModal({ isOpen, onClose, title, message, type = "in
           </h2>
         )}
 
-        <p className="text-gray-400 text-sm text-center mb-6">
+        <p className="text-gray-400 text-sm text-center mb-4">
           {message}
         </p>
 
-        <button
-          onClick={onClose}
-          className="w-full py-3 rounded-lg bg-gray-800 text-white font-semibold hover:bg-gray-700 transition"
-        >
-          OK
-        </button>
+        {/* Barra de progresso (só aparece se autoClose = true) */}
+        {autoClose && !showButton && (
+          <div className="w-full h-1.5 bg-gray-700 rounded-full overflow-hidden mb-4">
+            <div 
+              className={`h-full ${typeStyles[type]} transition-all ease-linear`}
+              style={{ 
+                width: `${progress}%`,
+                transitionDuration: '16ms' // Sincronizado com o interval de 16ms
+              }}
+            />
+          </div>
+        )}
+
+        {/* Botão (só aparece se showButton = true) */}
+        {showButton && (
+          <button
+            onClick={onClose}
+            className="w-full py-3 rounded-lg bg-gray-800 text-white font-semibold hover:bg-gray-700 transition"
+          >
+            OK
+          </button>
+        )}
       </div>
+
+      <style jsx>{`
+        @keyframes scale-in {
+          from {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        .animate-scale-in {
+          animation: scale-in 0.2s ease-out;
+        }
+      `}</style>
     </div>
   );
 }
