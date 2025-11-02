@@ -17,16 +17,16 @@ export default function Textarea({
           w-full px-4 py-3 rounded-lg
           bg-gray-800 border border-gray-700
           text-white placeholder-gray-400
-          focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent
+          focus:outline-none focus:ring-2 focus:ring-third focus:border-transparent
           transition-all resize-none
           disabled:opacity-50 disabled:cursor-not-allowed
-          ${error ? 'border-red-500 focus:ring-red-500' : ''}
+          ${error ? 'border-third focus:ring-third' : ''}
           ${className}
         `}
         {...props}
       />
       {error && (
-        <p className="mt-1 text-sm text-red-500">{error}</p>
+        <p className="mt-1 text-sm text-third">{error}</p>
       )}
     </div>
   );

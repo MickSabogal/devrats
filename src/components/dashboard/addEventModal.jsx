@@ -272,7 +272,7 @@ export default function AddEventModal({
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
                   <IoCamera className="w-4 h-4" />
                   Photo *
-                  <span className="text-red-600 text-xs">(Required)</span>
+                  <span className="text-third text-xs">(Required)</span>
                 </label>
 
                 {imagePreview ? (
@@ -367,8 +367,8 @@ export default function AddEventModal({
                   className={`w-full px-4 py-3 rounded-lg border text-left transition-all disabled:opacity-50
                     ${
                       errors.duration
-                        ? "border-red-500 focus:ring-red-500"
-                        : "border-gray-300 dark:border-gray-600 focus:ring-red-600"
+                        ? "border-third focus:ring-third"
+                        : "border-gray-300 dark:border-gray-600 focus:ring-third"
                     } bg-white dark:bg-[#0B111c] text-gray-900 dark:text-white focus:ring-2 focus:border-transparent outline-none`}
                 >
                   {formatDuration(formData.duration)}
@@ -389,7 +389,7 @@ export default function AddEventModal({
                               formData.duration % 60
                             )
                           }
-                          className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#1e2939] text-gray-900 dark:text-white focus:ring-2 focus:ring-red-600 outline-none"
+                          className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#1e2939] text-gray-900 dark:text-white focus:ring-2 focus:ring-third outline-none"
                         >
                           {[...Array(13)].map((_, i) => (
                             <option key={i} value={i}>
@@ -411,7 +411,7 @@ export default function AddEventModal({
                               parseInt(e.target.value)
                             )
                           }
-                          className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#1e2939] text-gray-900 dark:text-white focus:ring-2 focus:ring-red-600 outline-none"
+                          className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#1e2939] text-gray-900 dark:text-white focus:ring-2 focus:ring-third outline-none"
                         >
                           {[0, 15, 30, 45].map((min) => (
                             <option key={min} value={min}>
@@ -424,7 +424,7 @@ export default function AddEventModal({
                   </div>
                 )}
                 {errors.duration && (
-                  <p className="text-sm text-red-500">{errors.duration}</p>
+                  <p className="text-sm text-third">{errors.duration}</p>
                 )}
               </div>
 
@@ -433,7 +433,7 @@ export default function AddEventModal({
                   type="button"
                   onClick={() => setShowMetrics(!showMetrics)}
                   disabled={isLoading}
-                  className="flex items-center gap-2 text-sm font-medium text-red-600 dark:text-white hover:underline disabled:opacity-50"
+                  className="flex items-center gap-2 text-sm font-medium text-third dark:text-white hover:underline disabled:opacity-50"
                 >
                   <IoGitBranch className="w-4 h-4" />
                   {showMetrics ? "Hide Metrics" : "Add Metrics (Optional)"}
