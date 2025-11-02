@@ -23,7 +23,6 @@ export async function GET(req, { params }) {
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import connectDB from "@/lib/mongodb";
 import Post from "@/models/Post";
 import User from "@/models/User";
 import Group from "@/models/Group";
