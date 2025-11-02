@@ -17,7 +17,7 @@ export default function ProfileStats({ user }) {
           setTotalMinutes(data.totalMinutes || 0);
         }
       } catch (error) {
-        return;
+        console.error("Error fetching study time:", error);
       } finally {
         setLoading(false);
       }
@@ -40,7 +40,7 @@ export default function ProfileStats({ user }) {
     <div className="flex gap-3 flex-1">
       <div className="bg-secondary rounded-2xl px-4 py-3 text-center shadow-lg border border-gray-800 flex-1">
         <p className="text-white text-xl font-bold">{user?.streak || 0}</p>
-        <p className="text-gray-400 text-xs">Check-ins</p>
+        <p className="text-gray-400 text-xs">Global Streak</p>
       </div>
 
       <div className="bg-secondary rounded-2xl px-4 py-3 text-center shadow-lg border border-gray-800 flex-1">

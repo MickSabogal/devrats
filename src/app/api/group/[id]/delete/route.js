@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import Post from "@/models/Post";
 import User from "@/models/User";
+import { calculatePersonalStreak, calculateGroupStreak } from "@/lib/streakHelper";
 
 export async function DELETE(req, { params }) {
   try {
@@ -28,6 +29,7 @@ export async function DELETE(req, { params }) {
     }
 
     const postDate = new Date(post.createdAt).toISOString().split("T")[0];
+    const groupId = post.group.toString();
 
     await post.deleteOne();
 
@@ -49,61 +51,24 @@ export async function DELETE(req, { params }) {
 
         user.activity.delete(postDate);
 
+        user.streak = calculatePersonalStreak(user.activity);
+
         const activityDates = Array.from(user.activity.keys())
           .filter(Boolean)
           .sort()
           .reverse();
 
-        let newStreak = 0;
-        const today = new Date().toISOString().split("T")[0];
-        const yesterday = new Date(Date.now() - 86400000)
-          .toISOString()
-          .split("T")[0];
-
-        if (activityDates.includes(today)) {
-          newStreak = 1;
-          let checkDate = new Date(today);
-
-          for (let i = 1; i < activityDates.length; i++) {
-            checkDate.setDate(checkDate.getDate() - 1);
-            const prevDate = checkDate.toISOString().split("T")[0];
-
-            if (activityDates.includes(prevDate)) {
-              newStreak++;
-            } else {
-              break;
-            }
-          }
-        }
-        else if (activityDates.includes(yesterday)) {
-          newStreak = 1;
-          let checkDate = new Date(yesterday);
-
-          for (let i = 1; i < activityDates.length; i++) {
-            checkDate.setDate(checkDate.getDate() - 1);
-            const prevDate = checkDate.toISOString().split("T")[0];
-
-            if (activityDates.includes(prevDate)) {
-              newStreak++;
-            } else {
-              break;
-            }
-          }
-        }
-        else {
-          newStreak = 0;
-        }
-
-        user.streak = newStreak;
-
-        if (activityDates.length > 0) {
-          user.lastPostDate = new Date(activityDates[0]);
-        } else {
-          user.lastPostDate = null;
-        }
-
-        await user.save();
+        user.lastPostDate = activityDates.length > 0 
+          ? new Date(activityDates[0]) 
+          : null;
       }
+
+      const groupStreakData = await calculateGroupStreak(session.user.id, groupId);
+      
+      if (!user.groupStreaks) user.groupStreaks = new Map();
+      user.groupStreaks.set(groupId, groupStreakData);
+
+      await user.save();
     }
 
     return NextResponse.json(
@@ -114,6 +79,7 @@ export async function DELETE(req, { params }) {
       { status: 200 }
     );
   } catch (err) {
+    console.error("❌ DELETE /group/[id]/delete error:", err);
     return NextResponse.json(
       { message: "Server error", error: err.message },
       { status: 500 }

@@ -1,9 +1,10 @@
+// src/components/dashboard/groupBanner.jsx
 "use client";
 
 import React, { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { IoTrashOutline, IoPencil } from "react-icons/io5";
+import { IoPencil } from "react-icons/io5";
 import Avatar from "./UserAvatar";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import AlertModal from "@/components/ui/AlertModal";
@@ -11,9 +12,7 @@ import AlertModal from "@/components/ui/AlertModal";
 export default function GroupBanner({ user, group, onUpdate }) {
   const { data: session } = useSession();
   const router = useRouter();
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showCoverUpload, setShowCoverUpload] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [alert, setAlert] = useState({
     isOpen: false,
@@ -33,48 +32,6 @@ export default function GroupBanner({ user, group, onUpdate }) {
   };
 
   const isAdmin = session?.user?.id === group?.admin?._id?.toString();
-
-  const handleDeleteGroup = async () => {
-    setIsDeleting(true);
-    try {
-      const response = await fetch(`/api/group/${group._id}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        const groupsRes = await fetch("/api/group");
-        const groupsData = await groupsRes.json();
-
-        if (groupsData.length === 0) {
-          showAlert(
-            "No Active Groups",
-            "Oops! Seems like you don't have any active groups. Click OK to go to onboarding.",
-            "warning",
-            false, 
-            true
-          );
-        } else {
-          showAlert(
-            "Success",
-            "Group deleted successfully",
-            "success",
-            true,
-            false
-          );
-          setTimeout(() => {
-            router.push("/dashboard/home");
-          }, 1500);
-        }
-      } else {
-        showAlert("Error", "Failed to delete group", "error");
-      }
-    } catch (error) {
-      showAlert("Error", "Failed to delete group", "error");
-    } finally {
-      setIsDeleting(false);
-      setShowDeleteConfirm(false);
-    }
-  };
 
   const handleCoverChange = async (e) => {
     const file = e.target.files?.[0];
@@ -102,7 +59,6 @@ export default function GroupBanner({ user, group, onUpdate }) {
             false
           );
 
-          // ✅ CHAMA onUpdate SE EXISTIR
           if (onUpdate) {
             onUpdate();
           }
@@ -124,9 +80,14 @@ export default function GroupBanner({ user, group, onUpdate }) {
       return null;
     }
 
+    const groupId = group._id.toString();
     const allMembers = group.members.map((m) => m.user).filter(Boolean);
+
     const leader = allMembers.reduce((prev, current) => {
-      return (current.streak || 0) > (prev.streak || 0) ? current : prev;
+      // ✅ FIX: Acessar como objeto, não como Map
+      const prevStreak = prev.groupStreaks?.[groupId]?.streak || 0;
+      const currentStreak = current.groupStreaks?.[groupId]?.streak || 0;
+      return currentStreak > prevStreak ? current : prev;
     }, allMembers[0]);
 
     return leader;
@@ -136,6 +97,10 @@ export default function GroupBanner({ user, group, onUpdate }) {
   const membersCount = group?.members?.length || 0;
   const coverPicture = group?.coverPicture || "/banner.png";
   const description = group?.description;
+
+  // ✅ FIX: Acessar groupStreaks como objeto
+  const userGroupStreak = user?.groupStreaks?.[group?._id?.toString()]?.streak || 0;
+  const leaderGroupStreak = leader?.groupStreaks?.[group?._id?.toString()]?.streak || 0;
 
   return (
     <>
@@ -167,7 +132,7 @@ export default function GroupBanner({ user, group, onUpdate }) {
                 size={24}
               />
               <div className="ml-2">
-                <p className="text-xs font-semibold">{leader.streak || 0}</p>
+                <p className="text-xs font-semibold">{leaderGroupStreak}</p>
                 <p className="text-xs text-gray-400">Leader</p>
               </div>
             </div>
@@ -181,7 +146,7 @@ export default function GroupBanner({ user, group, onUpdate }) {
                 size={24}
               />
               <div className="ml-2">
-                <p className="text-xs font-semibold">{user.streak || 0}</p>
+                <p className="text-xs font-semibold">{userGroupStreak}</p>
                 <p className="text-xs text-gray-400">You</p>
               </div>
             </div>
@@ -230,23 +195,10 @@ export default function GroupBanner({ user, group, onUpdate }) {
         </div>
       )}
 
-      <ConfirmModal
-        isOpen={showDeleteConfirm}
-        onClose={() => setShowDeleteConfirm(false)}
-        onConfirm={handleDeleteGroup}
-        title="Delete Group"
-        message={`Are you sure you want to delete "${group?.name}"? This action cannot be undone and will remove all posts and data.`}
-        confirmText="Delete"
-        isLoading={isDeleting}
-      />
-
       <AlertModal
         isOpen={alert.isOpen}
         onClose={() => {
           setAlert({ ...alert, isOpen: false });
-          if (alert.type === 'warning' && alert.title === 'No Active Groups') {
-            router.push("/dashboard/onboarding");
-          }
         }}
         title={alert.title}
         message={alert.message}
