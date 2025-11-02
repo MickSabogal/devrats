@@ -15,10 +15,13 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "DevRats",
   description: "Developer community platform",
+  icons: {
+    icon: "/images/favicon.png", 
+  },
 };
 
 export const viewport = {
-  width: 'device-width',
+  width: "device-width",
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,

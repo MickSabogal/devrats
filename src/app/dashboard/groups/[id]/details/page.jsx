@@ -8,6 +8,8 @@ import {
   IoSettingsOutline,
   IoLinkOutline,
   IoPersonOutline,
+  IoCopyOutline,
+  IoCheckmark,
 } from "react-icons/io5";
 import { FiUsers, FiCalendar } from "react-icons/fi";
 import BottomNavbar from "@/components/dashboard/bottomNavBar";
@@ -22,6 +24,7 @@ export default function GroupDetailsPage() {
   const [group, setGroup] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("info");
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -69,6 +72,17 @@ export default function GroupDetailsPage() {
       console.error("Error leaving group:", error);
       alert("Error leaving group");
     }
+  };
+
+  const handleCopyInvite = () => {
+    const inviteText = `💻 Bora codar juntos no Dev Rats!\nEntra no grupo com esse código e vem participar da colônia 👇\n\n 🔗${group?.inviteToken} \n\n devrats.vercel.app/dashboard/onboarding`;
+    
+    navigator.clipboard.writeText(inviteText);
+    setCopied(true);
+    
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
   };
 
   const getRoleBadge = (memberId) => {
@@ -240,20 +254,29 @@ export default function GroupDetailsPage() {
                   <IoLinkOutline className="w-5 h-5 text-third" />
                   Invite Code
                 </h3>
-                <div className="flex items-center gap-2">
-                  <code className="flex-1 bg-primary px-3 py-2 rounded text-third font-mono text-sm">
+                <div className="flex flex-col gap-3">
+                  <code className="bg-primary px-3 py-2 rounded text-third font-mono text-sm break-all">
                     {group?.inviteToken}
                   </code>
                   <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(
-                        `${window.location.origin}/api/group/join/${group?.inviteToken}`
-                      );
-                      alert("Invite link copied!");
-                    }}
-                    className="bg-third text-white px-4 py-2 rounded hover-bg-third hover:opacity-90 transition-all text-sm font-medium"
+                    onClick={handleCopyInvite}
+                    className={`px-4 py-3 rounded-lg transition-all text-sm font-medium flex items-center justify-center gap-2 ${
+                      copied
+                        ? "bg-green-600 text-white"
+                        : "bg-third text-white hover:opacity-90"
+                    }`}
                   >
-                    Copy Link
+                    {copied ? (
+                      <>
+                        <IoCheckmark className="w-5 h-5" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <IoCopyOutline className="w-5 h-5" />
+                        Copy Invite Message
+                      </>
+                    )}
                   </button>
                 </div>
               </div>

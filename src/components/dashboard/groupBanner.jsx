@@ -1,7 +1,7 @@
 // src/components/dashboard/groupBanner.jsx
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { IoPencil } from "react-icons/io5";
@@ -14,6 +14,7 @@ export default function GroupBanner({ user, group, onUpdate }) {
   const router = useRouter();
   const [showCoverUpload, setShowCoverUpload] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [leader, setLeader] = useState(null);
   const [alert, setAlert] = useState({
     isOpen: false,
     title: "",
@@ -32,6 +33,26 @@ export default function GroupBanner({ user, group, onUpdate }) {
   };
 
   const isAdmin = session?.user?.id === group?.admin?._id?.toString();
+
+  // Fetch ranking data to get the correct leader
+  useEffect(() => {
+    const fetchLeader = async () => {
+      if (!group?._id) return;
+
+      try {
+        const response = await fetch(`/api/group/${group._id}/ranking`);
+        const data = await response.json();
+
+        if (data.success && data.ranking && data.ranking.length > 0) {
+          setLeader(data.ranking[0]);
+        }
+      } catch (error) {
+        console.error("Error fetching ranking:", error);
+      }
+    };
+
+    fetchLeader();
+  }, [group?._id]);
 
   const handleCoverChange = async (e) => {
     const file = e.target.files?.[0];
@@ -75,32 +96,13 @@ export default function GroupBanner({ user, group, onUpdate }) {
     }
   };
 
-  const getLeader = () => {
-    if (!group?.members || group.members.length === 0) {
-      return null;
-    }
-
-    const groupId = group._id.toString();
-    const allMembers = group.members.map((m) => m.user).filter(Boolean);
-
-    const leader = allMembers.reduce((prev, current) => {
-      // ✅ FIX: Acessar como objeto, não como Map
-      const prevStreak = prev.groupStreaks?.[groupId]?.streak || 0;
-      const currentStreak = current.groupStreaks?.[groupId]?.streak || 0;
-      return currentStreak > prevStreak ? current : prev;
-    }, allMembers[0]);
-
-    return leader;
-  };
-
-  const leader = getLeader();
   const membersCount = group?.members?.length || 0;
   const coverPicture = group?.coverPicture || "/banner.png";
   const description = group?.description;
 
-  // ✅ FIX: Acessar groupStreaks como objeto
-  const userGroupStreak = user?.groupStreaks?.[group?._id?.toString()]?.streak || 0;
-  const leaderGroupStreak = leader?.groupStreaks?.[group?._id?.toString()]?.streak || 0;
+  // Get streak from ranking data
+  const userStreak = user?.groupStreaks?.[group?._id?.toString()]?.streak || 0;
+  const leaderStreak = leader?.streak || 0;
 
   return (
     <>
@@ -132,7 +134,7 @@ export default function GroupBanner({ user, group, onUpdate }) {
                 size={24}
               />
               <div className="ml-2">
-                <p className="text-xs font-semibold">{leaderGroupStreak}</p>
+                <p className="text-xs font-semibold">{leaderStreak}</p>
                 <p className="text-xs text-gray-400">Leader</p>
               </div>
             </div>
@@ -146,7 +148,7 @@ export default function GroupBanner({ user, group, onUpdate }) {
                 size={24}
               />
               <div className="ml-2">
-                <p className="text-xs font-semibold">{userGroupStreak}</p>
+                <p className="text-xs font-semibold">{userStreak}</p>
                 <p className="text-xs text-gray-400">You</p>
               </div>
             </div>
