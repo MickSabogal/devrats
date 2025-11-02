@@ -5,7 +5,7 @@ import Message from "@/models/Message";
 export async function DELETE(req, { params }) {
     try {
         await connectDB();
-        const { id } = params; //message ID from the URL 
+        const { id } = await params; //message ID from the URL 
 
         //finding ID by message
         const message = await Message.findById(id);

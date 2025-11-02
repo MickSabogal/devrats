@@ -10,8 +10,8 @@ import { uploadToCloudinary, deleteFromCloudinary, extractPublicId } from '@/lib
 export async function GET(req, { params }) {
   try {
     await connectDB();
-    const { id } = params;
-
+    const { id } = await params; // ✅ await params em API
+    
     const group = await Group.findById(id)
       .populate('admin', 'name avatar streak')
       .populate('members.user', 'name avatar streak');
@@ -28,7 +28,6 @@ export async function GET(req, { params }) {
 }
 
 // PATCH — Update group info partially (or remove member)
-// PATCH — Update group info partially (or remove member)
 export async function PATCH(req, { params }) {
   try {
     const session = await getServerSession(authOptions);
@@ -36,7 +35,7 @@ export async function PATCH(req, { params }) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
 
     const userId = session.user.id;
-    const { id } = params;
+    const { id } = await params;
     const { name, description, coverPicture, action, memberId } = await req.json();
 
     if (!id) return NextResponse.json({ message: 'Group ID required' }, { status: 400 });
@@ -102,7 +101,7 @@ export async function PUT(req, { params }) {
     if (!session || !session.user)
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
 
-    const { id } = params;
+    const { id } = await params;
     const { memberId } = await req.json();
 
     if (!id || !memberId)
@@ -137,7 +136,7 @@ export async function DELETE(req, { params }) {
     if (!session || !session.user)
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
-    const { id } = params;
+    const { id } = await params;
 
     await connectDB();
 

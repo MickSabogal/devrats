@@ -15,7 +15,7 @@ export async function POST(req, { params }) {
     }
 
     const userId = session.user.id;
-    const { token } = params;
+    const { token } = await params;
 
     // Connect to the database
     await connectDB();

@@ -9,7 +9,7 @@ import Group from "@/models/Group";
 export async function GET(req, { params }) {
   try {
     await connectDB();
-    const { groupId, postId } = params;
+    const { groupId, postId } = await params;
 
     // Verify group exists
     const group = await Group.findById(groupId);
@@ -38,7 +38,7 @@ export async function GET(req, { params }) {
 export async function PUT(req, { params }) {
   try {
     await connectDB();
-    const { groupId, postId } = params;
+    const { groupId, postId } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session || !session.user) {
@@ -79,7 +79,7 @@ export async function PUT(req, { params }) {
 export async function DELETE(req, { params }) {
   try {
     await connectDB();
-    const { groupId, postId } = params;
+    const { groupId, postId } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session || !session.user) {

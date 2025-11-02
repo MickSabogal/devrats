@@ -15,7 +15,7 @@ export async function GET(req, { params }) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // Buscar grupo com membros populados
     const group = await Group.findById(id).populate(

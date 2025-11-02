@@ -10,7 +10,7 @@ import Comment from "@/models/Comment";
 export async function GET(req, { params }) {
   try {
     await connectDB();
-    const { groupId, postId } = params;
+    const { groupId, postId } = await params;
 
     // Verify group exists
     const group = await Group.findById(groupId);
@@ -42,7 +42,7 @@ export async function GET(req, { params }) {
 export async function POST(req, { params }) {
   try {
     await connectDB();
-    const { groupId, postId } = params;
+    const { groupId, postId } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session || !session.user) {

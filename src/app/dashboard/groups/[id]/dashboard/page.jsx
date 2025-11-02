@@ -34,42 +34,42 @@ export default function GroupDashboard() {
     }
   };
 
+  const fetchGroupAndPosts = async () => {
+    if (!groupId) return;
+
+    try {
+      setLoading(true);
+
+      const resGroup = await fetch(`/api/group/${groupId}`);
+      const groupData = await resGroup.json();
+
+      if (resGroup.ok) {
+        setGroup(groupData);
+
+        const resPosts = await fetch(`/api/group/${groupId}/post`);
+        const postsData = await resPosts.json();
+
+        if (resPosts.ok && postsData.success) {
+          setPosts(postsData.posts || []);
+        } else {
+          setPosts([]);
+        }
+      } else {
+        router.push("/dashboard/home");
+      }
+    } catch (error) {
+      console.error("Error fetching group:", error);
+      router.push("/dashboard/home");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchUser();
   }, []);
 
   useEffect(() => {
-    const fetchGroupAndPosts = async () => {
-      if (!groupId) return;
-
-      try {
-        setLoading(true);
-
-        const resGroup = await fetch(`/api/group/${groupId}`);
-        const groupData = await resGroup.json();
-
-        if (resGroup.ok) {
-          setGroup(groupData);
-
-          const resPosts = await fetch(`/api/group/${groupId}/post`);
-          const postsData = await resPosts.json();
-
-          if (resPosts.ok && postsData.success) {
-            setPosts(postsData.posts || []);
-          } else {
-            setPosts([]);
-          }
-        } else {
-          router.push("/dashboard/home");
-        }
-      } catch (error) {
-        console.error("Error fetching group:", error);
-        router.push("/dashboard/home");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchGroupAndPosts();
   }, [groupId, router]);
 
@@ -115,6 +115,7 @@ export default function GroupDashboard() {
             group={group}
             onUpdate={fetchGroupAndPosts}
           />
+          
           <div className="w-full text-center mt-4 mb-6">
             <p className="text-muted text-sm">
               {new Date().toLocaleDateString("en-US", {
@@ -128,9 +129,6 @@ export default function GroupDashboard() {
           {posts.length === 0 ? (
             <div className="bg-card rounded-lg p-8 text-center mt-6">
               <div className="flex flex-col items-center gap-3">
-                <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center">
-                  <TiPlus className="w-8 h-8 text-muted" />
-                </div>
                 <p className="text-secondary font-medium">No posts yet</p>
                 <p className="text-muted text-sm">
                   Be the first to share something!

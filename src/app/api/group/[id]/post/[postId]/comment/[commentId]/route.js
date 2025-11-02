@@ -10,7 +10,7 @@ import Comment from "@/models/Comment";
 export async function PUT(req, { params }) {
   try {
     await connectDB();
-    const { groupId, postId, commentId } = params;
+    const { groupId, postId, commentId } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session || !session.user) {
@@ -52,7 +52,7 @@ export async function PUT(req, { params }) {
 export async function DELETE(req, { params }) {
   try {
     await connectDB();
-    const { groupId, postId, commentId } = params;
+    const { groupId, postId, commentId } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session || !session.user) {

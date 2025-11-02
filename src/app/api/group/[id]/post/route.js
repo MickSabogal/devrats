@@ -17,7 +17,7 @@ export async function POST(req, { params }) {
 
     await connectDB();
 
-    const { id: groupId } = params;
+    const { id: groupId } = await params;
     const body = await req.json();
     const { title, content, image, eventDate, duration, metrics } = body;
 
@@ -166,7 +166,7 @@ export async function GET(req, { params }) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { id: groupId } = params;
+    const { id: groupId } = await params;
 
     const group = await Group.findById(groupId).select("members");
     if (!group) {

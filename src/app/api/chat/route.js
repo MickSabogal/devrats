@@ -8,7 +8,7 @@ import User from "@/models/User";
 export async function GET(req, { params }) {
     try {
         await connectDB();
-        const { groupId } = params;
+        const { groupId } = await params;
 
         const messages = await Message.find({ group: groupId })
             .populate("user", "name avatar")
@@ -24,7 +24,7 @@ export async function GET(req, { params }) {
 export async function POST(req, { params }) {
     try {
         await connectDB();
-        const { groupId } = params;
+        const { groupId } = await params;
         const body = await req.json();
 
         const { user, content, attachments } = body;

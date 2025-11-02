@@ -9,7 +9,7 @@ import Reaction from "@/models/Reaction";
 export async function GET(req, { params }) {
   try {
     await connectDB();
-    const { postId } = params;
+    const { postId } = await params;
 
     const reactions = await Reaction.find({ post: postId })
       .populate("user", "name avatar");
@@ -35,7 +35,7 @@ export async function POST(req, { params }) {
     if (!session || !session.user)
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
-    const { postId } = params;
+    const { postId } = await params;
     const userId = session.user.id;
     const { type } = await req.json();
 

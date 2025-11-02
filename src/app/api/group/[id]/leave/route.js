@@ -15,7 +15,7 @@ export async function PATCH(req, { params }) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { groupId } = params;
+    const { groupId } = await params;
     const userId = session.user.id;
 
     const group = await Group.findById(groupId).populate("members.user", "name avatar");

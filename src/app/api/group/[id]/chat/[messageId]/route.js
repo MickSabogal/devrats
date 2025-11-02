@@ -8,7 +8,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 export async function PUT(req, { params }) {
   try {
     await connectDB();
-    const { messageId } = params;
+    const { messageId } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session || !session.user) {
@@ -67,7 +67,7 @@ export async function PUT(req, { params }) {
 export async function DELETE(req, { params }) {
   try {
     await connectDB();
-    const { messageId } = params;
+    const { messageId } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session || !session.user) {
