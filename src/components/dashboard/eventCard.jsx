@@ -93,7 +93,7 @@ export default function EventCard({
                   disabled={isDeleting}
                   className="p-1 rounded hover:bg-red-600/20 transition-colors disabled:opacity-50"
                 >
-                  <IoTrashOutline className="w-4 h-4 text-red-600" />
+                  <IoTrashOutline className="w-4 h-4 text-white" />
                 </button>
               )}
             </div>
