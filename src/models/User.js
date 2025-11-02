@@ -17,15 +17,17 @@ const UserSchema = new Schema(
     image: { type: String, default: null },
 
     streak: { type: Number, default: 0 },
+    
     groupStreaks: {
       type: Map,
       of: {
-        streak: { type: Number, default: 0 },
+        streak: { type: Number, default: 0 }, // Total de dias
         lastPostDate: { type: Date, default: null },
-        checkIns: { type: Number, default: 0 },
+        checkIns: { type: Number, default: 0 }, // Total de dias (igual streak)
       },
       default: {},
     },
+    
     lastPostDate: { type: Date, default: null },
 
     activity: {

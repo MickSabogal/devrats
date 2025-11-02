@@ -1,4 +1,3 @@
-// src/app/api/group/[id]/post/route.js
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Post from "@/models/Post";
@@ -7,6 +6,7 @@ import Group from "@/models/Group";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { uploadToCloudinary } from "@/lib/cloudinary";
+import { hasPostedToday, hasPostedTodayInGroup } from "@/lib/streakHelper";
 
 export async function POST(req, { params }) {
   try {
@@ -21,7 +21,6 @@ export async function POST(req, { params }) {
     const body = await req.json();
     const { title, content, image, eventDate, duration, metrics } = body;
 
-    // Validações
     if (!title || !content) {
       return NextResponse.json(
         { success: false, message: "Title and content are required" },
@@ -70,14 +69,12 @@ export async function POST(req, { params }) {
       );
     }
 
-    // Upload imagem para Cloudinary
     let imageUrl = null;
     if (image && image.startsWith("data:")) {
       const { url } = await uploadToCloudinary(image, "posts");
       imageUrl = url;
     }
 
-    // Criar post
     const newPost = await Post.create({
       group: groupId,
       user: user._id,
@@ -89,47 +86,43 @@ export async function POST(req, { params }) {
       metrics: metrics || {},
     });
 
-    // Linha 90-115, substituir lógica de streak:
     const today = new Date().toISOString().split("T")[0];
-    const yesterday = new Date(Date.now() - 86400000)
-      .toISOString()
-      .split("T")[0];
+    const alreadyPostedToday = hasPostedToday(user.lastPostDate);
+    
+    if (!alreadyPostedToday) {
+      const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+      const lastPost = user.lastPostDate 
+        ? new Date(user.lastPostDate).toISOString().split("T")[0]
+        : null;
 
-    // ✅ Atualizar streak PESSOAL (perfil)
-    const lastPost = user.lastPostDate
-      ? new Date(user.lastPostDate).toISOString().split("T")[0]
-      : null;
-
-    if (lastPost !== today) {
       if (lastPost === yesterday) {
         user.streak += 1;
-      } else if (lastPost !== today) {
+      } else {
         user.streak = 1;
       }
+
       user.lastPostDate = new Date();
+      
+      if (!(user.activity instanceof Map)) {
+        user.activity = new Map(Object.entries(user.activity || {}));
+      }
       user.activity.set(today, true);
     }
 
     if (!user.groupStreaks) user.groupStreaks = new Map();
 
-    const groupStreak = user.groupStreaks.get(groupId) || {
+    let groupStreak = user.groupStreaks.get(groupId) || {
       streak: 0,
       lastPostDate: null,
       checkIns: 0,
     };
 
-    const lastGroupPost = groupStreak.lastPostDate
-      ? new Date(groupStreak.lastPostDate).toISOString().split("T")[0]
-      : null;
+    const alreadyPostedTodayInGroup = hasPostedTodayInGroup(groupStreak);
 
-    if (lastGroupPost !== today) {
-      if (lastGroupPost === yesterday) {
-        groupStreak.streak += 1;
-      } else {
-        groupStreak.streak = 1;
-      }
+    if (!alreadyPostedTodayInGroup) {
+      groupStreak.streak += 1;
+      groupStreak.checkIns += 1;
       groupStreak.lastPostDate = new Date();
-      groupStreak.checkIns += 1; // ✅ Incrementa total de check-ins únicos
     }
 
     user.groupStreaks.set(groupId, groupStreak);
@@ -144,7 +137,7 @@ export async function POST(req, { params }) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("POST /group/[id]/post error:", error);
+    console.error("❌ POST /group/[id]/post error:", error);
     return NextResponse.json(
       {
         success: false,
@@ -156,7 +149,6 @@ export async function POST(req, { params }) {
   }
 }
 
-// GET - Buscar posts do grupo
 export async function GET(req, { params }) {
   try {
     await connectDB();
@@ -193,7 +185,7 @@ export async function GET(req, { params }) {
 
     return NextResponse.json({ success: true, posts }, { status: 200 });
   } catch (error) {
-    console.error("GET /group/[id]/post error:", error);
+    console.error("❌ GET /group/[id]/post error:", error);
     return NextResponse.json(
       { success: false, message: "Internal server error" },
       { status: 500 }
