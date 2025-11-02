@@ -278,7 +278,23 @@ export default function GroupSettingsPage() {
             Delete Group
           </button>
         </div>
-
+        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mt-8">
+          <h3 className="text-red-400 font-semibold mb-2 flex items-center gap-2">
+            <IoTrashOutline className="w-5 h-5" />
+            Danger Zone
+          </h3>
+          <p className="text-gray-400 text-sm mb-4">
+            Once you delete a group, there is no going back. All posts and data
+            will be permanently deleted.
+          </p>
+          <button
+            onClick={handleDeleteGroup}
+            disabled={saving}
+            className="w-full bg-red-500 text-white py-3 rounded-lg font-medium hover:bg-red-600 disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors"
+          >
+            Delete Group
+          </button>
+        </div>
         <BottomNavbar groupId={id} />
       </div>
     </div>

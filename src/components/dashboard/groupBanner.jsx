@@ -48,14 +48,11 @@ export default function GroupBanner({ user, group, onUpdate }) {
         if (groupsData.length === 0) {
           showAlert(
             "No Active Groups",
-            "Oops! Seems like you don't have any active groups. You will be redirected to our onboarding page.",
+            "Oops! Seems like you don't have any active groups. Click OK to go to onboarding.",
             "warning",
-            false,
+            false, 
             true
           );
-          setTimeout(() => {
-            router.push("/dashboard/onboarding");
-          }, 3000);
         } else {
           showAlert(
             "Success",
@@ -97,6 +94,8 @@ export default function GroupBanner({ user, group, onUpdate }) {
         });
 
         if (response.ok) {
+          const updatedGroup = await response.json();
+
           showAlert(
             "Success",
             "Cover photo updated successfully!",
@@ -104,7 +103,8 @@ export default function GroupBanner({ user, group, onUpdate }) {
             true,
             false
           );
-          if (onUpdate) onUpdate();
+
+          window.location.reload();
         } else {
           showAlert("Error", "Failed to update cover photo", "error");
         }

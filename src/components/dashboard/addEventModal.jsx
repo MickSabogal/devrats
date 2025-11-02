@@ -303,7 +303,7 @@ export default function AddEventModal({
                     className={`w-full flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed rounded-lg transition-colors disabled:opacity-50
     ${
       errors.image
-        ? "border-green-500 bg-green-500/10"
+        ? "border-red-500 bg-red-500/10"
         : "border-green-400 dark:border-green-500 bg-green-500/10 hover:border-green-600 dark:hover:border-green-400"
     }`}
                   >
@@ -492,7 +492,15 @@ export default function AddEventModal({
 
       <AlertModal
         isOpen={alert.isOpen}
-        onClose={() => setAlert({ ...alert, isOpen: false })}
+        onClose={() => {
+          setAlert({ ...alert, isOpen: false });
+          if (alert.type === "success") {
+            onClose();
+            if (onGroupCreated) {
+              router.push(`/dashboard/groups/${newGroup._id}/dashboard`);
+            }
+          }
+        }}
         title={alert.title}
         message={alert.message}
         type={alert.type}

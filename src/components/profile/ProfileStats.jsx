@@ -39,9 +39,7 @@ export default function ProfileStats({ user }) {
   return (
     <div className="flex gap-3 flex-1">
       <div className="bg-secondary rounded-2xl px-4 py-3 text-center shadow-lg border border-gray-800 flex-1">
-        <p className="text-white text-xl font-bold">
-          {user?.streak || 0}
-        </p>
+        <p className="text-white text-xl font-bold">{user?.streak || 0}</p>
         <p className="text-gray-400 text-xs">Check-ins</p>
       </div>
 
@@ -51,7 +49,11 @@ export default function ProfileStats({ user }) {
             <LoadingSpinner size="sm" />
           </div>
         ) : (
-          <p className="text-white text-xl font-bold">
+          <p
+            className={`text-white font-bold ${
+              formatTime(totalMinutes).length > 5 ? "text-base" : "text-xl"
+            }`}
+          >
             {formatTime(totalMinutes)}
           </p>
         )}
