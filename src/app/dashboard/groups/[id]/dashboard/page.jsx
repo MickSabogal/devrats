@@ -75,13 +75,11 @@ export default function GroupDashboard() {
 
   const handlePostCreated = async (newPost) => {
     setPosts((prev) => [newPost, ...prev]);
-    // ✅ Atualiza o user para pegar o streak novo
     await fetchUser();
   };
 
   const handlePostDeleted = async (postId) => {
     setPosts((prev) => prev.filter((post) => post._id !== postId));
-    // ✅ Atualiza o user para pegar o streak atualizado
     await fetchUser();
   };
 
@@ -94,65 +92,74 @@ export default function GroupDashboard() {
   }
 
   return (
-    <div className="bg-primary">
-      <div className="max-w-md mx-auto relative min-h-screen px-6 pt-6 pb-28 overflow-hidden">
+    <div className="bg-primary min-h-screen">
+      <div className="max-w-md mx-auto relative min-h-screen px-6 pt-6 pb-28">
         <Sidebar isOpen={isOpen} onClose={() => setIsOpen(false)} user={user} />
 
         <div>
-          <div className="flex items-center -m-2">
+          <div className="flex items-center -m-2 mb-4">
             <button
               onClick={() => setIsOpen(true)}
-              className="flex items-center justify-center w-10 h-10 rounded-lg transition-colors"
+              className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-white/10 transition-colors"
             >
-              <BiMenuAltLeft className="w-8 h-8 text-white" />
+              <BiMenuAltLeft className="w-8 h-8 text-primary" />
             </button>
           </div>
 
-          <h1 className="text-xl font-bold text-white my-2">
+          <h1 className="text-xl font-bold text-primary mb-4">
             {group?.name || "Group"}
           </h1>
+          
           <GroupBanner user={user} group={group} />
 
-          <div className="w-full text-center mt-2 text-gray-400 text-xs">
-            <small>
+          <div className="w-full text-center mt-4 mb-6">
+            <p className="text-muted text-sm">
               {new Date().toLocaleDateString("en-US", {
                 weekday: "long",
-                month: "short",
+                month: "long",
                 day: "numeric",
               })}
-            </small>
+            </p>
           </div>
 
           {posts.length === 0 ? (
-            <div className="text-center text-gray-400 mt-8">
-              <p>No posts yet. Be the first to share!</p>
+            <div className="bg-card rounded-lg p-8 text-center mt-6">
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center">
+                  <TiPlus className="w-8 h-8 text-muted" />
+                </div>
+                <p className="text-secondary font-medium">No posts yet</p>
+                <p className="text-muted text-sm">Be the first to share something!</p>
+              </div>
             </div>
           ) : (
-            posts.map((post) => (
-              <EventCard
-                key={post._id}
-                user={post.user || { name: "Unknown User", avatar: null }}
-                eventTitle={post.title}
-                eventImage={post.image}
-                eventTime={
-                  post.createdAt
-                    ? new Date(post.createdAt).toLocaleTimeString("en-US", {
-                        hour: "numeric",
-                        minute: "2-digit",
-                        hour12: true,
-                      })
-                    : "Unknown time"
-                }
-                postId={post._id}
-                onDelete={handlePostDeleted}
-              />
-            ))
+            <div className="space-y-4">
+              {posts.map((post) => (
+                <EventCard
+                  key={post._id}
+                  user={post.user || { name: "Unknown User", avatar: null }}
+                  eventTitle={post.title}
+                  eventImage={post.image}
+                  eventTime={
+                    post.createdAt
+                      ? new Date(post.createdAt).toLocaleTimeString("en-US", {
+                          hour: "numeric",
+                          minute: "2-digit",
+                          hour12: true,
+                        })
+                      : "Unknown time"
+                  }
+                  postId={post._id}
+                  onDelete={handlePostDeleted}
+                />
+              ))}
+            </div>
           )}
         </div>
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="fixed bottom-24 right-6 bg-green-500 text-primary text-3xl w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 z-10 hover:rotate-90"
+          className="fixed bottom-24 right-6 bg-third text-white text-3xl w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 z-10 hover:rotate-90"
         >
           <TiPlus />
         </button>

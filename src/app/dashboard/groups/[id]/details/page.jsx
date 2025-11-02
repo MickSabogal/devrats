@@ -58,7 +58,7 @@ export default function GroupDetailsPage() {
   };
 
   const getRoleColor = (role) => {
-    return role === "Admin" ? "bg-red-500" : "bg-gray-500";
+    return role === "Admin" ? "bg-third" : "bg-gray-500";
   };
 
   const isAdmin = user && group && group.admin._id === user._id;

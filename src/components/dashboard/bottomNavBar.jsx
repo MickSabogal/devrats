@@ -12,7 +12,7 @@ export default function BottomNavbar({ groupId, currentPage }) {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#1e2939] shadow-lg border-t border-gray-200 dark:border-gray-700/50 z-20">
+    <nav className="fixed bottom-0 left-0 right-0 bg-card shadow-lg border-t border-custom z-20">
       <div className="max-w-md mx-auto px-6 py-3">
         <div className="flex justify-around items-center">
           {navItems.map((item) => {
@@ -24,17 +24,17 @@ export default function BottomNavbar({ groupId, currentPage }) {
                 key={item.name}
                 className="flex flex-col items-center gap-1 px-4 py-2 rounded-lg cursor-not-allowed"
               >
-                <Icon className="w-6 h-6 text-red-600" />
-                <span className="text-xs font-medium text-red-600">{item.name}</span>
+                <Icon className="w-6 h-6 text-third" />
+                <span className="text-xs font-medium text-third">{item.name}</span>
               </div>
             ) : (
               <Link
                 key={item.name}
                 href={item.href}
-                className="flex flex-col items-center gap-1 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/40 transition-colors group"
+                className="flex flex-col items-center gap-1 px-4 py-2 rounded-lg hover:bg-card-hover transition-colors-smooth group"
               >
-                <Icon className="w-6 h-6 text-gray-600 dark:text-gray-300 group-hover:text-[#0B111c] dark:group-hover:text-white transition-colors" />
-                <span className="text-xs font-medium text-gray-600 dark:text-gray-300 group-hover:text-[#0B111c] dark:group-hover:text-white transition-colors">
+                <Icon className="w-6 h-6 text-secondary group-hover:text-primary transition-colors" />
+                <span className="text-xs font-medium text-secondary group-hover:text-primary transition-colors">
                   {item.name}
                 </span>
               </Link>

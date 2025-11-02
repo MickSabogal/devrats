@@ -158,9 +158,9 @@ export default function GroupBanner({ user, group, onUpdate }) {
             <button
               onClick={() => setShowDeleteConfirm(true)}
               disabled={isDeleting}
-              className="absolute top-2 right-2 p-2 bg-black/50 rounded-full hover:bg-red-600 transition-colors disabled:opacity-50"
+              className="absolute top-2 right-2 p-2 bg-black/50 rounded-full hover:bg-third transition-colors disabled:opacity-50"
             >
-              <IoTrashOutline className="w-4 h-4 text-red-600" />
+              <IoTrashOutline className="w-4 h-4 text-white " />
             </button>
           )}
         </div>
@@ -222,7 +222,7 @@ export default function GroupBanner({ user, group, onUpdate }) {
             />
             <label
               htmlFor="cover-upload"
-              className="block w-full py-3 rounded-lg bg-red-600 text-white font-semibold text-center hover:bg-red-700 transition cursor-pointer"
+              className="block w-full py-3 rounded-lg bg-third text-white font-semibold text-center transition cursor-pointer"
             >
               {isUploading ? "Uploading..." : "Choose Photo"}
             </label>
