@@ -1,3 +1,4 @@
+// src/components/dashboard/groupBanner.jsx
 "use client";
 
 import React, { useState } from "react";
@@ -83,8 +84,9 @@ export default function GroupBanner({ user, group, onUpdate }) {
     const allMembers = group.members.map((m) => m.user).filter(Boolean);
 
     const leader = allMembers.reduce((prev, current) => {
-      const prevStreak = prev.groupStreaks?.get?.(groupId)?.streak || 0;
-      const currentStreak = current.groupStreaks?.get?.(groupId)?.streak || 0;
+      // ✅ FIX: Acessar como objeto, não como Map
+      const prevStreak = prev.groupStreaks?.[groupId]?.streak || 0;
+      const currentStreak = current.groupStreaks?.[groupId]?.streak || 0;
       return currentStreak > prevStreak ? current : prev;
     }, allMembers[0]);
 
@@ -96,8 +98,9 @@ export default function GroupBanner({ user, group, onUpdate }) {
   const coverPicture = group?.coverPicture || "/banner.png";
   const description = group?.description;
 
-  const userGroupStreak = user?.groupStreaks?.get?.(group?._id?.toString())?.streak || 0;
-  const leaderGroupStreak = leader?.groupStreaks?.get?.(group?._id?.toString())?.streak || 0;
+  // ✅ FIX: Acessar groupStreaks como objeto
+  const userGroupStreak = user?.groupStreaks?.[group?._id?.toString()]?.streak || 0;
+  const leaderGroupStreak = leader?.groupStreaks?.[group?._id?.toString()]?.streak || 0;
 
   return (
     <>

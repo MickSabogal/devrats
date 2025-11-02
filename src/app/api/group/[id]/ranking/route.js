@@ -30,9 +30,21 @@ export async function GET(req, { params }) {
     const allPosts = await Post.find({
       group: id,
       user: { $in: userIds },
-    }).select("user duration");
+    }).select("user duration createdAt");
 
     console.log("📊 Total posts found:", allPosts.length);
+
+    // --- 👇 AQUI começa o cálculo de streak ---
+    const today = new Date().toISOString().slice(0, 10);
+    const userDailyPosts = {};
+
+    allPosts.forEach((post) => {
+      const userId = post.user.toString();
+      const postDate = new Date(post.createdAt).toISOString().slice(0, 10);
+      if (!userDailyPosts[userId]) userDailyPosts[userId] = new Set();
+      userDailyPosts[userId].add(postDate);
+    });
+    // --- 👆 até aqui ---
 
     const userStats = {};
 
@@ -55,10 +67,8 @@ export async function GET(req, { params }) {
       const userId = member.user._id.toString();
       const stats = userStats[userId] || { totalMinutes: 0, postCount: 0 };
 
-      const groupStreak = member.user.groupStreaks?.get(id) || {
-        streak: 0,
-        checkIns: 0,
-      };
+      // 👇 Novo cálculo de streak:
+      const streak = userDailyPosts[userId]?.has(today) ? 1 : 0;
 
       const totalMinutes = stats.totalMinutes;
       const hours = Math.floor(totalMinutes / 60);
@@ -68,7 +78,7 @@ export async function GET(req, { params }) {
         _id: member.user._id,
         name: member.user.name,
         avatar: member.user.avatar,
-        streak: groupStreak.streak,
+        streak,
         studyMinutes: totalMinutes,
         studyHours: hours,
         studyMinutesRemainder: minutes,
@@ -87,13 +97,7 @@ export async function GET(req, { params }) {
       }))
     );
 
-    return NextResponse.json(
-      {
-        success: true,
-        ranking,
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({ success: true, ranking }, { status: 200 });
   } catch (error) {
     console.error("❌ Ranking error:", error);
     return NextResponse.json(

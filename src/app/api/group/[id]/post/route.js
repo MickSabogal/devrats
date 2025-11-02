@@ -1,3 +1,4 @@
+// src/app/api/group/[id]/post/route.js
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Post from "@/models/Post";
@@ -88,7 +89,8 @@ export async function POST(req, { params }) {
 
     const today = new Date().toISOString().split("T")[0];
     const alreadyPostedToday = hasPostedToday(user.lastPostDate);
-    
+
+    // ✅ Atualizar streak PESSOAL (global)
     if (!alreadyPostedToday) {
       const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
       const lastPost = user.lastPostDate 
@@ -109,6 +111,7 @@ export async function POST(req, { params }) {
       user.activity.set(today, true);
     }
 
+    // ✅ Atualizar streak DO GRUPO (apenas 1x por dia)
     if (!user.groupStreaks) user.groupStreaks = new Map();
 
     let groupStreak = user.groupStreaks.get(groupId) || {
@@ -119,8 +122,9 @@ export async function POST(req, { params }) {
 
     const alreadyPostedTodayInGroup = hasPostedTodayInGroup(groupStreak);
 
+    // ✅ FIX: Incrementar streak do grupo apenas 1x por dia
     if (!alreadyPostedTodayInGroup) {
-      groupStreak.streak += 1;
+      groupStreak.streak += 1;  // ← Total de DIAS (não de posts!)
       groupStreak.checkIns += 1;
       groupStreak.lastPostDate = new Date();
     }
