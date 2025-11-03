@@ -152,14 +152,6 @@ export default function DashboardHome() {
             Create a Group
           </Button>
 
-          <Button
-            fullWidth
-            variant="outline"
-            icon={HiUserGroup}
-            onClick={() => router.push("/dashboard/join-group")}
-          >
-            Join a Group
-          </Button>
         </div>
         <CreateGroupModal
           isOpen={isCreateGroupModalOpen}
