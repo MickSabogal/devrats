@@ -149,21 +149,14 @@ export default function Sidebar({ isOpen, onClose, user }) {
             </ul>
           </div>
 
-          <div
-            className="
-    h-1 
-    bg-green-500 
-    rounded-full
-    shadow-2xl shadow-green-500/50
-    my-3
-    hover:scale-110
-    active:scale-95
-    transition-all duration-200
-  "
-          ></div>
+          <div className="flex items-center justify-center gap-2 my-auto">
+            <div className="h-px w-16 bg-gradient-to-r from-transparent to-green-500/50" />
+            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+            <div className="h-px w-16 bg-gradient-to-l from-transparent to-green-500/50" />
+          </div>
 
-          <ul className="space-y-0.5 flex-1">
-            <li>
+          <ul className="space-y-2 flex-1">
+            <li className="mt-6">
               <button
                 onClick={() => {
                   setIsCreateGroupModalOpen(true);

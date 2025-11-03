@@ -49,29 +49,28 @@ export default function AboutPage() {
     {
       icon: <Code2 className="w-5 h-5" />,
       title: "Daily Check-ins",
-      description: "Share your study sessions with photo proof"
+      description: "Share your study sessions with photo proof",
     },
     {
       icon: <Trophy className="w-5 h-5" />,
       title: "Streak Tracking",
-      description: "Maintain consistency and build lasting habits"
+      description: "Maintain consistency and build lasting habits",
     },
     {
       icon: <Users className="w-5 h-5" />,
       title: "Group Leaderboards",
-      description: "Compete with friends and stay motivated"
+      description: "Compete with friends and stay motivated",
     },
     {
       icon: <Calendar className="w-5 h-5" />,
       title: "Activity Calendar",
-      description: "Visualize your progress over time"
-    }
+      description: "Visualize your progress over time",
+    },
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       <div className="max-w-4xl mx-auto">
-        {/* Header moderno */}
         <div className="bg-primary border-b border-green-500/30">
           <div className="flex items-center justify-between p-5">
             <button
@@ -89,23 +88,39 @@ export default function AboutPage() {
           </div>
         </div>
 
-        {/* Conteúdo scrollável */}
-        <div className="px-6 py-8 space-y-8 max-h-[calc(100vh-88px)] overflow-y-auto">
+        <div className="px-6 py-6 space-y-8 max-h-[calc(100vh-88px)] overflow-y-auto">
           
           {/* Hero Section */}
-          <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-3xl p-4 border border-green-500/30">
-            <p className="text-gray-300 text-base leading-relaxed">
-              DevRats is a community platform designed to help developers stay
-              consistent with their learning journey. Track your study
-              sessions, compete with friends, and build lasting habits through
-              daily check-ins and group challenges.
-            </p>
+          <div className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all" />
+            <div className="relative bg-gradient-to-br from-gray-800/50 via-gray-900/50 to-gray-800/50 border border-green-500/30 rounded-3xl p-8 text-center backdrop-blur-sm">
+              <div className="flex flex-col items-center gap-0">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-green-500/30 rounded-full blur-lg animate-pulse" />
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-gray-300 text-base leading-relaxed max-w-lg mx-auto">
+                    DevRats is a community platform designed to help developers
+                    stay consistent with their learning journey. Track your
+                    study sessions, compete with friends, and build lasting
+                    habits through daily check-ins.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 mt-3">
+                  <div className="h-px w-12 bg-gradient-to-r from-transparent to-green-500/50" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                  <div className="h-px w-12 bg-gradient-to-l from-transparent to-green-500/50" />
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Features Grid */}
           <div>
             <h3 className="text-white text-xl font-bold mb-4">Key Features</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {features.map((feature, index) => (
                 <div
                   key={index}
@@ -116,8 +131,12 @@ export default function AboutPage() {
                       {feature.icon}
                     </div>
                     <div>
-                      <h4 className="text-white font-semibold mb-1">{feature.title}</h4>
-                      <p className="text-gray-400 text-sm">{feature.description}</p>
+                      <h4 className="text-white font-semibold mb-1">
+                        {feature.title}
+                      </h4>
+                      <p className="text-gray-400 text-sm">
+                        {feature.description}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -135,15 +154,15 @@ export default function AboutPage() {
               <ArrowLeft className="w-4 h-4 rotate-180 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
-      </div>
+        </div>
 
-      {/* Modal */}
-      <TeamModal
-        isOpen={showTeamModal}
-        onClose={() => setShowTeamModal(false)}
-        teamMembers={teamMembers}
-      />
-    </div>
+        {/* Modal */}
+        <TeamModal
+          isOpen={showTeamModal}
+          onClose={() => setShowTeamModal(false)}
+          teamMembers={teamMembers}
+        />
+      </div>
     </div>
   );
 }
