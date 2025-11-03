@@ -216,8 +216,5 @@ MIT License © 2025 DevRats Team
   
   ### Feito com muito 🧀 pelo DevRats Team
   
-  **"Transforming coders into consistent developers, one streak at a time."** 🐭
-  
-  [![Deploy](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/seu-usuario/devrats)
-  
+  **"Transforming coders into consistent developers, one streak at a time."** 🐭  
 </div>
