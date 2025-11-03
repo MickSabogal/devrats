@@ -8,9 +8,18 @@ export default function DeleteAccountModal({ onClose, onConfirm }) {
   const [deleting, setDeleting] = useState(false);
   const [confirmText, setConfirmText] = useState("");
 
+  const [alert, setAlert] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    type: "info",
+  });
+
+  const showAlert = (title, message, type = "info") =>
+    setAlert({ isOpen: true, title, message, type });
   const handleDelete = async () => {
     if (confirmText !== "DELETE") {
-      alert('Please type "DELETE" to confirm');
+      showAlert("Invalid Input", 'Please type "DELETE" to confirm', "error");
       return;
     }
 
@@ -23,11 +32,11 @@ export default function DeleteAccountModal({ onClose, onConfirm }) {
       if (response.ok) {
         await signOut({ callbackUrl: "/login" });
       } else {
-        alert("Failed to delete account");
+        showAlert("Error", "Failed to delete account", "error");
       }
     } catch (error) {
       console.error("Delete error:", error);
-      alert("Failed to delete account");
+      showAlert("Error", "Failed to delete account", "error");
     } finally {
       setDeleting(false);
     }
