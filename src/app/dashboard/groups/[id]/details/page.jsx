@@ -1,4 +1,3 @@
-// src/app/dashboard/groups/[id]/details/page.js
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -14,6 +13,8 @@ import {
 import { FiUsers, FiCalendar } from "react-icons/fi";
 import BottomNavbar from "@/components/dashboard/bottomNavBar";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import ConfirmModal from "@/components/ui/ConfirmModal";
+import AlertModal from "@/components/ui/AlertModal";
 
 export default function GroupDetailsPage() {
   const params = useParams();
@@ -25,6 +26,17 @@ export default function GroupDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("info");
   const [copied, setCopied] = useState(false);
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
+  const [alert, setAlert] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    type: "info",
+  });
+
+  const showAlert = (title, message, type = "info", autoClose = true) =>
+    setAlert({ isOpen: true, title, message, type, autoClose });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,22 +67,28 @@ export default function GroupDetailsPage() {
   }, [id, router]);
   
   const handleLeaveGroup = async () => {
-    if (!confirm("Are you sure you want to leave this group?")) return;
-
+    setIsLeaving(true);
     try {
       const res = await fetch(`/api/group/${id}/leave`, {
         method: "PATCH",
       });
 
+      const data = await res.json();
+
       if (res.ok) {
-        router.push("/dashboard/home");
+        showAlert("Success", "You left the group successfully", "success");
+        setTimeout(() => {
+          router.push("/dashboard/home");
+        }, 1500);
       } else {
-        const data = await res.json();
-        alert(data.message || "Failed to leave group");
+        showAlert("Error", data.message || "Failed to leave group", "error");
       }
     } catch (error) {
       console.error("Error leaving group:", error);
-      alert("Error leaving group");
+      showAlert("Error", "Failed to leave group", "error");
+    } finally {
+      setIsLeaving(false);
+      setShowLeaveConfirm(false);
     }
   };
 
@@ -113,12 +131,13 @@ export default function GroupDetailsPage() {
       if (res.ok) {
         const updatedGroup = await res.json();
         setGroup(updatedGroup);
+        showAlert("Success", "Member removed successfully", "success");
       } else {
-        alert("Failed to remove member");
+        showAlert("Error", "Failed to remove member", "error");
       }
     } catch (error) {
       console.error("Error removing member:", error);
-      alert("Error removing member");
+      showAlert("Error", "Failed to remove member", "error");
     }
   };
 
@@ -131,235 +150,260 @@ export default function GroupDetailsPage() {
   }
 
   return (
-    <div className="bg-primary min-h-screen">
-      <div className="max-w-md mx-auto relative min-h-screen px-6 pt-6 pb-28">
-        <div className="flex items-center justify-between mb-4">
-          <button
-            onClick={() => router.push(`/dashboard/groups/${id}/dashboard`)}
-            className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-white/10 transition-colors"
-          >
-            <IoArrowBack className="w-6 h-6 text-white" />
-          </button>
-          <h1 className="text-xl font-bold text-white">Group Details</h1>
-          {isAdmin && (
+    <>
+      <div className="bg-primary min-h-screen">
+        <div className="max-w-md mx-auto relative min-h-screen px-6 pt-6 pb-28">
+          <div className="flex items-center justify-between mb-4">
             <button
-              onClick={() => router.push(`/dashboard/groups/${id}/settings`)}
+              onClick={() => router.push(`/dashboard/groups/${id}/dashboard`)}
               className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-white/10 transition-colors"
             >
-              <IoSettingsOutline className="w-6 h-6 text-white" />
+              <IoArrowBack className="w-6 h-6 text-white" />
             </button>
-          )}
-          {!isAdmin && <div className="w-10" />}
-        </div>
-
-        <div className="relative h-40 rounded-lg overflow-hidden mb-6">
-          <img
-            src={group?.coverPicture || "/images/background.png"}
-            alt={group?.name}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-          <div className="absolute bottom-4 left-4">
-            <h2 className="text-white font-bold text-2xl mb-1">
-              {group?.name}
-            </h2>
-            <div className="flex items-center gap-2 text-white/80 text-sm">
-              <FiUsers className="w-4 h-4" />
-              <span>{group?.members?.length || 0} members</span>
-            </div>
+            <h1 className="text-xl font-bold text-white">Group Details</h1>
+            {isAdmin && (
+              <button
+                onClick={() => router.push(`/dashboard/groups/${id}/settings`)}
+                className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-white/10 transition-colors"
+              >
+                <IoSettingsOutline className="w-6 h-6 text-white" />
+              </button>
+            )}
+            {!isAdmin && <div className="w-10" />}
           </div>
-        </div>
 
-        <div className="flex gap-2 mb-6">
-          <button
-            onClick={() => setActiveTab("info")}
-            className={`flex-1 py-3 rounded-lg font-medium transition-all ${
-              activeTab === "info"
-                ? "bg-third text-white shadow-third"
-                : "bg-card text-secondary hover:bg-card-hover"
-            }`}
-          >
-            Information
-          </button>
-          <button
-            onClick={() => setActiveTab("members")}
-            className={`flex-1 py-3 rounded-lg font-medium transition-all ${
-              activeTab === "members"
-                ? "bg-third text-white shadow-third"
-                : "bg-card text-secondary hover:bg-card-hover"
-            }`}
-          >
-            Members ({group?.members?.length || 0})
-          </button>
-        </div>
-
-        {activeTab === "info" && (
-          <div className="space-y-4">
-            <div className="bg-card rounded-lg p-4">
-              <h3 className="text-primary font-semibold mb-3 flex items-center gap-2">
-                Description
-              </h3>
-              <p className="text-secondary text-sm leading-relaxed">
-                {group?.description || "No description available."}
-              </p>
-            </div>
-
-            <div className="bg-card rounded-lg p-4">
-              <h3 className="text-primary font-semibold mb-3 flex items-center gap-2">
-                <IoPersonOutline className="w-5 h-5 text-third" />
-                Admin
-              </h3>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-700">
-                  {group?.admin?.avatar ? (
-                    <img
-                      src={group.admin.avatar}
-                      alt={group.admin.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-white font-semibold text-lg">
-                      {group?.admin?.name?.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <p className="text-primary font-medium">
-                    {group?.admin?.name}
-                  </p>
-                  <p className="text-muted text-sm">Group creator</p>
-                </div>
+          <div className="relative h-40 rounded-lg overflow-hidden mb-6">
+            <img
+              src={group?.coverPicture || "/images/background.png"}
+              alt={group?.name}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+            <div className="absolute bottom-4 left-4">
+              <h2 className="text-white font-bold text-2xl mb-1">
+                {group?.name}
+              </h2>
+              <div className="flex items-center gap-2 text-white/80 text-sm">
+                <FiUsers className="w-4 h-4" />
+                <span>{group?.members?.length || 0} members</span>
               </div>
             </div>
+          </div>
 
-            <div className="bg-card rounded-lg p-4">
-              <h3 className="text-primary font-semibold mb-3 flex items-center gap-2">
-                <FiCalendar className="w-5 h-5 text-third" />
-                Created
-              </h3>
-              <p className="text-secondary text-sm">
-                {group?.createdAt
-                  ? new Date(group.createdAt).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })
-                  : "Unknown"}
-              </p>
-            </div>
+          <div className="flex gap-2 mb-6">
+            <button
+              onClick={() => setActiveTab("info")}
+              className={`flex-1 py-3 rounded-lg font-medium transition-all ${
+                activeTab === "info"
+                  ? "bg-third text-white shadow-third"
+                  : "bg-card text-secondary hover:bg-card-hover"
+              }`}
+            >
+              Information
+            </button>
+            <button
+              onClick={() => setActiveTab("members")}
+              className={`flex-1 py-3 rounded-lg font-medium transition-all ${
+                activeTab === "members"
+                  ? "bg-third text-white shadow-third"
+                  : "bg-card text-secondary hover:bg-card-hover"
+              }`}
+            >
+              Members ({group?.members?.length || 0})
+            </button>
+          </div>
 
-            {isAdmin && (
+          {activeTab === "info" && (
+            <div className="space-y-4">
               <div className="bg-card rounded-lg p-4">
                 <h3 className="text-primary font-semibold mb-3 flex items-center gap-2">
-                  <IoLinkOutline className="w-5 h-5 text-third" />
-                  Invite Code
+                  Description
                 </h3>
-                <div className="flex flex-col gap-3">
-                  <code className="bg-primary px-3 py-2 rounded text-third font-mono text-sm break-all">
-                    {group?.inviteToken}
-                  </code>
-                  <button
-                    onClick={handleCopyInvite}
-                    className={`px-4 py-3 rounded-lg transition-all text-sm font-medium flex items-center justify-center gap-2 ${
-                      copied
-                        ? "bg-green-600 text-white"
-                        : "bg-third text-white hover:opacity-90"
-                    }`}
-                  >
-                    {copied ? (
-                      <>
-                        <IoCheckmark className="w-5 h-5" />
-                        Copied!
-                      </>
+                <p className="text-secondary text-sm leading-relaxed">
+                  {group?.description || "No description available."}
+                </p>
+              </div>
+
+              <div className="bg-card rounded-lg p-4">
+                <h3 className="text-primary font-semibold mb-3 flex items-center gap-2">
+                  <IoPersonOutline className="w-5 h-5 text-third" />
+                  Admin
+                </h3>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-700">
+                    {group?.admin?.avatar ? (
+                      <img
+                        src={group.admin.avatar}
+                        alt={group.admin.name}
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
-                      <>
-                        <IoCopyOutline className="w-5 h-5" />
-                        Copy Invite Message
-                      </>
+                      <div className="w-full h-full flex items-center justify-center text-white font-semibold text-lg">
+                        {group?.admin?.name?.charAt(0).toUpperCase()}
+                      </div>
                     )}
-                  </button>
+                  </div>
+                  <div>
+                    <p className="text-primary font-medium">
+                      {group?.admin?.name}
+                    </p>
+                    <p className="text-muted text-sm">Group creator</p>
+                  </div>
                 </div>
               </div>
-            )}
-          </div>
-        )}
 
-        {activeTab === "members" && (
-          <div className="space-y-3">
-            {group?.members?.map((member) => {
-              const role = getRoleBadge(member.user._id);
-              const roleColor = getRoleColor(role);
-              const isCurrentUser = user?._id === member.user._id;
+              <div className="bg-card rounded-lg p-4">
+                <h3 className="text-primary font-semibold mb-3 flex items-center gap-2">
+                  <FiCalendar className="w-5 h-5 text-third" />
+                  Created
+                </h3>
+                <p className="text-secondary text-sm">
+                  {group?.createdAt
+                    ? new Date(group.createdAt).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })
+                    : "Unknown"}
+                </p>
+              </div>
 
-              return (
-                <div
-                  key={member.user._id}
-                  className="bg-card rounded-lg p-4 flex items-center justify-between hover:bg-card-hover transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-700">
-                      {member.user.avatar ? (
-                        <img
-                          src={member.user.avatar}
-                          alt={member.user.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-white font-semibold text-lg">
-                          {member.user.name?.charAt(0).toUpperCase()}
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <h4 className="text-primary font-medium">
-                        {member.user.name}
-                        {isCurrentUser && (
-                          <span className="text-muted text-xs ml-2">(You)</span>
-                        )}
-                      </h4>
-                      <p className="text-muted text-xs">
-                        Joined{" "}
-                        {new Date(member.joinedAt).toLocaleDateString("en-US", {
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`${roleColor} text-white text-xs px-3 py-1 rounded-full font-medium`}
+              {isAdmin && (
+                <div className="bg-card rounded-lg p-4">
+                  <h3 className="text-primary font-semibold mb-3 flex items-center gap-2">
+                    <IoLinkOutline className="w-5 h-5 text-third" />
+                    Invite Code
+                  </h3>
+                  <div className="flex flex-col gap-3">
+                    <code className="bg-primary px-3 py-2 rounded text-third font-mono text-sm break-all">
+                      {group?.inviteToken}
+                    </code>
+                    <button
+                      onClick={handleCopyInvite}
+                      className={`px-4 py-3 rounded-lg transition-all text-sm font-medium flex items-center justify-center gap-2 ${
+                        copied
+                          ? "bg-green-600 text-white"
+                          : "bg-third text-white hover:opacity-90"
+                      }`}
                     >
-                      {role}
-                    </span>
-                    {isAdmin && member.user._id !== group.admin._id && (
-                      <button
-                        onClick={() => handleRemoveMember(member.user._id)}
-                        className="text-red-400 hover:text-red-300 text-xs px-2 py-1 hover:bg-red-500/10 rounded transition-colors"
-                      >
-                        Remove
-                      </button>
-                    )}
+                      {copied ? (
+                        <>
+                          <IoCheckmark className="w-5 h-5" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <IoCopyOutline className="w-5 h-5" />
+                          Copy Invite Message
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
-        {!isAdmin && (
-          <div className="mt-6">
-            <button
-              onClick={handleLeaveGroup}
-              className="w-full px-4 py-3 bg-transparent border border-red-600 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition font-medium"
-            >
-              Leave Group
-            </button>
-          </div>
-        )}
+              )}
+            </div>
+          )}
 
-        <BottomNavbar groupId={id} currentPage="details" />
+          {activeTab === "members" && (
+            <div className="space-y-3">
+              {group?.members?.map((member) => {
+                const role = getRoleBadge(member.user._id);
+                const roleColor = getRoleColor(role);
+                const isCurrentUser = user?._id === member.user._id;
+
+                return (
+                  <div
+                    key={member.user._id}
+                    className="bg-card rounded-lg p-4 flex items-center justify-between hover:bg-card-hover transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-700">
+                        {member.user.avatar ? (
+                          <img
+                            src={member.user.avatar}
+                            alt={member.user.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-white font-semibold text-lg">
+                            {member.user.name?.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <h4 className="text-primary font-medium">
+                          {member.user.name}
+                          {isCurrentUser && (
+                            <span className="text-muted text-xs ml-2">(You)</span>
+                          )}
+                        </h4>
+                        <p className="text-muted text-xs">
+                          Joined{" "}
+                          {new Date(member.joinedAt).toLocaleDateString("en-US", {
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`${roleColor} text-white text-xs px-3 py-1 rounded-full font-medium`}
+                      >
+                        {role}
+                      </span>
+                      {isAdmin && member.user._id !== group.admin._id && (
+                        <button
+                          onClick={() => handleRemoveMember(member.user._id)}
+                          className="text-red-400 hover:text-red-300 text-xs px-2 py-1 hover:bg-red-500/10 rounded transition-colors"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {!isAdmin && (
+            <div className="mt-6">
+              <button
+                onClick={() => setShowLeaveConfirm(true)}
+                disabled={isLeaving}
+                className="w-full px-4 py-3 bg-transparent border border-red-600 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition font-medium disabled:opacity-50"
+              >
+                Leave Group
+              </button>
+            </div>
+          )}
+
+          <BottomNavbar groupId={id} currentPage="details" />
+        </div>
       </div>
-    </div>
+
+      {/* ✅ Leave Group Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showLeaveConfirm}
+        onClose={() => setShowLeaveConfirm(false)}
+        onConfirm={handleLeaveGroup}
+        title="Leave Group"
+        message="Are you sure you want to leave this group? You'll need a new invite to rejoin."
+        confirmText="Leave"
+        isLoading={isLeaving}
+      />
+
+      {/* ✅ Alert Modal */}
+      <AlertModal
+        isOpen={alert.isOpen}
+        onClose={() => setAlert({ ...alert, isOpen: false })}
+        title={alert.title}
+        message={alert.message}
+        type={alert.type}
+        autoClose={alert.autoClose}
+      />
+    </>
   );
 }

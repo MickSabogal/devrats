@@ -18,7 +18,7 @@ export async function GET(req, { params }) {
 
     const group = await Group.findById(id).populate(
       "members.user",
-      "name avatar streak groupStreaks"
+      "name avatar groupStreaks"
     );
 
     if (!group) {
@@ -32,20 +32,6 @@ export async function GET(req, { params }) {
       user: { $in: userIds },
     }).select("user duration createdAt");
 
-    console.log("📊 Total posts found:", allPosts.length);
-
-    // --- 👇 AQUI começa o cálculo de streak ---
-    const today = new Date().toISOString().slice(0, 10);
-    const userDailyPosts = {};
-
-    allPosts.forEach((post) => {
-      const userId = post.user.toString();
-      const postDate = new Date(post.createdAt).toISOString().slice(0, 10);
-      if (!userDailyPosts[userId]) userDailyPosts[userId] = new Set();
-      userDailyPosts[userId].add(postDate);
-    });
-    // --- 👆 até aqui ---
-
     const userStats = {};
 
     allPosts.forEach((post) => {
@@ -55,20 +41,28 @@ export async function GET(req, { params }) {
         userStats[userId] = {
           totalMinutes: 0,
           postCount: 0,
+          uniqueDays: new Set(),
         };
       }
 
       const duration = parseInt(post.duration) || 0;
       userStats[userId].totalMinutes += duration;
       userStats[userId].postCount += 1;
+
+      const postDate = new Date(post.createdAt).toISOString().split("T")[0];
+      userStats[userId].uniqueDays.add(postDate);
     });
 
     const ranking = group.members.map((member) => {
       const userId = member.user._id.toString();
-      const stats = userStats[userId] || { totalMinutes: 0, postCount: 0 };
+      const stats = userStats[userId] || { totalMinutes: 0, postCount: 0, uniqueDays: new Set() };
 
-      // 👇 Novo cálculo de streak:
-      const streak = userDailyPosts[userId]?.has(today) ? 1 : 0;
+      const groupStreakData = member.user.groupStreaks?.get(id) || { 
+        streak: 0, 
+        totalPosts: 0 
+      };
+
+      const streak = stats.uniqueDays.size;
 
       const totalMinutes = stats.totalMinutes;
       const hours = Math.floor(totalMinutes / 60);
@@ -86,16 +80,10 @@ export async function GET(req, { params }) {
       };
     });
 
-    ranking.sort((a, b) => b.studyMinutes - a.studyMinutes);
-
-    console.log(
-      "🏆 Final ranking:",
-      ranking.map((r) => ({
-        name: r.name,
-        groupStreak: r.streak,
-        minutes: r.studyMinutes,
-      }))
-    );
+    ranking.sort((a, b) => {
+      if (b.streak !== a.streak) return b.streak - a.streak;
+      return b.studyMinutes - a.studyMinutes;
+    });
 
     return NextResponse.json({ success: true, ranking }, { status: 200 });
   } catch (error) {

@@ -2,8 +2,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import connectDB from "@/lib/mongodb";
-import Group from "@/models/Group";
-import { ObjectId } from "mongodb";
+import User from "@/models/User";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
@@ -15,20 +14,28 @@ export default async function Home() {
   try {
     await connectDB();
 
-    const userGroups = await Group.find({
-      $or: [
-        { "members.user": new ObjectId(session.user.id) },
-        { admin: new ObjectId(session.user.id) },
-      ],
-    }).lean();
+    const user = await User.findById(session.user.id)
+      .populate('userGroups')
+      .lean();
 
-    if (!userGroups || userGroups.length === 0) {
+    if (!user) {
+      redirect("/login");
+    }
+
+    const hasGroups = user.userGroups && user.userGroups.length > 0;
+
+    if (!hasGroups) {
       redirect("/dashboard/onboarding");
     }
 
-    const firstGroup = userGroups[0];
-    redirect(`/dashboard/groups/${firstGroup._id}/dashboard`);
+    if (user.activeGroup) {
+      redirect(`/dashboard/groups/${user.activeGroup}/dashboard`);
+    } else {
+      const firstGroup = user.userGroups[0];
+      redirect(`/dashboard/groups/${firstGroup._id}/dashboard`);
+    }
   } catch (error) {
+    console.error("Home redirect error:", error);
     redirect("/dashboard/onboarding");
   }
 

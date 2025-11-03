@@ -2,6 +2,9 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Group from '@/models/Group';
+import Post from '@/models/Post';
+import User from '@/models/User';
+import Message from '@/models/Message';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../auth/[...nextauth]/route';
 import { uploadToCloudinary, deleteFromCloudinary, extractPublicId } from '@/lib/cloudinary';
@@ -10,7 +13,7 @@ import { uploadToCloudinary, deleteFromCloudinary, extractPublicId } from '@/lib
 export async function GET(req, { params }) {
   try {
     await connectDB();
-    const { id } = await params; // ✅ await params em API
+    const { id } = await params;
     
     const group = await Group.findById(id)
       .populate('admin', 'name avatar streak')
@@ -70,7 +73,7 @@ export async function PATCH(req, { params }) {
       }
     }
 
-    // ✅ REMOVE MEMBER ACTION - ATUALIZADO
+    // ✅ REMOVE MEMBER ACTION
     if (action === 'remove-member' && memberId) {
       group.members = group.members.filter(m => m.user.toString() !== memberId);
       
@@ -146,34 +149,66 @@ export async function DELETE(req, { params }) {
     if (group.admin.toString() !== session.user.id)
       return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
 
+    console.log("🗑️ Deleting group:", group.name);
+
+    // ✅ 1. Deletar cover do Cloudinary (se existir)
     if (group.coverPicture) {
       const publicId = extractPublicId(group.coverPicture);
       if (publicId) {
+        console.log("🗑️ Deleting cover from Cloudinary:", publicId);
         await deleteFromCloudinary(publicId);
       }
     }
 
+    // ✅ 2. Deletar todas as imagens dos posts do Cloudinary
     const posts = await Post.find({ group: id });
+    console.log(`🗑️ Found ${posts.length} posts to delete`);
+    
     for (const post of posts) {
       if (post.image) {
         const postPublicId = extractPublicId(post.image);
         if (postPublicId) {
+          console.log("🗑️ Deleting post image from Cloudinary:", postPublicId);
           await deleteFromCloudinary(postPublicId);
         }
       }
-      
-      post.title = "[Deleted]";
-      post.content = "";
-      post.image = null;
-      post.metrics = {};
-      await post.save();
     }
 
+    // ✅ 3. Deletar todos os posts do grupo
+    await Post.deleteMany({ group: id });
+    console.log("✅ Posts deleted");
+
+    // ✅ 4. Deletar todas as mensagens do grupo
+    await Message.deleteMany({ group: id });
+    console.log("✅ Messages deleted");
+
+    // ✅ 5. Remover o grupo de todos os usuários
+    await User.updateMany(
+      { userGroups: id },
+      { 
+        $pull: { userGroups: id },
+        $unset: { [`groupStreaks.${id}`]: "" }
+      }
+    );
+    console.log("✅ Group removed from users");
+
+    // ✅ 6. Resetar activeGroup se for esse grupo
+    await User.updateMany(
+      { activeGroup: id },
+      { $set: { activeGroup: null } }
+    );
+    console.log("✅ Active groups reset");
+
+    // ✅ 7. Finalmente, deletar o grupo
     await group.deleteOne();
+    console.log("✅ Group deleted successfully");
 
     return NextResponse.json({ message: "Group deleted successfully" }, { status: 200 });
   } catch (err) {
-    console.error("DELETE /group/[id] error:", err);
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    console.error("❌ DELETE /group/[id] error:", err);
+    return NextResponse.json({ 
+      message: "Internal server error", 
+      error: err.message 
+    }, { status: 500 });
   }
 }

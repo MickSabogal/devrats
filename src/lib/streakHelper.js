@@ -54,10 +54,6 @@ export function calculatePersonalStreak(activityMap) {
   return streak;
 }
 
-export function calculateStreak(activityMap) {
-  return calculatePersonalStreak(activityMap);
-}
-
 export async function calculateGroupStreak(userId, groupId) {
   const Post = require("@/models/Post").default;
 
@@ -70,42 +66,24 @@ export async function calculateGroupStreak(userId, groupId) {
     .lean();
 
   if (posts.length === 0) {
-    return { streak: 0, checkIns: 0, lastPostDate: null };
+    return { 
+      streak: 0, 
+      totalPosts: 0, 
+      lastPostDate: null 
+    };
   }
 
   const uniqueDates = new Set(
     posts.map(p => new Date(p.createdAt).toISOString().split("T")[0])
   );
 
-  const checkIns = uniqueDates.size;
+  const streak = uniqueDates.size;
+  const totalPosts = posts.length;
   const lastPostDate = new Date(posts[0].createdAt);
 
-  const today = new Date().toISOString().split("T")[0];
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
-
-  const sortedDates = Array.from(uniqueDates).sort().reverse();
-
-  const hasRecentActivity = 
-    sortedDates.includes(today) || 
-    sortedDates.includes(yesterday);
-
-  if (!hasRecentActivity) {
-    return { streak: 0, checkIns, lastPostDate };
-  }
-
-  let streak = 0;
-  let checkDate = new Date(sortedDates[0]);
-
-  for (const dateStr of sortedDates) {
-    const currentDate = checkDate.toISOString().split("T")[0];
-    
-    if (dateStr === currentDate) {
-      streak++;
-      checkDate.setDate(checkDate.getDate() - 1);
-    } else {
-      break;
-    }
-  }
-
-  return { streak, checkIns, lastPostDate };
+  return { 
+    streak, 
+    totalPosts, 
+    lastPostDate 
+  };
 }

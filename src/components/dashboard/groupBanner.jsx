@@ -6,7 +6,6 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { IoPencil } from "react-icons/io5";
 import Avatar from "./UserAvatar";
-import ConfirmModal from "@/components/ui/ConfirmModal";
 import AlertModal from "@/components/ui/AlertModal";
 
 export default function GroupBanner({ user, group, onUpdate }) {
@@ -15,6 +14,7 @@ export default function GroupBanner({ user, group, onUpdate }) {
   const [showCoverUpload, setShowCoverUpload] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [leader, setLeader] = useState(null);
+  const [currentUserRank, setCurrentUserRank] = useState(null);
   const [alert, setAlert] = useState({
     isOpen: false,
     title: "",
@@ -34,10 +34,9 @@ export default function GroupBanner({ user, group, onUpdate }) {
 
   const isAdmin = session?.user?.id === group?.admin?._id?.toString();
 
-  // Fetch ranking data to get the correct leader
   useEffect(() => {
-    const fetchLeader = async () => {
-      if (!group?._id) return;
+    const fetchRanking = async () => {
+      if (!group?._id || !user?._id) return;
 
       try {
         const response = await fetch(`/api/group/${group._id}/ranking`);
@@ -45,14 +44,19 @@ export default function GroupBanner({ user, group, onUpdate }) {
 
         if (data.success && data.ranking && data.ranking.length > 0) {
           setLeader(data.ranking[0]);
+
+          const userRank = data.ranking.find(
+            (r) => r._id.toString() === user._id.toString()
+          );
+          setCurrentUserRank(userRank);
         }
       } catch (error) {
         console.error("Error fetching ranking:", error);
       }
     };
 
-    fetchLeader();
-  }, [group?._id]);
+    fetchRanking();
+  }, [group?._id, user?._id]);
 
   const handleCoverChange = async (e) => {
     const file = e.target.files?.[0];
@@ -100,8 +104,7 @@ export default function GroupBanner({ user, group, onUpdate }) {
   const coverPicture = group?.coverPicture || "/banner.png";
   const description = group?.description;
 
-  // Get streak from ranking data
-  const userStreak = user?.groupStreaks?.[group?._id?.toString()]?.streak || 0;
+  const userStreak = currentUserRank?.streak || 0;
   const leaderStreak = leader?.streak || 0;
 
   return (
@@ -140,11 +143,11 @@ export default function GroupBanner({ user, group, onUpdate }) {
             </div>
           )}
 
-          {user && (
+          {currentUserRank && (
             <div className="flex items-center">
               <Avatar
-                src={user.avatar || "/mock.png"}
-                name={user.name}
+                src={currentUserRank.avatar || "/mock.png"}
+                name={currentUserRank.name}
                 size={24}
               />
               <div className="ml-2">

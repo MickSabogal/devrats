@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { TiPlus } from "react-icons/ti";
 import { BiMenuAltLeft } from "react-icons/bi";
+import { IoFlashOutline } from "react-icons/io5";
 import Sidebar from "@/components/dashboard/sideBar";
 import BottomNavbar from "@/components/dashboard/bottomNavBar";
 import GroupBanner from "@/components/dashboard/groupBanner";
@@ -23,6 +24,10 @@ export default function GroupDashboard() {
   const [group, setGroup] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [rotateButton, setRotateButton] = useState(false);
+
+  // ✅ CORRIGIDO - Pegar o streak do grupo específico
+  const groupStreak = user?.groupStreaks?.[groupId]?.streak || 0;
 
   const fetchUser = async () => {
     try {
@@ -83,6 +88,14 @@ export default function GroupDashboard() {
     await fetchUser();
   };
 
+  const handleAddClick = () => {
+    setRotateButton(true);
+    setTimeout(() => {
+      setRotateButton(false);
+      setIsModalOpen(true);
+    }, 300);
+  };
+
   if (loading) {
     return (
       <div className="bg-primary min-h-screen flex items-center justify-center">
@@ -92,32 +105,43 @@ export default function GroupDashboard() {
   }
 
   return (
-    <div className="bg-primary min-h-screen">
+    <div className="bg-gradient-to-br from-gray-900 via-primary to-gray-900 min-h-screen">
       <div className="max-w-md mx-auto relative min-h-screen px-6 pt-6 pb-28">
         <Sidebar isOpen={isOpen} onClose={() => setIsOpen(false)} user={user} />
 
-        <div>
-          <div className="flex items-center -m-2 mb-4">
-            <button
-              onClick={() => setIsOpen(true)}
-              className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-white/10 transition-colors"
-            >
-              <BiMenuAltLeft className="w-8 h-8 text-primary" />
-            </button>
-          </div>
+        {/* ✅ HEADER COM GRADIENTE */}
+        <div className="flex items-center justify-between mb-6">
+          <button
+            onClick={() => setIsOpen(true)}
+            className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 backdrop-blur-sm transition-all hover:scale-105"
+          >
+            <BiMenuAltLeft className="w-8 h-8 text-white" />
+          </button>
 
-          <h1 className="text-xl font-bold text-primary mb-4">
+          {/* ✅ CORRIGIDO - Mostrar streak do grupo, não global */}
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-third/20 to-emerald-500/20 border border-third/30">
+            <IoFlashOutline className="w-5 h-5 text-third" />
+            <span className="text-white font-bold">{groupStreak}</span>
+            <span className="text-gray-400 text-sm">streak</span>
+          </div>
+        </div>
+
+        {/* ✅ TÍTULO DO GRUPO COM GRADIENTE */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-white via-green-100 to-emerald-200 bg-clip-text text-transparent mb-2">
             {group?.name || "Group"}
           </h1>
+          <div className="h-1 w-20 bg-gradient-to-r from-third to-emerald-500 rounded-full" />
+        </div>
 
-          <GroupBanner
-            user={user}
-            group={group}
-            onUpdate={fetchGroupAndPosts}
-          />
-          
-          <div className="w-full text-center mt-4 mb-6">
-            <p className="text-muted text-sm">
+        {/* ✅ BANNER DO GRUPO */}
+        <GroupBanner user={user} group={group} onUpdate={fetchGroupAndPosts} />
+
+        {/* ✅ DATA COM ESTILO */}
+        <div className="w-full text-center mt-6 mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+            <div className="w-2 h-2 rounded-full bg-third animate-pulse" />
+            <p className="text-gray-300 text-sm font-medium">
               {new Date().toLocaleDateString("en-US", {
                 weekday: "long",
                 month: "long",
@@ -125,57 +149,100 @@ export default function GroupDashboard() {
               })}
             </p>
           </div>
-
-          {posts.length === 0 ? (
-            <div className="bg-card rounded-lg p-8 text-center mt-6">
-              <div className="flex flex-col items-center gap-3">
-                <p className="text-secondary font-medium">No posts yet</p>
-                <p className="text-muted text-sm">
-                  Be the first to share something!
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {posts.map((post) => (
-                <EventCard
-                  key={post._id}
-                  user={post.user || { name: "Unknown User", avatar: null }}
-                  eventTitle={post.title}
-                  eventImage={post.image}
-                  eventTime={
-                    post.createdAt
-                      ? new Date(post.createdAt).toLocaleTimeString("en-US", {
-                          hour: "numeric",
-                          minute: "2-digit",
-                          hour12: true,
-                        })
-                      : "Unknown time"
-                  }
-                  postId={post._id}
-                  onDelete={handlePostDeleted}
-                />
-              ))}
-            </div>
-          )}
         </div>
 
+        {posts.length === 0 ? (
+          /* ✅ NO POSTS - SUPER ESTILIZADO */
+          <div className="relative group">
+            {/* Glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-third/20 to-emerald-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all" />
+            <div className="relative bg-gradient-to-br from-gray-800/50 via-gray-900/50 to-gray-800/50 border border-third/30 rounded-2xl p-8 text-center backdrop-blur-sm">
+              <div className="flex flex-col items-center gap-4">
+                {/* Icon com animação */}
+                <div className="relative">
+                  <div className="absolute inset-0 bg-third/30 rounded-full blur-lg animate-pulse" />
+                </div>
+                <div className="space-y-2">
+                  <p className="text-white font-bold text-xl">No posts yet</p>
+                  <p className="text-gray-300 text-sm max-w-xs">
+                    Be the first to share your coding journey!
+                  </p>
+                </div>
+                {/* Decorative lines */}
+                <div className="flex items-center gap-2 mt-2">
+                  <div className="h-px w-12 bg-gradient-to-r from-transparent to-third/50" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-third" />
+                  <div className="h-px w-12 bg-gradient-to-l from-transparent to-third/50" />
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* ✅ POSTS COM ESTILO MELHORADO */
+          <div className="space-y-3">
+            {posts.map((post) => (
+              <div key={post._id} className="group relative">
+                {/* Subtle glow on hover */}
+                <div className="absolute inset-0 bg-gradient-to-r from-third/0 via-third/5 to-third/0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity blur-sm" />
+                <div className="relative">
+                  <EventCard
+                    user={post.user || { name: "Unknown User", avatar: null }}
+                    eventTitle={post.title}
+                    eventImage={post.image}
+                    eventTime={
+                      post.createdAt
+                        ? new Date(post.createdAt).toLocaleTimeString("en-US", {
+                            hour: "numeric",
+                            minute: "2-digit",
+                            hour12: true,
+                          })
+                        : "Unknown time"
+                    }
+                    postId={post._id}
+                    onDelete={handlePostDeleted}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="fixed bottom-24 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-20 flex justify-end px-6">
+        {/* Glow effect */}
+        <div className="absolute bottom-0 right-6 bg-third/50 rounded-full blur-xl animate-pulse w-16 h-16" />
         <button
-          onClick={() => setIsModalOpen(true)}
-          className="fixed bottom-24 right-6 bg-third text-white text-3xl w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 z-10 hover:rotate-90"
+          onClick={handleAddClick}
+          className={`relative bg-gradient-to-br from-third to-emerald-600 text-white text-3xl w-16 h-16 rounded-full flex items-center justify-center shadow-2xl shadow-third/50 hover:scale-110 active:scale-95 transition-all duration-200 border-2 border-white/20 ${
+            rotateButton ? "animate-spin-once" : ""
+          }`}
         >
           <TiPlus />
         </button>
-
-        <BottomNavbar groupId={id} />
-
-        <AddEventModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onPostCreated={handlePostCreated}
-          groupId={groupId}
-        />
       </div>
+
+      <BottomNavbar groupId={id} />
+
+      <AddEventModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onPostCreated={handlePostCreated}
+        groupId={groupId}
+      />
+
+      <style jsx>{`
+        @keyframes spin-once {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(90deg);
+          }
+        }
+        .animate-spin-once {
+          animation: spin-once 0.3s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 }
