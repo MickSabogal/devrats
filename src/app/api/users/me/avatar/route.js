@@ -21,10 +21,8 @@ export async function POST(req) {
       return NextResponse.json({ message: "No avatar provided" }, { status: 400 });
     }
 
-    // Buscar usuário atual
     const currentUser = await User.findOne({ email: session.user.email });
     
-    // Deletar avatar antigo do Cloudinary se existir
     if (currentUser?.avatar && currentUser.avatar !== "/images/default-avatar.png") {
       const oldPublicId = extractPublicId(currentUser.avatar);
       if (oldPublicId) {
@@ -32,14 +30,12 @@ export async function POST(req) {
       }
     }
 
-    // Upload para Cloudinary
     const { url } = await uploadToCloudinary(
       avatar,
       'avatars',
       `user_${currentUser._id}` // ID único para cada usuário
     );
 
-    // Atualizar no banco
     const user = await User.findOneAndUpdate(
       { email: session.user.email },
       { avatar: url },

@@ -6,7 +6,7 @@ const groupSchema = new Schema(
   {
     name: { type: String, required: true },
     description: { type: String, required: true },
-    coverPicture: { type: String, default: "" }, // link
+    coverPicture: { type: String, default: "" },
     admin: { type: Types.ObjectId, ref: "User", required: true },
     members: [
       {
@@ -18,10 +18,10 @@ const groupSchema = new Schema(
     inviteToken: {
       type: String,
       unique: true,
-      default: () => crypto.randomBytes(3).toString("hex"), // 6 caracteres
+      default: () => crypto.randomBytes(3).toString("hex"),
     },
   },
-  { timestamps: true } // createdAt and updatedAt
+  { timestamps: true }
 );
 
 module.exports = mongoose.models.Group || mongoose.model("Group", groupSchema);

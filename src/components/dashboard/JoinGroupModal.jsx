@@ -30,19 +30,16 @@ export default function JoinGroupModal({ isOpen, onClose, onGroupJoined }) {
   const extractToken = (input) => {
     const trimmed = input.trim();
 
-    // Se for apenas o token (hash)
     if (!trimmed.includes("/") && !trimmed.includes("http")) {
       return trimmed;
     }
 
-    // Se for um link completo, extrair o token
     try {
       const url = new URL(trimmed);
       const pathParts = url.pathname.split("/");
       const token = pathParts[pathParts.length - 1];
       return token;
     } catch {
-      // Se falhar ao fazer parse como URL, tentar extrair manualmente
       const parts = trimmed.split("/");
       return parts[parts.length - 1];
     }

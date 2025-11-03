@@ -26,7 +26,6 @@ export default function GroupDashboard() {
   const [loading, setLoading] = useState(true);
   const [rotateButton, setRotateButton] = useState(false);
 
-  // ✅ CORRIGIDO - Pegar o streak do grupo específico
   const groupStreak = user?.groupStreaks?.[groupId]?.streak || 0;
 
   const fetchUser = async () => {
@@ -109,7 +108,6 @@ export default function GroupDashboard() {
       <div className="max-w-md mx-auto relative min-h-screen px-6 pt-6 pb-28">
         <Sidebar isOpen={isOpen} onClose={() => setIsOpen(false)} user={user} />
 
-        {/* ✅ HEADER COM GRADIENTE */}
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => setIsOpen(true)}
@@ -118,7 +116,6 @@ export default function GroupDashboard() {
             <BiMenuAltLeft className="w-8 h-8 text-white" />
           </button>
 
-          {/* ✅ CORRIGIDO - Mostrar streak do grupo, não global */}
           <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-third/20 to-emerald-500/20 border border-third/30">
             <IoFlashOutline className="w-5 h-5 text-third" />
             <span className="text-white font-bold">{groupStreak}</span>
@@ -126,7 +123,6 @@ export default function GroupDashboard() {
           </div>
         </div>
 
-        {/* ✅ TÍTULO DO GRUPO COM GRADIENTE */}
         <div className="mb-6">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-white via-green-100 to-emerald-200 bg-clip-text text-transparent mb-2">
             {group?.name || "Group"}
@@ -134,10 +130,8 @@ export default function GroupDashboard() {
           <div className="h-1 w-20 bg-gradient-to-r from-third to-emerald-500 rounded-full" />
         </div>
 
-        {/* ✅ BANNER DO GRUPO */}
         <GroupBanner user={user} group={group} onUpdate={fetchGroupAndPosts} />
 
-        {/* ✅ DATA COM ESTILO */}
         <div className="w-full text-center mt-6 mb-6">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
             <div className="w-2 h-2 rounded-full bg-third animate-pulse" />
@@ -152,13 +146,10 @@ export default function GroupDashboard() {
         </div>
 
         {posts.length === 0 ? (
-          /* ✅ NO POSTS - SUPER ESTILIZADO */
           <div className="relative group">
-            {/* Glow effect */}
             <div className="absolute inset-0 bg-gradient-to-r from-third/20 to-emerald-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all" />
             <div className="relative bg-gradient-to-br from-gray-800/50 via-gray-900/50 to-gray-800/50 border border-third/30 rounded-2xl p-8 text-center backdrop-blur-sm">
               <div className="flex flex-col items-center gap-4">
-                {/* Icon com animação */}
                 <div className="relative">
                   <div className="absolute inset-0 bg-third/30 rounded-full blur-lg animate-pulse" />
                 </div>
@@ -168,7 +159,6 @@ export default function GroupDashboard() {
                     Be the first to share your coding journey!
                   </p>
                 </div>
-                {/* Decorative lines */}
                 <div className="flex items-center gap-2 mt-2">
                   <div className="h-px w-12 bg-gradient-to-r from-transparent to-third/50" />
                   <div className="w-1.5 h-1.5 rounded-full bg-third" />
@@ -178,11 +168,9 @@ export default function GroupDashboard() {
             </div>
           </div>
         ) : (
-          /* ✅ POSTS COM ESTILO MELHORADO */
           <div className="space-y-3">
             {posts.map((post) => (
               <div key={post._id} className="group relative">
-                {/* Subtle glow on hover */}
                 <div className="absolute inset-0 bg-gradient-to-r from-third/0 via-third/5 to-third/0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity blur-sm" />
                 <div className="relative">
                   <EventCard
@@ -209,7 +197,6 @@ export default function GroupDashboard() {
       </div>
 
       <div className="fixed bottom-24 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-20 flex justify-end px-6">
-        {/* Glow effect */}
         <div className="absolute bottom-0 right-6 bg-third/50 rounded-full blur-xl animate-pulse w-16 h-16" />
         <button
           onClick={handleAddClick}

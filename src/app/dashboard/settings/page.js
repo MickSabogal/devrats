@@ -90,7 +90,6 @@ export default function SettingsPage() {
           <DeleteAccountModal
             onClose={() => setShowDeleteModal(false)}
             onConfirm={() => {
-              console.log("Delete account");
             }}
           />
         )}

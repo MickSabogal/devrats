@@ -14,7 +14,6 @@ export default async function connectDB() {
     try {
         const db = await mongoose.connect(MONGODB_URI);
         isConnected = db.connections[0].readyState;
-        console.log("✅ MongoDB connected successfully");
     } catch (error) {
         console.error("❌ MongoDB connection error:", error);
         throw new Error("Failed to connect to MongoDB");

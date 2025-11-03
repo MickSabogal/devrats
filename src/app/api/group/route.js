@@ -7,7 +7,6 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]/route';
 import { uploadToCloudinary } from '@/lib/cloudinary';
 
-// POST - Criar novo grupo
 export async function POST(req) {
   try {
     const session = await getServerSession(authOptions);
@@ -33,7 +32,6 @@ export async function POST(req) {
 
     let coverPictureUrl = '';
 
-    // Upload cover picture para Cloudinary se fornecida
     if (coverPicture && coverPicture.startsWith('data:')) {
       const { url } = await uploadToCloudinary(
         coverPicture,
@@ -68,7 +66,6 @@ export async function POST(req) {
   }
 }
 
-// GET - Buscar todos os grupos do usuário
 export async function GET(req) {
   try {
     const session = await getServerSession(authOptions);

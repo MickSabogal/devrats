@@ -92,11 +92,9 @@ export default function OnboardingPage() {
     <>
       <Sidebar isOpen={isOpen} onClose={() => setIsOpen(false)} user={user} />
 
-      {/* ✅ FIXED HEIGHT - sem scroll */}
       <div className="h-screen bg-primary flex flex-col overflow-hidden">
-        <div className="max-w-md mx-auto w-full h-full flex flex-col">
-          {/* Header fixo */}
-          <div className="flex items-center p-4 flex-shrink-0">
+        <div className="max-w-md mx-auto w-full h-full flex flex-col p-6">
+          <div className="flex items-center mb-6">
             <button
               onClick={() => setIsOpen(true)}
               className="flex items-center justify-center w-10 h-10 rounded-lg transition-colors"
@@ -105,17 +103,16 @@ export default function OnboardingPage() {
             </button>
           </div>
 
-          {/* Conteúdo central com flex-grow */}
-          <div className="flex-1 flex flex-col justify-center items-center px-6 space-y-6 min-h-0">
-            {/* Terminal - altura fixa */}
-            <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-4 border border-gray-800 w-full h-[140px] flex flex-col justify-start overflow-hidden">
+          <div className="flex flex-col flex-1">
+            {/* Terminal */}
+            <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-800 h-[180px] flex flex-col justify-start mb-6">
               {displayedLines.map((line, index) => (
-                <div key={index} className="flex items-start gap-2 mb-1.5">
-                  <span className="text-green-500 font-mono text-xs flex-shrink-0">
+                <div key={index} className="flex items-start gap-2 mb-2">
+                  <span className="text-green-500 font-mono text-sm flex-shrink-0">
                     $
                   </span>
                   {line.complete ? (
-                    <span className="text-green-400 font-mono text-xs leading-tight">
+                    <span className="text-green-400 font-mono text-sm leading-tight">
                       {line.text}
                     </span>
                   ) : (
@@ -125,29 +122,29 @@ export default function OnboardingPage() {
                       showCursor
                       keepCursorAfterComplete
                       onComplete={() => handleLineComplete(index)}
-                      className="text-green-400 font-mono text-xs leading-tight"
-                      cursorClassName="inline-block w-1.5 h-3 bg-green-400 ml-0.5"
+                      className="text-green-400 font-mono text-sm leading-tight"
+                      cursorClassName="inline-block w-2 h-4 bg-green-400 ml-1"
                     />
                   )}
                 </div>
               ))}
             </div>
 
-            {/* Image - altura responsiva */}
-            <div className="flex justify-center items-center w-full max-h-[200px]">
+            {/* Image */}
+            <div className="flex justify-center items-center my-6">
               <img
                 src="/images/onboarding.png"
                 alt="DevRats"
-                className="max-w-full max-h-full object-contain"
+                className="max-w-full max-h-100 object-contain"
               />
             </div>
 
-            {/* Buttons - altura fixa */}
+            {/* Buttons */}
             {showButtons && (
-              <div className="space-y-3 animate-fade-in w-full">
+              <div className="space-y-4 animate-fade-in pb-6">
                 <Button
                   fullWidth
-                  size="md"
+                  size="lg"
                   variant="primary"
                   icon={IoAddCircleOutline}
                   onClick={() => setIsCreateGroupModalOpen(true)}
@@ -157,7 +154,7 @@ export default function OnboardingPage() {
 
                 <Button
                   fullWidth
-                  size="md"
+                  size="lg"
                   variant="greenOutline"
                   icon={HiUserGroup}
                   onClick={() => setIsJoinGroupModalOpen(true)}

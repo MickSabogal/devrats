@@ -198,13 +198,6 @@ export default function AddEventModal({
         };
       }
 
-      console.log("📤 Sending post data:", {
-        title: postData.title,
-        duration: postData.duration,
-        hasImage: !!postData.image,
-      });
-
-      // ✅ CORRIGIDO - rota correta
       const response = await fetch(`/api/group/${groupId}/post`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -212,7 +205,6 @@ export default function AddEventModal({
       });
 
       const data = await response.json();
-      console.log("📥 Response:", data);
 
       if (data.success) {
         showAlert(

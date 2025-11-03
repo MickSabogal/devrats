@@ -28,6 +28,10 @@ export default function GroupDetailsPage() {
   const [copied, setCopied] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
+  
+  const [memberToRemove, setMemberToRemove] = useState(null);
+  const [isRemoving, setIsRemoving] = useState(false);
+  
   const [alert, setAlert] = useState({
     isOpen: false,
     title: "",
@@ -93,7 +97,8 @@ export default function GroupDetailsPage() {
   };
 
   const handleCopyInvite = () => {
-    const inviteText = `💻 Bora codar juntos no Dev Rats!\nEntra no grupo com esse código e vem participar da colônia 👇\n\n 🔗${group?.inviteToken} \n\n devrats.vercel.app/dashboard/onboarding`;
+    const inviteText = `💻 Let's code together at DevRats!
+Join the group with this code and be part of the colony! 👇\n\n 🔗${group?.inviteToken} \n\n devrats.vercel.app/dashboard/onboarding`;
     
     navigator.clipboard.writeText(inviteText);
     setCopied(true);
@@ -115,8 +120,14 @@ export default function GroupDetailsPage() {
 
   const isAdmin = user && group && group.admin._id === user._id;
 
-  const handleRemoveMember = async (memberId) => {
-    if (!confirm("Are you sure you want to remove this member?")) return;
+  const confirmRemoveMember = (member) => {
+    setMemberToRemove(member);
+  };
+
+  const handleRemoveMember = async () => {
+    if (!memberToRemove) return;
+
+    setIsRemoving(true);
 
     try {
       const res = await fetch(`/api/group/${id}`, {
@@ -124,20 +135,23 @@ export default function GroupDetailsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "remove-member",
-          memberId: memberId,
+          memberId: memberToRemove.user._id,
         }),
       });
 
       if (res.ok) {
         const updatedGroup = await res.json();
         setGroup(updatedGroup);
-        showAlert("Success", "Member removed successfully", "success");
+        showAlert("Success", "Member removed successfully", "success", true);
       } else {
         showAlert("Error", "Failed to remove member", "error");
       }
     } catch (error) {
       console.error("Error removing member:", error);
       showAlert("Error", "Failed to remove member", "error");
+    } finally {
+      setIsRemoving(false);
+      setMemberToRemove(null);
     }
   };
 
@@ -355,7 +369,7 @@ export default function GroupDetailsPage() {
                       </span>
                       {isAdmin && member.user._id !== group.admin._id && (
                         <button
-                          onClick={() => handleRemoveMember(member.user._id)}
+                          onClick={() => confirmRemoveMember(member)}
                           className="text-red-400 hover:text-red-300 text-xs px-2 py-1 hover:bg-red-500/10 rounded transition-colors"
                         >
                           Remove
@@ -384,7 +398,18 @@ export default function GroupDetailsPage() {
         </div>
       </div>
 
-      {/* ✅ Leave Group Confirmation Modal */}
+      {/* ✅ NOVO: Modal para remover membro */}
+      <ConfirmModal
+        isOpen={!!memberToRemove}
+        onClose={() => setMemberToRemove(null)}
+        onConfirm={handleRemoveMember}
+        title="Remove Member"
+        message={`Are you sure you want to remove ${memberToRemove?.user?.name} from this group? They will need a new invite to rejoin.`}
+        confirmText="Remove"
+        isLoading={isRemoving}
+      />
+
+      {/* ✅ Modal para sair do grupo */}
       <ConfirmModal
         isOpen={showLeaveConfirm}
         onClose={() => setShowLeaveConfirm(false)}

@@ -37,7 +37,7 @@ export default function DashboardHome() {
           const groupsData = await resGroups.json();
           if (Array.isArray(groupsData)) {
             setGroups(groupsData);
-            
+
             if (groupsData.length === 0) {
               router.replace("/dashboard/onboarding");
               return;
@@ -85,19 +85,34 @@ export default function DashboardHome() {
           <div className="w-10"></div>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-6">
-          <h2 className="text-xl font-bold text-white mb-2">
-            Welcome back, {user?.name || "User"}!
-          </h2>
-          <p className="text-gray-300 text-sm">
-            You have {groups.length} group{groups.length > 1 ? "s" : ""}
-          </p>
+        <div className="relative group my-6">
+          {/* Glow effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all" />
+
+          <div className="relative bg-green-600/20 border border-green-500/30 rounded-3xl p-6 text-center backdrop-blur-sm">
+            <div className="flex flex-col items-center gap-3">
+              {/* Header */}
+              <h2 className="text-2xl font-bold text-white">
+                Welcome back, {user?.name || "User"}!
+              </h2>
+
+              {/* Subtext */}
+              <p className="text-gray-300 text-sm">
+                You have {groups.length} group{groups.length > 1 ? "s" : ""}
+              </p>
+
+              {/* Decorative lines */}
+              <div className="flex items-center gap-2 mt-2">
+                <div className="h-px w-12 bg-gradient-to-r from-transparent to-green-500/50" />
+                <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                <div className="h-px w-12 bg-gradient-to-l from-transparent to-green-500/50" />
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-white mb-4">
-            Your Groups
-          </h3>
+        <div className="mb-10">
+          <h3 className="text-lg font-semibold text-white mb-6">Your Groups</h3>
           <div className="space-y-3">
             {groups.map((group) => (
               <Link

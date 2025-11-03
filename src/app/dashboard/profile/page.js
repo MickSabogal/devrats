@@ -97,7 +97,6 @@ export default function ProfilePage() {
           </div>
 
           <div className="relative z-10 px-6 mt-8 text-left">
-            {/* ✅ TypingText com letra maior, mais devagar, cursor continua piscando */}
             <div className="mb-4">
               <TypingText
                 text="Welcome back!"

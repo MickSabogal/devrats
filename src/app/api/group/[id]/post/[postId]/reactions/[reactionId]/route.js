@@ -4,7 +4,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import Reaction from "@/models/Reaction";
 
-// PUT — Update a reaction type
 export async function PUT(req, { params }) {
   try {
     await connectDB();
@@ -18,7 +17,6 @@ export async function PUT(req, { params }) {
     if (!reaction)
       return NextResponse.json({ message: "Reaction not found" }, { status: 404 });
 
-    // Only owner can edit
     if (reaction.user.toString() !== session.user.id) {
       return NextResponse.json(
         { message: "You are not allowed to edit this reaction" },
@@ -51,7 +49,6 @@ export async function PUT(req, { params }) {
   }
 }
 
-// DELETE — Remove a reaction
 export async function DELETE(req, { params }) {
   try {
     await connectDB();
@@ -65,7 +62,6 @@ export async function DELETE(req, { params }) {
     if (!reaction)
       return NextResponse.json({ message: "Reaction not found" }, { status: 404 });
 
-    // Only owner can delete
     if (reaction.user.toString() !== session.user.id) {
       return NextResponse.json(
         { message: "You are not allowed to delete this reaction" },

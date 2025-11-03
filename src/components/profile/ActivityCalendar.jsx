@@ -19,38 +19,20 @@ export default function ActivityCalendar({ userId }) {
         if (res.ok) {
           const data = await res.json();
 
-          console.log("📊 RAW Activity Data:", data);
-
           setStreak(data.streak || 0);
 
           const currentMonth = currentDate.getMonth();
           const currentYear = currentDate.getFullYear();
 
-          console.log("📅 Current viewing:", {
-            month: currentMonth,
-            year: currentYear,
-            monthName: currentDate.toLocaleDateString('en-US', { month: 'long' })
-          });
-
-          // ✅ Pega todos os dias com atividade EXCETO o dia de hoje
           const today = new Date();
           const todayStr = today.toISOString().split('T')[0];
 
           const daysInCurrentMonth = Object.keys(data.activity || {})
             .filter((dateString) => {
-              // Ignora o dia de hoje - ele sempre mostra o ratinho
               if (dateString === todayStr) return false;
 
               const date = new Date(dateString + 'T00:00:00');
               
-              console.log("🔍 Checking date:", {
-                dateString,
-                parsed: date,
-                parsedMonth: date.getMonth(),
-                parsedYear: date.getFullYear(),
-                matches: date.getMonth() === currentMonth && date.getFullYear() === currentYear
-              });
-
               return (
                 date.getMonth() === currentMonth &&
                 date.getFullYear() === currentYear
@@ -59,18 +41,8 @@ export default function ActivityCalendar({ userId }) {
             .map((dateString) => {
               const date = new Date(dateString + 'T00:00:00');
               const day = date.getDate();
-              console.log("⭐ Marked day:", day, "from", dateString);
               return day;
             });
-
-          console.log("📊 Calendar Debug:", {
-            totalActivityDates: Object.keys(data.activity || {}).length,
-            activityDates: Object.keys(data.activity || {}),
-            daysInCurrentMonth,
-            currentMonth,
-            currentYear,
-            todayExcluded: todayStr
-          });
 
           setActivityDays(daysInCurrentMonth);
         }
@@ -297,7 +269,6 @@ export default function ActivityCalendar({ userId }) {
           </>
         )}
 
-        {/* 🔹 Legend */}
         <div className="flex items-center justify-center gap-6 mt-6 text-base">
           <div className="flex items-center gap-2">
             <Image

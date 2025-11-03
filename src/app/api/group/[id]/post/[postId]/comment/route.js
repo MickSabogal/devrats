@@ -6,19 +6,16 @@ import Group from "@/models/Group";
 import Post from "@/models/Post";
 import Comment from "@/models/Comment";
 
-// GET — list all comments for a specific post
 export async function GET(req, { params }) {
   try {
     await connectDB();
     const { groupId, postId } = await params;
 
-    // Verify group exists
     const group = await Group.findById(groupId);
     if (!group) {
       return NextResponse.json({ message: "Group not found" }, { status: 404 });
     }
 
-    // Verify post exists
     const post = await Post.findById(postId).populate({
       path: "comments",
       populate: { path: "user", select: "name avatar" },
@@ -38,7 +35,6 @@ export async function GET(req, { params }) {
   }
 }
 
-// POST — create a comment under a specific post
 export async function POST(req, { params }) {
   try {
     await connectDB();
@@ -55,7 +51,6 @@ export async function POST(req, { params }) {
       return NextResponse.json({ message: "Comment text is required" }, { status: 400 });
     }
 
-    // Verify group and post
     const group = await Group.findById(groupId);
     if (!group) {
       return NextResponse.json({ message: "Group not found" }, { status: 404 });
@@ -66,14 +61,12 @@ export async function POST(req, { params }) {
       return NextResponse.json({ message: "Post not found" }, { status: 404 });
     }
 
-    // Create new comment
     const comment = await Comment.create({
       user: session.user.id,
       post: postId,
       text,
     });
 
-    // Add comment reference to the post
     post.comments.push(comment._id);
     await post.save();
 

@@ -6,7 +6,6 @@ import Group from "@/models/Group";
 import Post from "@/models/Post";
 import Comment from "@/models/Comment";
 
-// PUT — update a specific comment
 export async function PUT(req, { params }) {
   try {
     await connectDB();
@@ -23,7 +22,6 @@ export async function PUT(req, { params }) {
       return NextResponse.json({ message: "Comment text is required" }, { status: 400 });
     }
 
-    // Check group, post, and comment existence
     const group = await Group.findById(groupId);
     if (!group) return NextResponse.json({ message: "Group not found" }, { status: 404 });
 
@@ -33,7 +31,6 @@ export async function PUT(req, { params }) {
     const comment = await Comment.findById(commentId);
     if (!comment) return NextResponse.json({ message: "Comment not found" }, { status: 404 });
 
-    // Only comment owner can edit
     if (comment.user.toString() !== session.user.id) {
       return NextResponse.json({ message: "You are not allowed to edit this comment" }, { status: 403 });
     }
@@ -48,7 +45,6 @@ export async function PUT(req, { params }) {
   }
 }
 
-// DELETE — delete a specific comment
 export async function DELETE(req, { params }) {
   try {
     await connectDB();
@@ -59,7 +55,6 @@ export async function DELETE(req, { params }) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // Check group, post, and comment existence
     const group = await Group.findById(groupId);
     if (!group) return NextResponse.json({ message: "Group not found" }, { status: 404 });
 
@@ -69,14 +64,12 @@ export async function DELETE(req, { params }) {
     const comment = await Comment.findById(commentId);
     if (!comment) return NextResponse.json({ message: "Comment not found" }, { status: 404 });
 
-    // Only comment owner can delete
     if (comment.user.toString() !== session.user.id) {
       return NextResponse.json({ message: "You are not allowed to delete this comment" }, { status: 403 });
     }
 
     await comment.deleteOne();
 
-    // Remove comment reference from post
     post.comments = post.comments.filter(
       (cId) => cId.toString() !== commentId
     );

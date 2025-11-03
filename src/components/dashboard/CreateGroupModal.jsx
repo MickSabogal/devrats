@@ -121,9 +121,9 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }) {
 
         setTimeout(() => {
           resetForm();
-          onClose(); // ✅ FECHA MODAL ANTES
+          onClose();
           if (onGroupCreated) {
-            onGroupCreated(data); // ✅ E SÓ DEPOIS CHAMA CALLBACK
+            onGroupCreated(data);
           }
         }, 100);
       } else {

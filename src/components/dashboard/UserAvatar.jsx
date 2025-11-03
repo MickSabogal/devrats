@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 
-// Avatar component: displays image or first letter of name if image fails
 export default function Avatar({ src, name, size = 32 }) {
   const [imgError, setImgError] = useState(false);
 

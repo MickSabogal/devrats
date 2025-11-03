@@ -5,19 +5,16 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import Post from "@/models/Post";
 import Group from "@/models/Group";
 
-// GET — fetch a single post within a group
 export async function GET(req, { params }) {
   try {
     await connectDB();
     const { groupId, postId } = await params;
 
-    // Verify group exists
     const group = await Group.findById(groupId);
     if (!group) {
       return NextResponse.json({ message: "Group not found" }, { status: 404 });
     }
 
-    // Find post
     const post = await Post.findById(postId)
       .populate("user", "name avatar")
       .populate("comments")
@@ -34,7 +31,6 @@ export async function GET(req, { params }) {
   }
 }
 
-// PUT — update a post
 export async function PUT(req, { params }) {
   try {
     await connectDB();
@@ -50,14 +46,12 @@ export async function PUT(req, { params }) {
       return NextResponse.json({ message: "Post not found" }, { status: 404 });
     }
 
-    // Only post owner can update
     if (post.user.toString() !== session.user.id) {
       return NextResponse.json({ message: "You are not allowed to edit this post" }, { status: 403 });
     }
 
     const { title, image, content } = await req.json();
 
-    // Validate mandatory fields
     if (!title || !image) {
       return NextResponse.json({ message: "Title and image are required" }, { status: 400 });
     }
@@ -75,7 +69,6 @@ export async function PUT(req, { params }) {
   }
 }
 
-// DELETE — delete a post
 export async function DELETE(req, { params }) {
   try {
     await connectDB();
@@ -91,7 +84,6 @@ export async function DELETE(req, { params }) {
       return NextResponse.json({ message: "Post not found" }, { status: 404 });
     }
 
-    // Only post owner can delete
     if (post.user.toString() !== session.user.id) {
       return NextResponse.json({ message: "You are not allowed to delete this post" }, { status: 403 });
     }

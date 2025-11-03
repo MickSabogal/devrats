@@ -42,7 +42,6 @@ export default function GroupChatPage() {
     showButton = false
   ) => setAlert({ isOpen: true, title, message, type, autoClose, showButton });
 
-  // Fetch user
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -57,7 +56,6 @@ export default function GroupChatPage() {
     fetchUser();
   }, []);
 
-  // Fetch messages
   const fetchMessages = async () => {
     try {
       const res = await fetch(`/api/group/${id}/chat`);
@@ -76,18 +74,15 @@ export default function GroupChatPage() {
   useEffect(() => {
     if (id) {
       fetchMessages();
-      // Poll for new messages every 3 seconds
       const interval = setInterval(fetchMessages, 3000);
       return () => clearInterval(interval);
     }
   }, [id]);
 
-  // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Auto-resize textarea
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";

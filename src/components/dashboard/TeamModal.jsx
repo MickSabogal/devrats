@@ -13,7 +13,6 @@ export default function TeamModal({ isOpen, onClose, teamMembers }) {
       />
 
       <div className="relative w-full max-w-2xl bg-primary rounded-3xl shadow-2xl overflow-hidden border border-green-500/30 max-h-[85vh] flex flex-col">
-        {/* Header com gradiente */}
         <div className="relative bg-gradient-to-r from-green-600 to-emerald-600 p-6">
           <div className="flex items-center justify-between">
             <div>
@@ -37,7 +36,6 @@ export default function TeamModal({ isOpen, onClose, teamMembers }) {
               className="group bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-2xl p-4 border border-gray-700/50 hover:border-green-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/10"
             >
               <div className="flex items-center gap-4">
-                {/* Left: Photo + Info */}
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <div className="relative flex-shrink-0">
                     <img

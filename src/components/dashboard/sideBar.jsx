@@ -22,7 +22,6 @@ export default function Sidebar({ isOpen, onClose, user }) {
   const [groups, setGroups] = useState([]);
   const [loadingGroups, setLoadingGroups] = useState(true);
 
-  // Fetch groups immediately on mount (não depende de isOpen)
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -40,13 +39,12 @@ export default function Sidebar({ isOpen, onClose, user }) {
     };
 
     fetchGroups();
-  }, []); // ✅ Carrega uma vez no início, sem depender de isOpen
+  }, []);
 
   const handleGroupCreated = (newGroup) => {
     setGroups((prev) => [newGroup, ...prev]);
     setIsCreateGroupModalOpen(false);
     onClose();
-    // Pequeno delay para garantir que a sidebar fecha antes de navegar
     setTimeout(() => {
       router.push(`/dashboard/groups/${newGroup._id}/dashboard`);
     }, 100);
@@ -96,19 +94,27 @@ export default function Sidebar({ isOpen, onClose, user }) {
             className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-white/10 transition-colors"
             onClick={onClose}
           >
-            <Avatar src={user?.avatar} name={user?.name} size={76} />
+            <div className="relative p-0 rounded-full border-2 border-green-500">
+              <div className="absolute inset-0 rounded-full bg-green-500/30 blur-xl -z-10" />
+              <Avatar
+                src={user?.avatar}
+                name={user?.name}
+                size={76}
+                className="relative rounded-full"
+              />
+            </div>
             <div className="flex-1 min-w-0">
               <p className="text-base font-medium text-primary truncate">
                 {user?.name || "Loading..."}
               </p>
-              <p className="text-sm text-secondary">View profile</p>
+              <p className="text-sm text-third">View profile</p>
             </div>
           </Link>
         </div>
 
         <div className="flex flex-col h-[calc(100%-260px)] overflow-y-auto px-3">
           <div className="mb-4">
-            <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-2 px-2">
+            <p className="text-xs text-third font-semibold text-muted uppercase tracking-wider mb-2 px-2">
               Groups
             </p>
             <ul className="space-y-0.5">
@@ -138,14 +144,23 @@ export default function Sidebar({ isOpen, onClose, user }) {
                   </li>
                 ))
               ) : (
-                <p className="text-sm text-muted px-3 py-2">
-                  No groups found.
-                </p>
+                <p className="text-sm text-muted px-3 py-2">No groups found.</p>
               )}
             </ul>
           </div>
 
-          <div className="h-px bg-border my-3"></div>
+          <div
+            className="
+    h-1 
+    bg-green-500 
+    rounded-full
+    shadow-2xl shadow-green-500/50
+    my-3
+    hover:scale-110
+    active:scale-95
+    transition-all duration-200
+  "
+          ></div>
 
           <ul className="space-y-0.5 flex-1">
             <li>

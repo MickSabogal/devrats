@@ -86,7 +86,6 @@ export const authOptions = {
                         };
 
                         mongoUser = await User.create(userData);
-                        console.log("✅ Novo usuário OAuth criado:", mongoUser.email);
                     } else {
                         if (avatarUrl && mongoUser.avatar !== avatarUrl) {
                             mongoUser.avatar = avatarUrl;
@@ -98,7 +97,6 @@ export const authOptions = {
                         }
                         
                         await mongoUser.save();
-                        console.log("✅ Usuário OAuth existente logou:", mongoUser.email);
                     }
                     
                     user.id = mongoUser._id.toString();

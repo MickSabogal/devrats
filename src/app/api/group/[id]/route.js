@@ -9,7 +9,6 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '../../auth/[...nextauth]/route';
 import { uploadToCloudinary, deleteFromCloudinary, extractPublicId } from '@/lib/cloudinary';
 
-// GET — Get details of a single group
 export async function GET(req, { params }) {
   try {
     await connectDB();
@@ -30,7 +29,6 @@ export async function GET(req, { params }) {
   }
 }
 
-// PATCH — Update group info partially (or remove member)
 export async function PATCH(req, { params }) {
   try {
     const session = await getServerSession(authOptions);
@@ -51,7 +49,6 @@ export async function PATCH(req, { params }) {
     if (group.admin.toString() !== userId)
       return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
 
-    // Update basic fields
     if (!action) {
       if (name) group.name = name;
       if (description) group.description = description;
@@ -73,11 +70,9 @@ export async function PATCH(req, { params }) {
       }
     }
 
-    // ✅ REMOVE MEMBER ACTION
     if (action === 'remove-member' && memberId) {
       group.members = group.members.filter(m => m.user.toString() !== memberId);
       
-      // ✅ REMOVER GRUPO DO USUÁRIO TAMBÉM
       await User.findByIdAndUpdate(memberId, {
         $pull: { userGroups: group._id }
       });
@@ -97,7 +92,6 @@ export async function PATCH(req, { params }) {
   }
 }
 
-// PUT — Add a member to the group
 export async function PUT(req, { params }) {
   try {
     const session = await getServerSession(authOptions);
@@ -132,7 +126,6 @@ export async function PUT(req, { params }) {
   }
 }
 
-// DELETE — Delete a group
 export async function DELETE(req, { params }) {
   try {
     const session = await getServerSession(authOptions);
@@ -149,40 +142,28 @@ export async function DELETE(req, { params }) {
     if (group.admin.toString() !== session.user.id)
       return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
 
-    console.log("🗑️ Deleting group:", group.name);
-
-    // ✅ 1. Deletar cover do Cloudinary (se existir)
     if (group.coverPicture) {
       const publicId = extractPublicId(group.coverPicture);
       if (publicId) {
-        console.log("🗑️ Deleting cover from Cloudinary:", publicId);
         await deleteFromCloudinary(publicId);
       }
     }
 
-    // ✅ 2. Deletar todas as imagens dos posts do Cloudinary
     const posts = await Post.find({ group: id });
-    console.log(`🗑️ Found ${posts.length} posts to delete`);
     
     for (const post of posts) {
       if (post.image) {
         const postPublicId = extractPublicId(post.image);
         if (postPublicId) {
-          console.log("🗑️ Deleting post image from Cloudinary:", postPublicId);
           await deleteFromCloudinary(postPublicId);
         }
       }
     }
 
-    // ✅ 3. Deletar todos os posts do grupo
     await Post.deleteMany({ group: id });
-    console.log("✅ Posts deleted");
 
-    // ✅ 4. Deletar todas as mensagens do grupo
     await Message.deleteMany({ group: id });
-    console.log("✅ Messages deleted");
 
-    // ✅ 5. Remover o grupo de todos os usuários
     await User.updateMany(
       { userGroups: id },
       { 
@@ -190,18 +171,13 @@ export async function DELETE(req, { params }) {
         $unset: { [`groupStreaks.${id}`]: "" }
       }
     );
-    console.log("✅ Group removed from users");
 
-    // ✅ 6. Resetar activeGroup se for esse grupo
     await User.updateMany(
       { activeGroup: id },
       { $set: { activeGroup: null } }
     );
-    console.log("✅ Active groups reset");
 
-    // ✅ 7. Finalmente, deletar o grupo
     await group.deleteOne();
-    console.log("✅ Group deleted successfully");
 
     return NextResponse.json({ message: "Group deleted successfully" }, { status: 200 });
   } catch (err) {
