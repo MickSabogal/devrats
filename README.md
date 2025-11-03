@@ -1,8 +1,6 @@
 <div align="center">
   <img src="public/images/logo_devrats.png" alt="DevRats Logo" width="200"/>
-  
-  # 🐭 DevRats
-  
+    
   ### *Where Coding Becomes a Habit, Not a Sprint*
   
   [![Next.js](https://img.shields.io/badge/Next.js-15.5.6-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
